@@ -76,3 +76,7 @@ class NNote (threading.Thread):
         while self.running:
             self.getActivation()
         return
+
+    def testing(self):
+        print "YummiYammi"
+        
