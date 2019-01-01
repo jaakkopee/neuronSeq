@@ -7,7 +7,7 @@ import math
 midiout = nnmidiout.NNMidiOut()
 
 class NNote (threading.Thread):
-    def __init__(self, note=60, velocity=100, duration = 0.5, notename="midinote", transferFunction="linear"):
+    def __init__(self, note=60, velocity=100, duration = 0.2, notename="midinote", transferFunction="linear"):
         threading.Thread.__init__(self)
 
         self.notename = notename #for debugging mainly
@@ -20,8 +20,8 @@ class NNote (threading.Thread):
 
         #NN settings
         self.activation = 0.0
-        self.addToCounter = 0.001
-        self.threshold = 6666.6
+        self.addToCounter = 0.0001
+        self.threshold = 1.0
         self.connections = [] #connections and weights
 
         self.tfunc = transferFunction
@@ -29,7 +29,7 @@ class NNote (threading.Thread):
         #Operational settings
         self.running = True
         
-    def setNote(self, note=60 , velocity=100, duration=0.5):
+    def setNote(self, note=60 , velocity=100, duration=0.2):
         self.note_on = mido.Message('note_on', channel=0, note = note, velocity = velocity).bytes()
         self.note_length = duration
         self.note_off = mido.Message('note_off', note = note).bytes()
@@ -48,17 +48,17 @@ class NNote (threading.Thread):
             return 0.0 #to be implemented!!!! possibly have to scale activation to 0.0 ... 1.0
 
         if self.tfunc == "heaviside":
-            if input > self.threshold/2:
+            if input > self.threshold/2: #something wrong here...
                 return self.threshold
             else: return 0.0
 
         return 0.0
     
     def bang(self):
+        self.activation = 0.0
         midiout.send_message(self.note_on)
         time.sleep(self.note_length)
         midiout.send_message(self.note_off)
-        self.activation = 0.0
         return
     
     def runSwitch(self, runner):
@@ -78,7 +78,7 @@ class NNote (threading.Thread):
         self.connections[connectionIndex][1] = newWeight
         return
     
-    def setNNParams(self, activation = 0.0, addToCounter = 0.001, threshold=6666.6):
+    def setNNParams(self, activation = 0.0, addToCounter = 0.0001, threshold=1.0):
         self.activation = activation
         self.addToCounter = addToCounter
         self.threshold = threshold
@@ -99,9 +99,7 @@ class NNote (threading.Thread):
             #bang is in a new thread so that calculating activation continues
             num_threads = threading.activeCount()
 
-            #threads are limited to conserve memory
-            #and to filter NN:s output from too many strikes at one instant
-            if num_threads < 10:
+            if num_threads < 2000:
                 t1 = threading.Thread(target = self.bang)
                 t1.start()
             
