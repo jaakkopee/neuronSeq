@@ -1,11 +1,11 @@
 # neuronSeq
-A MIDI sequencer based on a real time oscillating neural network
-(c) Jaakko Prättälä 2019, use as you wish.
-Based on the ideas of motion patterns and the MINN-network in the doctoral thesis of Pauli Laine.
+A MIDI sequencer based on a real time oscillating neural network \n
+(c) Jaakko Prättälä 2019, use as you wish. \n
+Based on the ideas of motion patterns and the MINN-network in the doctoral thesis of Pauli Laine. \n
 
-What is neuronSeq?
--- A one class (neuronSeq.NNote) implementation of a neural network that outputs MIDI data.
--- neuronSeq can be connected to send real time event data to anything that reads MIDI.
+What is neuronSeq? \n
+-- A one class (neuronSeq.NNote) implementation of a neural network that outputs MIDI data. \n
+-- neuronSeq can be connected to send real time event data to anything that reads MIDI. \n
 -- An exploration of the oscillation/resonance model of music and mind.
 -- Whole lot of psychedelic fun.
 
