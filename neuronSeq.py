@@ -15,7 +15,7 @@ class NNote (threading.Thread):
         #MIDI settings
         #velocity and duration will be set by the NN ... possibly ... we'll see
         self.note_on = mido.Message('note_on', channel=0, note = note, velocity = velocity).bytes()
-        self.note_off = mido.Message('note_off', note = note).bytes()
+        self.note_off = mido.Message('note_off', channel=0, note = note, velocity=0).bytes()
         self.note_length = duration
 
         #NN settings
@@ -32,7 +32,7 @@ class NNote (threading.Thread):
     def setNote(self, note=60 , velocity=100, duration=0.2):
         self.note_on = mido.Message('note_on', channel=0, note = note, velocity = velocity).bytes()
         self.note_length = duration
-        self.note_off = mido.Message('note_off', note = note).bytes()
+        self.note_off = mido.Message('note_off', channel=0, note = note, velocity=0).bytes()
         return
 
     def setTransferFunction(self, tf = "linear"):
