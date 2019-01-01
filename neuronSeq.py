@@ -10,7 +10,7 @@ class NNote (threading.Thread):
     def __init__(self, note=60, velocity=100, duration = 0.2, notename="midinote", transferFunction="linear"):
         threading.Thread.__init__(self)
 
-        self.notename = notename #for debugging mainly
+        self.notename = notename
         
         #MIDI settings
         #velocity and duration will be set by the NN ... possibly ... we'll see
@@ -56,9 +56,8 @@ class NNote (threading.Thread):
     
     def bang(self):
         #when a neuron reaches threshold, e.g. fires, two things happen:
-        #first, activation is set 0.0
+        #first, activation is set 0.0 (in getActivation())
         #second, a MIDI note is played
-        self.activation = 0.0
         midiout.send_message(self.note_on)
         time.sleep(self.note_length)
         midiout.send_message(self.note_off)
@@ -98,11 +97,12 @@ class NNote (threading.Thread):
         outputValue = self.transferFunction() #transfer functions do not work atm. use "linear".
                 
         if outputValue >= self.threshold:
-            
+            #here instead of in  bang() so that a new check for threshold doesn't happen before this setting
+            self.activation = 0.0 
             num_threads = threading.activeCount()
             
             #set max threads here. can be used to filter out overflowing bangs with smaller values
-            #try 10 or so for example.
+            #like 10 or so for example.
             if num_threads < 2000:
                 #bang is in a new thread so that calculating activation continues
                 t1 = threading.Thread(target = self.bang)
