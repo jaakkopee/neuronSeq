@@ -68,5 +68,5 @@ hardware synthesizers and drum machines.
 
 
 Check out file neuronSeqRun.py for usage examples. NNote-class is in neuronSeq.py.
-NNoteTestRend01.mp3 is an audio file that contains 2 minutes of NNote output to a drum sample set in Ableton.
+NNoteTestRend02.mp3 at https://app.box.com/s/52pnnul1wz0600o34o55vq85gczji47l is an audio file that contains 2 minutes of NNote output to a drum sample set in Ableton.
 
