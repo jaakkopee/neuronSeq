@@ -7,7 +7,7 @@ import math
 midiout = nnmidiout.NNMidiOut()
 
 class NNote (threading.Thread):
-    def __init__(self, note=60, velocity=100, duration = 0.5, notename="midinote"):
+    def __init__(self, note=60, velocity=100, duration = 0.5, notename="midinote", transferFunction="linear"):
         threading.Thread.__init__(self)
 
         self.notename = notename #for debugging mainly
@@ -24,7 +24,7 @@ class NNote (threading.Thread):
         self.threshold = 6666.6
         self.connections = [] #connections and weights
 
-        self.tfunc = "linear"
+        self.tfunc = transferFunction
 
         #Operational settings
         self.running = True
@@ -45,7 +45,7 @@ class NNote (threading.Thread):
             return input
 
         if self.tfunc == "sigmoid":
-            return 0.0 #to be implemented!!!!
+            return 0.0 #to be implemented!!!! possibly have to scale activation to 0.0 ... 1.0
 
         if self.tfunc == "heaviside":
             if input > self.threshold/2:

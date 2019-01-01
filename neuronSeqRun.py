@@ -26,7 +26,7 @@ nnote2.start()
 nnote1_1.start()
 nnote1_2.start()
 
-time.sleep(60.0)
+time.sleep(120.0)
 
 nnote1.stopSeq()
 nnote2.stopSeq()
