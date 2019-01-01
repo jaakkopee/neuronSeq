@@ -43,8 +43,8 @@ What is required?
 What does it do?
 
 
--- neuronSeq's class NNote implements a class that mimics the actions of a nerve cell.
-   It fires when a threshold is reached by an ever ascending activation counter. As it fires,
+-- neuronSeq's NNote objects implement a class that mimic the actions of a nerve cell.
+   They fire when a threshold is reached by an ever ascending activation counter. As NNote fires,
    a MIDI event is produced and activation is reset to 0.0.
    NNotes can be connected to other NNotes. Connected NNotes modulate each other's activation value
    via a weighed connection to create simultaneous (positive weight in connection)
@@ -71,7 +71,7 @@ What does it do?
 
 
 I use neuronSeq in mac os x. To do this in this environment, you need the Jack Audio Connection Kit,
-or other a program that can pass MIDI events to a MIDI-eating piece of hard or software.
+or other program that can pass MIDI events to a MIDI-eating piece of hard or software.
 I send NNote output to Ableton Live via Jack but data can be sent to any MIDI-capable piece of equipment, also
 hardware synthesizers and drum machines.
 
