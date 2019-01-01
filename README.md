@@ -32,6 +32,7 @@ What is neuronSeq?
 What is required?
 
 -- Programming language python, libraries rtmidi and mido.
+Also, a MIDI router or interface and some syntheziser or drum machine, soft or hard.
 
 -- Patience.
 
