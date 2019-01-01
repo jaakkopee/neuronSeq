@@ -9,6 +9,10 @@ A MIDI sequencer based on a real time oscillating neural network
 
 Based on the ideas of motion patterns and the MINN-network in the doctoral thesis of Pauli Laine.
 
+
+
+
+
 What is neuronSeq?
 
 -- A one class (neuronSeq.NNote) implementation of a neural network that outputs MIDI data.
@@ -23,20 +27,23 @@ What is neuronSeq?
 
 
 
-What is required?
 
+
+What is required?
 
 -- Programming language python, libraries rtmidi and mido.
 
-
 -- Patience.
+
+
+
 
 
 
 What does it do?
 
 
--- neuronSeq's NNote-class implements an object that mimics the actions of a nerve cell.
+-- neuronSeq's class NNote implements a class that mimics the actions of a nerve cell.
    It fires when a threshold is reached by an ever ascending activation counter. As it fires,
    a MIDI event is produced and activation is reset to 0.0.
    NNotes can be connected to other NNotes. Connected NNotes modulate each other's activation value
@@ -60,6 +67,9 @@ What does it do?
    
 
 
+
+
+
 I use neuronSeq in mac os x. To do this in this environment, you need the Jack Audio Connection Kit,
 or other a program that can pass MIDI events to a MIDI-eating piece of hard or software.
 I send NNote output to Ableton Live via Jack but data can be sent to any MIDI-capable piece of equipment, also
@@ -68,5 +78,6 @@ hardware synthesizers and drum machines.
 
 
 Check out file neuronSeqRun.py for usage examples. NNote-class is in neuronSeq.py.
-NNoteTestRend02.mp3 at https://app.box.com/s/52pnnul1wz0600o34o55vq85gczji47l is an audio file that contains 2 minutes of NNote output to a drum sample set in Ableton.
+NNoteTestRend02.mp3 at https://app.box.com/s/52pnnul1wz0600o34o55vq85gczji47l
+is an audio file that contains 2 minutes of NNote output to a drum sample set in Ableton.
 
