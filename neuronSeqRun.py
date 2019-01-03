@@ -28,9 +28,10 @@ nnote1_2.setNNParams(0.0, 0.00001, 1.0)
 #creates alternating patterns, as the connected neurons
 #do not want to bang at the same time
 
-#   parameters are: source NNote and connection strength
+#   parameters are: source NNote, inward connection strength
+#                                 and outward connection strength
 # vv-- target NNote is the caller
-nnote1.addConnection(nnote2, 0.000006)
+nnote1.addConnection(nnote2, -0.000006, -0.00001)
 nnote1_1.addConnection(nnote2, -0.000008)
 nnote1_2.addConnection(nnote1_1, 0.00001)
 nnote1.addConnection(nnote1_2, -0.000001)

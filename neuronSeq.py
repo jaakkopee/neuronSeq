@@ -23,7 +23,7 @@ class NNote (threading.Thread):
         self.activation = 0.0
         self.addToCounter = 0.0001
         self.threshold = 1.0
-        self.connections = [] #connections and weights
+        self.connections = [] #connections from and weights
 
         self.tfunc = transferFunction
 
@@ -73,19 +73,24 @@ class NNote (threading.Thread):
         self.running = False
         return
     
-    def addConnection(self, nnote, strength):
-        self.connections += [[nnote, strength]]
+    def addConnection(self, nnote, inConnWeight, outConnWeight = 0.0):
+        self.connections += [[nnote, inConnWeight, outConnWeight]]
         #print self.name +": "+ str(self.connections)
         return
 
-    def setConnectionWeight(self, connectionIndex, newWeight):
-        self.connections[connectionIndex][1] = newWeight
+    def setConnectionWeight(self, connectionIndex, newInConnWeight, newOutConnWeight = 0.0):
+        self.connections[connectionIndex][1] = newInConnWeight
+        self.connections[connectionIndex][2] = newOutConnWeight
         return
     
     def setNNParams(self, activation = 0.0, addToCounter = 0.0001, threshold=1.0):
         self.activation = activation
         self.addToCounter = addToCounter
         self.threshold = threshold
+        return
+
+    def setActivation(self, newActivation):
+        self.activation = newActivation
         return
     
     def getActivation(self):
@@ -99,6 +104,17 @@ class NNote (threading.Thread):
             for i in self.connections:
                 self.activation += i[0].getActivation() * i[1]
 
+                #set outward connections activation (A bubblegum fix... don't know if this is valid)
+                if (i[2]):
+                    i[0].setActivation(i[0].addToCounter + i[2] * i[0].activation)
+                    outputValueA = i[0].transferFunction()
+                    if (outputValueA >= i[0].threshold):
+                        i[0].setActivation(0.0)
+                        num_threads = threading.activeCount()
+                        if num_threads < 2000:
+                            t0 = threading.Thread(target = i[0].bang)
+                            t0.start()            
+                
         #activation is fed to a transfer function
         outputValue = self.transferFunction() #transfer functions do not work atm. use "linear".
                 
