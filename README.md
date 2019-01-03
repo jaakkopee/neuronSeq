@@ -8,7 +8,8 @@ A MIDI sequencer based on a real time oscillating neural network
 
 
 Based on the ideas of motion patterns and the MINN-network in the doctoral thesis of Pauli Laine.
-
+MINN-network is based on two-way connections between neurons. At the moment neuronSeq supports only
+one-way connections, but I'm working on it.
 
 
 
