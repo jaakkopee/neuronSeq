@@ -104,7 +104,7 @@ class NNote (threading.Thread):
             for i in self.connections:
                 self.activation += i[0].getActivation() * i[1]
 
-                #set outward connections activation (A bubblegum fix... don't know if this is valid)
+                #set outward connection's activation (A bubblegum fix... don't know if this is valid)
                 if (i[2]):
                     i[0].setActivation(i[0].addToCounter + i[2] * i[0].activation)
                     outputValueA = i[0].transferFunction()
@@ -114,24 +114,37 @@ class NNote (threading.Thread):
                         if num_threads < 2000:
                             t0 = threading.Thread(target = i[0].bang)
                             t0.start()            
-                
-        #activation is fed to a transfer function
-        outputValue = self.transferFunction() #transfer functions do not work atm. use "linear".
-                
-        if outputValue >= self.threshold: #check if neuron is supposed to fire
-            #activation is set to zero here instead of in  bang()
-            #so that a new check for threshold doesn't happen before this.
-            self.activation = 0.0 #FIRE! part 1
+
+                if (i[1]):
+                    #activation is fed to a transfer function
+                    outputValue = self.transferFunction() #transfer functions do not work atm. use "linear".
             
-            num_threads = threading.activeCount()
+                    if outputValue >= self.threshold: #check if neuron is supposed to fire
+                        #activation is set to zero here instead of in  bang()
+                        #so that a new check for threshold doesn't happen before this.
+                        self.activation = 0.0 #FIRE! part 1
             
-            #set max threads here. can be used to filter out overflowing bangs with smaller values
-            #like 10 or so for example. also helps if the operating systems maximum threads per process is reached
-            if num_threads < 2000:
-                #bang is in a new thread so that calculating activation continues
-                t1 = threading.Thread(target = self.bang)
-                t1.start() #FIRE! part 2
+                        num_threads = threading.activeCount()
             
+                        #set max threads here. can be used to filter out overflowing bangs with smaller values
+                        #like 10 or so for example. also helps
+                        #if the operating systems maximum threads per process is reached
+                        if num_threads < 2000:
+                            #bang is in a new thread so that calculating activation continues
+                            t1 = threading.Thread(target = self.bang)
+                            t1.start() #FIRE! part 2
+                            
+
+        if not self.connections:           
+            outputValue = self.transferFunction()
+            
+            if outputValue >= self.threshold:               
+                self.activation = 0.0            
+                num_threads = threading.activeCount()
+                if num_threads < 2000:        
+                    t1 = threading.Thread(target = self.bang)
+                    t1.start() 
+
         return self.activation
     
     def cleanup(self):
