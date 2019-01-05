@@ -52,13 +52,14 @@ class Connection (threading.Thread):
 
 
 class NNote:
-    def __init__(self, note=60, velocity=100, duration = 0.2, notename="midinote"):
+    def __init__(self, note=60, velocity=100, duration = 0.2, notename="midinote", channel = 0):
         self.notename = notename
         
         #MIDI settings
         #velocity and duration will be set by the NN ... possibly ... we'll see
-        self.note_on = mido.Message('note_on', channel=0, note = note, velocity = velocity).bytes()
-        self.note_off = mido.Message('note_off', channel=0, note = note, velocity=0).bytes()
+        self.channel = channel
+        self.note_on = mido.Message('note_on', channel=self.channel, note = note, velocity = velocity).bytes()
+        self.note_off = mido.Message('note_off', channel=self.channel, note = note, velocity=0).bytes()
         self.note_length = duration
 
         #NN settings
