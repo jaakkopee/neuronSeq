@@ -38,7 +38,7 @@ Also, a MIDI router or interface and some syntheziser or drum machine, soft or h
 What does it do?
 
 
--- neuronSeq's NNote and objects implement a class that mimic the actions of a nerve cell.
+-- neuronSeq's NNote objects implement a class that mimic the actions of a nerve cell.
    They fire when a threshold is reached by an ever ascending activation counter. As NNote fires,
    a MIDI event is produced and activation is reset to 0.0.
    NNotes can be connected to other NNotes. Connected NNotes modulate each other's activation value
