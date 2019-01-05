@@ -71,9 +71,6 @@ class NNote:
         return
     
     def bang(self):
-        #when a neuron reaches threshold, e.g. fires, two things happen:
-        #first, activation is set 0.0 (in getActivation())
-        #second, a MIDI note is played (here)
         midiout.send_message(self.note_on)
         time.sleep(self.note_length)
         midiout.send_message(self.note_off)
