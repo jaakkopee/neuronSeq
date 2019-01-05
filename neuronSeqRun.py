@@ -22,7 +22,7 @@ conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
 conn3 = neuronSeq.Connection(snare2, snare, 0.00000018, -0.00000023)
 #one-way connection
 conn4 = neuronSeq.Connection(hihat , kick, 0.0008252, 0.0) 
-#oscillation without weights
+#free oscillation
 conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
 
 conn1.start()

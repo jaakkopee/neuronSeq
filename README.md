@@ -74,3 +74,5 @@ hardware synthesizers and drum machines.
 
 
 Check out file neuronSeqRun.py for usage examples. Classes NNote and Connection are in neuronSeq.py.
+NNoteTest2.mp3 at https://app.box.com/s/542a8aeb2z5sp37116mwuwe51l35m2rt contains some recorded output of
+neuronSeq.
