@@ -12,16 +12,13 @@ Based on the ideas of motion patterns and the MINN-network in the doctoral thesi
 
 What is neuronSeq?
 
--- A one class (neuronSeq.NNote) implementation of a neural network that outputs MIDI data.
+-- An implementation of a neural network that outputs MIDI data.
 
 -- neuronSeq can be connected to send real time event data to anything that reads MIDI.
 
 -- An exploration of the oscillation/resonance model of music and mind.
 
 -- Whole lot of psychedelic fun.
-
-
-
 
 
 
@@ -41,7 +38,7 @@ Also, a MIDI router or interface and some syntheziser or drum machine, soft or h
 What does it do?
 
 
--- neuronSeq's NNote objects implement a class that mimic the actions of a nerve cell.
+-- neuronSeq's NNote and objects implement a class that mimic the actions of a nerve cell.
    They fire when a threshold is reached by an ever ascending activation counter. As NNote fires,
    a MIDI event is produced and activation is reset to 0.0.
    NNotes can be connected to other NNotes. Connected NNotes modulate each other's activation value
@@ -49,6 +46,7 @@ What does it do?
    or fluctuating patterns (negative weight in connection). These +/- connections
    are essentially the modes of operation needed to make anything musical.
 
+-- Connection objects in neuronSeq model a neuron to neuron weighed connection.
 
 -- Implements a model of sequencing musical events without a central timer. NNotes are bound to only their activation
    and the activation of their connected NNotes, not to a central clock that would specify tempo, quantization, groove
@@ -75,7 +73,4 @@ hardware synthesizers and drum machines.
 
 
 
-Check out file neuronSeqRun.py for usage examples. NNote-class is in neuronSeq.py.
-NNoteTestRend02.mp3 at https://app.box.com/s/52pnnul1wz0600o34o55vq85gczji47l
-is an audio file that contains 2 minutes of NNote output to a drum sample set in Ableton.
-
+Check out file neuronSeqRun.py for usage examples. Classes NNote and Connection are in neuronSeq.py.

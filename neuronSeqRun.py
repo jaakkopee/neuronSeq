@@ -4,60 +4,41 @@ import time
 #construct objects and assign midi notes to them.
 #the note is played when the neuron fires
 #(or bangs, as I like to call it)
-nnote1 = neuronSeq.NNote(note=52, duration = 0.05)
-nnote2 = neuronSeq.NNote(note=61, duration = 0.05)
-nnote1_1 = neuronSeq.NNote(note=62, duration = 0.05)
-nnote1_2 = neuronSeq.NNote(note=48, duration = 0.05)
-
-#DBG:
-#print nnote1.note_on
-#print nnote1.note_off
-
+kick = neuronSeq.NNote(note=52, duration = 0.05)
+snare = neuronSeq.NNote(note=53, duration = 0.05)
+snare2 = neuronSeq.NNote(note = 55, duration = 0.05)
+hihat = neuronSeq.NNote(note = 42, duration = 0.05, velocity = 64)
 
 #set neural network parameters
 #    being: starting activation, activation increase per iteration
 #                            and threshold
-nnote1.setNNParams(0.0, 0.00001, 1.0)
-nnote2.setNNParams(0.0, 0.00001, 1.0)
-nnote1_1.setNNParams(0.5, 0.00001, 1.0)
-nnote1_2.setNNParams(0.0, 0.00001, 1.0)
+kick.setNNParams(0.0, 0.00000199995, 1.0)
+snare.setNNParams(0.0, 0.0000008999, 1.0)
+snare2.setNNParams(0.5, 0.0000020295, 1.0)
+hihat.setNNParams(0.0, 0.0000619, 1.0)
 
-#subtle modulation is quite enough to get nice patterns
-#positive values exhibit and neagtive values inhibit
-#exhibition leads to simultaneous bangs and inhibition
-#creates alternating patterns, as the connected neurons
-#do not want to bang at the same time
+conn1 = neuronSeq.Connection(kick, snare, -0.00000018, -0.000000186)
+conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
+conn3 = neuronSeq.Connection(snare2, snare, 0.00000018, -0.00000023)
+conn4 = neuronSeq.Connection(hihat , kick, 0.0008252, 0.000026116)
 
-#   parameters are: source NNote, inward connection strength
-#                                 and outward connection strength
-# vv-- target NNote is the caller
-nnote1.addConnection(nnote2, -0.000006, -0.00001)
-nnote1_1.addConnection(nnote2, -0.000008)
-nnote1_2.addConnection(nnote1_1, 0.00001)
-nnote1.addConnection(nnote1_2, -0.000001)
+conn1.start()
+conn2.start()
+conn3.start()
+conn4.start()
 
-#starts the activation-threshold-bang-loops
-nnote1.start()
-nnote2.start()
-nnote1_1.start()
-nnote1_2.start()
+time.sleep(30.0)#playing time in seconds
 
-time.sleep(12.0)#playing time in seconds
+conn1.stopSeq()
+conn2.stopSeq()
+conn3.stopSeq()
+conn4.stopSeq()
 
-#without stopSeq(), the loop goes on forever
-nnote1.stopSeq()
-nnote2.stopSeq()
-nnote1_1.stopSeq()
-nnote1_2.stopSeq()
+conn1.join()
+conn2.join()
+conn3.join()
+conn4.join()
 
-#wait for threads to finish
-nnote1.join()
-nnote2.join()
-nnote1_1.join()
-nnote1_2.join()
+time.sleep(2)
 
-#cleanup() closes the midiport for all NNotes
-#so only one call is enough. It doesn't matter which neuron owns
-#the called cleanup()
-nnote1.cleanup()
-
+conn1.cleanup() #closes midiport, global
