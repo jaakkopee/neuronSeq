@@ -19,7 +19,7 @@ snare.setNNParams(0.0, 0.0000018999, 1.0)
 snare2.setNNParams(0.5, 0.0000020295, 1.0)
 hihat.setNNParams(0.0, 0.0000619, 1.0)
 
-#two-way connections. +/- exites/inhibits
+#two-way connections. +/- excites/inhibits
 #+ results to simultaneous and - to alternating
 conn1 = neuronSeq.Connection(kick, snare, -0.00000018, -0.000000186)
 conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
@@ -41,7 +41,7 @@ conn3.start()
 conn4.start()
 conn5.start()
 
-time.sleep(30.0)#playing time in seconds
+time.sleep(60.0)#playing time in seconds
 
 conn1.stopSeq()
 conn2.stopSeq()
