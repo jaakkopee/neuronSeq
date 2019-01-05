@@ -12,6 +12,8 @@ hihat = neuronSeq.NNote(note = 42, duration = 0.05, velocity = 64)
 #set neural network parameters
 #    being: starting activation, activation increase per iteration
 #                            and threshold
+#The smaller the activation increase (addToCounter) -value,
+#the slower the oscillation.
 kick.setNNParams(0.0, 0.00000199995, 1.0)
 snare.setNNParams(0.0, 0.0000008999, 1.0)
 snare2.setNNParams(0.5, 0.0000020295, 1.0)
@@ -22,7 +24,7 @@ conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
 conn3 = neuronSeq.Connection(snare2, snare, 0.00000018, -0.00000023)
 #one-way connection
 conn4 = neuronSeq.Connection(hihat , kick, 0.0008252, 0.0) 
-#free oscillation
+#free oscillation (adds to total oscillation)
 conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
 
 conn1.start()
