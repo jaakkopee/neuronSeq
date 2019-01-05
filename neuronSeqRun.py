@@ -6,7 +6,7 @@ import time
 #(or bangs, as I like to call it)
 kick = neuronSeq.NNote(note=52, duration = 0.05)
 snare = neuronSeq.NNote(note=53, duration = 0.05)
-snare2 = neuronSeq.NNote(note = 55, duration = 0.05)
+snare2 = neuronSeq.NNote(note = 55, duration = 0.05, velocity = 127)
 hihat = neuronSeq.NNote(note = 42, duration = 0.05, velocity = 64)
 
 #set neural network parameters
@@ -14,11 +14,13 @@ hihat = neuronSeq.NNote(note = 42, duration = 0.05, velocity = 64)
 #                            and threshold
 #The smaller the activation increase (addToCounter) -value,
 #the slower the oscillation.
-kick.setNNParams(0.0, 0.00000199995, 1.0)
-snare.setNNParams(0.0, 0.0000008999, 1.0)
+kick.setNNParams(0.0, 0.00002199995, 1.0)
+snare.setNNParams(0.0, 0.0000018999, 1.0)
 snare2.setNNParams(0.5, 0.0000020295, 1.0)
 hihat.setNNParams(0.0, 0.0000619, 1.0)
 
+#two-way connections. +/- exites/inhibits
+#+ results to simultaneous and - to alternating
 conn1 = neuronSeq.Connection(kick, snare, -0.00000018, -0.000000186)
 conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
 conn3 = neuronSeq.Connection(snare2, snare, 0.00000018, -0.00000023)
