@@ -67,10 +67,11 @@ class NNote:
         self.addToCounter = 0.0001
         self.threshold = 1.0
         
-    def setNote(self, note=60 , velocity=100, duration=0.2):
-        self.note_on = mido.Message('note_on', channel=0, note = note, velocity = velocity).bytes()
+    def setNote(self, note=60 , velocity=100, duration=0.2, channel = 0):
+        self.channel = channel
+        self.note_on = mido.Message('note_on', channel=self.channel, note = note, velocity = velocity).bytes()
         self.note_length = duration
-        self.note_off = mido.Message('note_off', channel=0, note = note, velocity=0).bytes()
+        self.note_off = mido.Message('note_off', channel=self.channel, note = note, velocity=0).bytes()
         return
     
     def bang(self):

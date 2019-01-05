@@ -21,15 +21,15 @@ hihat.setNNParams(0.0, 0.0000619, 1.0)
 
 #two-way connections. +/- excites/inhibits
 #+ results to simultaneous and - to alternating
-conn1 = neuronSeq.Connection(kick, snare, -0.00000018, -0.000000186)
-conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
-conn3 = neuronSeq.Connection(snare2, snare, 0.00000018, -0.00000023)
+conn1 = neuronSeq.Connection(kick, snare, -0.00000026, -0.000000186)
+conn2 = neuronSeq.Connection(kick, snare2, -0.00000062, -0.000000199)
+conn3 = neuronSeq.Connection(snare2, snare, 0.00000008, -0.00000023)
 
 #one-way connections: set either weight to 0.0, other to >0.0
 conn3_1 = neuronSeq.Connection(snare, snare2, 0.0000000001, 0.0)
 
 #just playing with parameters
-conn4 = neuronSeq.Connection(hihat, kick, 0.0018252, -0.0001) 
+conn4 = neuronSeq.Connection(hihat, kick, 0.002, -0.0001) 
 
 #free oscillation (adds to total oscillation)
 conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
@@ -43,8 +43,8 @@ bass01.setNNParams(0.0, 0.00001, 1.0)
 bass02.setNNParams(0.5, 0.00001, 1.0)
 
 connBass01 = neuronSeq.Connection(bass01, bass02, -0.000001, -0.000001)
-connBass02 = neuronSeq.Connection(bass02, kick, 0.000018, 0.000018)
-connBass03 = neuronSeq.Connection(bass01, kick, 0.000002969, 0.00002969)
+connBass02 = neuronSeq.Connection(bass02, kick, 0.00001, 0.00001)
+connBass03 = neuronSeq.Connection(bass01, kick, 0.000002, 0.000002)
 
 conn1.start()
 conn2.start()
