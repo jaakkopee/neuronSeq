@@ -20,12 +20,16 @@ hihat.setNNParams(0.0, 0.0000619, 1.0)
 conn1 = neuronSeq.Connection(kick, snare, -0.00000018, -0.000000186)
 conn2 = neuronSeq.Connection(kick, snare2, -0.00000002, -0.000000199)
 conn3 = neuronSeq.Connection(snare2, snare, 0.00000018, -0.00000023)
-conn4 = neuronSeq.Connection(hihat , kick, 0.0008252, 0.000026116)
+#one-way connection
+conn4 = neuronSeq.Connection(hihat , kick, 0.0008252, 0.0) 
+#oscillation without weights
+conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
 
 conn1.start()
 conn2.start()
 conn3.start()
 conn4.start()
+conn5.start()
 
 time.sleep(30.0)#playing time in seconds
 
@@ -33,11 +37,13 @@ conn1.stopSeq()
 conn2.stopSeq()
 conn3.stopSeq()
 conn4.stopSeq()
+conn5.stopSeq()
 
 conn1.join()
 conn2.join()
 conn3.join()
 conn4.join()
+conn5.join()
 
 time.sleep(2)
 

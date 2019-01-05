@@ -20,7 +20,7 @@ class Connection (threading.Thread):
        
     def run(self):
         while self.running:
-            #Two-way activation (One-way's are to be implemented)
+            #Two-way activation (One-way: set either weight to 0.0)
             self.note[0].activation += self.note[1].activation * self.weight[0] + self.note[0].addToCounter
             self.note[1].activation += self.note[0].activation * self.weight[1] + self.note[1].addToCounter
             
