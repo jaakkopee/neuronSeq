@@ -39,12 +39,12 @@ conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
 bass01 = neuronSeq.NNote(note = 16, duration = 0.3, velocity = 100, channel = 1)
 bass02 = neuronSeq.NNote(note = 18, duration = 0.3, velocity = 100, channel = 1)
 
-bass01.setNNParams(0.0, 0.0000082, 1.0)
+bass01.setNNParams(0.0, 0.00001, 1.0)
 bass02.setNNParams(0.5, 0.00001, 1.0)
 
-connBass01 = neuronSeq.Connection(bass01, bass02, -0.0000093, -0.0000056)
-connBass02 = neuronSeq.Connection(bass02, kick, 0.000018, 0.0000162)
-connBass03 = neuronSeq.Connection(bass01, kick, 0.00000281, 0.00002969)
+connBass01 = neuronSeq.Connection(bass01, bass02, -0.000001, -0.000001)
+connBass02 = neuronSeq.Connection(bass02, kick, 0.000018, 0.000018)
+connBass03 = neuronSeq.Connection(bass01, kick, 0.000002969, 0.00002969)
 
 conn1.start()
 conn2.start()
