@@ -5,7 +5,7 @@ kick = neuronSeq.NNote(note = 36, velocity = 127, duration = 0.3, channel = 0)
 snare = neuronSeq.NNote(note = 38, velocity = 100, duration = 0.3, channel = 0)
 hihat = neuronSeq.NNote(note = 42, velocity = 83, duration = 0.3, channel = 0)
 
-kick.setNNParams(0.0, 0.000013624, 1.0)
+kick.setNNParams(0.0, 0.000013666, 1.0)
 snare.setNNParams(0.5, 0.00000361213, 1.0)
 hihat.setNNParams(0.1, 0.0000611331, 1.0)
 
@@ -23,9 +23,27 @@ bassConnection00 = neuronSeq.Connection(bass01, bass02, -0.0000001, -0.0000001)
 bassConnection01 = neuronSeq.Connection(bass02, kick, 0.0000001, 0.0000001)
 bassConnection02 = neuronSeq.Connection(bass01, kick, 0.00000002, 0.00000002)
 
+headOne = neuronSeq.NNote(note = 42, velocity = 100, duration = 0.00001, channel = 2)
+dummyPair = neuronSeq.NNote(note= 42, velocity = 0,duration = 0.00001, channel = 2)
 
+headOne.setNNParams(0.0, 0.000013666, 1.0)
+dummyPair.setNNParams(0.0, 0.0, 1.0)
 
+headConnection = neuronSeq.Connection(headOne, dummyPair, 0.0, 0.0)
 
+headConnKick = neuronSeq.Connection(headOne, kick, -0.0001, -0.0001)
+headConnSnare = neuronSeq.Connection(headOne, snare, 0.00001, 0.00001)
+headConnHihat = neuronSeq.Connection(headOne, hihat, 0.00001, 0.00001)
+headConnBass01 = neuronSeq.Connection(headOne, bass01, 0.00001, 0.00001)
+HeadConnBass02 = neuronSeq.Connection(headOne, bass02, 0.00001, 0.00001)
+
+headConnection.start()
+
+headConnKick.start()
+headConnSnare.start()
+headConnHihat.start()
+headConnBass01.start()
+HeadConnBass02.start()
 
 drumConnection00.start()
 drumConnection01.start()
@@ -37,6 +55,14 @@ bassConnection02.start()
 
 time.sleep(60.0)
 
+headConnection.stopSeq()
+
+headConnKick.stopSeq()
+headConnSnare.stopSeq()
+headConnHihat.stopSeq()
+headConnBass01.stopSeq()
+HeadConnBass02.stopSeq()
+
 drumConnection00.stopSeq()
 drumConnection01.stopSeq()
 drumConnection02.stopSeq()
@@ -44,6 +70,14 @@ drumConnection02.stopSeq()
 bassConnection00.stopSeq()
 bassConnection01.stopSeq()
 bassConnection02.stopSeq()
+
+headConnection.join()
+
+headConnKick.join()
+headConnSnare.join()
+headConnHihat.join()
+headConnBass01.join()
+HeadConnBass02.join()
 
 drumConnection00.join()
 drumConnection01.join()
