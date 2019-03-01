@@ -53,7 +53,7 @@ class Connection (threading.Thread):
 
 
 class NNote:
-    def __init__(self, note=60, velocity=100, duration = 0.2, notename="midinote", channel = 0):
+    def __init__(self, note=60, velocity=100, duration = 0.2, notename="midinote", channel = 1):
         self.notename = notename
         
         #MIDI settings
@@ -62,7 +62,13 @@ class NNote:
         tempMessage = rtmidi.MidiMessage()
 
         self.note_on = tempMessage.noteOn(self.channel, note, velocity)
+        self.note_on.setChannel(self.channel)
+        self.note_on.setNoteNumber(note)
+        self.note_on.setVelocity(velocity)
+        
         self.note_off = tempMessage.noteOff(self.channel, note)
+        self.note_off.setChannel(self.channel)
+        self.note_off.setNoteNumber(note)
         
         self.note_length = duration
 
@@ -73,7 +79,7 @@ class NNote:
         
 
 
-    def setNote(self, note=60 , velocity=100, duration=0.2, channel = 0):
+    def setNote(self, note=60 , velocity=100, duration=0.2, channel = 1):
         self.channel = channel
         tempMessage = rtmidi.MidiMessage()
         

@@ -36,8 +36,8 @@ conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
 
 #Bassline on a new channel (channels here are 0,...,15, so channel 1 here
 # is channel 2 in most DAWs)
-bass01 = neuronSeq.NNote(note = 16, duration = 0.3, velocity = 100, channel = 1)
-bass02 = neuronSeq.NNote(note = 18, duration = 0.3, velocity = 100, channel = 1)
+bass01 = neuronSeq.NNote(note = 16, duration = 0.3, velocity = 100, channel = 2)
+bass02 = neuronSeq.NNote(note = 18, duration = 0.3, velocity = 100, channel = 2)
 
 bass01.setNNParams(0.0, 0.00001, 1.0)
 bass02.setNNParams(0.5, 0.00001, 1.0)
