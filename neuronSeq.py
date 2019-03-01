@@ -1,5 +1,6 @@
 import time
 import mido
+import rtmidi
 import threading
 import nnmidiout #connection to rtmidi
 import math
@@ -58,8 +59,11 @@ class NNote:
         #MIDI settings
         #velocity and duration will be set by the NN ... possibly ... we'll see
         self.channel = channel
-        self.note_on = mido.Message('note_on', channel=self.channel, note = note, velocity = velocity).bytes()
-        self.note_off = mido.Message('note_off', channel=self.channel, note = note, velocity=0).bytes()
+        tempMessage = rtmidi.MidiMessage()
+
+        self.note_on = tempMessage.noteOn(self.channel, note, velocity)
+        self.note_off = tempMessage.noteOff(self.channel, note)
+        
         self.note_length = duration
 
         #NN settings
@@ -67,12 +71,16 @@ class NNote:
         self.addToCounter = 0.0001
         self.threshold = 1.0
         
+
+
     def setNote(self, note=60 , velocity=100, duration=0.2, channel = 0):
         self.channel = channel
-        self.note_on = mido.Message('note_on', channel=self.channel, note = note, velocity = velocity).bytes()
+        tempMessage = rtmidi.MidiMessage()
+        
+        self.note_on = tempMessage.noteOn(channel, note, velocity)
         self.note_length = duration
-        self.note_off = mido.Message('note_off', channel=self.channel, note = note, velocity=0).bytes()
-        return
+        self.note_off = tempMessage.noteOff(channel, note)
+    
     
     def bang(self):
         midiout.send_message(self.note_on)
