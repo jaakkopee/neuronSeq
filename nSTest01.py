@@ -1,9 +1,9 @@
 import neuronSeq
 import time
 
-kick = neuronSeq.NNote(note = 36, velocity = 127, duration = 0.3, channel = 0)
-snare = neuronSeq.NNote(note = 38, velocity = 3, duration = 0.3, channel = 0)
-hihat = neuronSeq.NNote(note = 42, velocity = 83, duration = 0.3, channel = 0)
+kick = neuronSeq.NNote(note = 36, velocity = 127, duration = 0.3, channel = 1)
+snare = neuronSeq.NNote(note = 38, velocity = 3, duration = 0.3, channel = 1)
+hihat = neuronSeq.NNote(note = 42, velocity = 83, duration = 0.3, channel = 1)
 
 kick.setNNParams(0.99, 0.00000000000003, 1.0)
 snare.setNNParams(0.6, 0.00000000000000763, 1.0)
@@ -13,8 +13,8 @@ drumConnection00 = neuronSeq.Connection(kick, snare, -0.111, -0.111)
 drumConnection01 = neuronSeq.Connection(kick, hihat, 0.0, -0.0000911)
 drumConnection02 = neuronSeq.Connection(snare, hihat, -0.1, -0.00000111)
 
-bass01 = neuronSeq.NNote(note = 16, duration = 0.6933, velocity = 100, channel = 1)
-bass02 = neuronSeq.NNote(note = 12, duration = 0.689, velocity = 100, channel = 1)
+bass01 = neuronSeq.NNote(note = 16, duration = 0.6933, velocity = 100, channel = 2)
+bass02 = neuronSeq.NNote(note = 12, duration = 0.689, velocity = 100, channel = 2)
 
 bass01.setNNParams(0.0, 0.0000113, 1.0)
 bass02.setNNParams(0.5, 0.0000113, 1.0)
@@ -23,8 +23,8 @@ bassConnection00 = neuronSeq.Connection(bass01, bass02, -0.00000222, -0.00000222
 bassConnection01 = neuronSeq.Connection(bass02, kick, 0.0000000222, 0.0000000222)
 bassConnection02 = neuronSeq.Connection(bass01, kick, 0.0000000222, 0.0000000222)
 
-headOne = neuronSeq.NNote(note = 42, velocity = 0, duration = 0.001, channel = 2)
-dummyPair = neuronSeq.NNote(note= 42, velocity = 0,duration = 0.001, channel = 2)
+headOne = neuronSeq.NNote(note = 42, velocity = 0, duration = 0.001, channel = 3)
+dummyPair = neuronSeq.NNote(note= 42, velocity = 0,duration = 0.001, channel = 3)
 
 headOne.setNNParams(0.0, 0.0000000030303, 1.0)
 dummyPair.setNNParams(0.0, 0.0, 1.0)

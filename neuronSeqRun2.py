@@ -14,14 +14,14 @@ hihat = neuronSeq.NNote(note = 42, duration = 0.05, velocity = 64, channel = 1)
 #                            and threshold
 #The smaller the activation increase (addToCounter) -value,
 #the slower the oscillation.
-kick.setNNParams(0.0, 0.00002199995, 1.0)
+kick.setNNParams(0.0, 0.00022199995, 1.0)
 snare.setNNParams(0.0, 0.0000018999, 1.0)
 snare2.setNNParams(0.5, 0.0000020295, 1.0)
-hihat.setNNParams(0.0, 0.0000619, 1.0)
+hihat.setNNParams(0.0, 0.000000619, 1.0)
 
 #two-way connections. +/- excites/inhibits
 #+ results to simultaneous and - to alternating
-conn1 = neuronSeq.Connection(kick, snare, -0.00000026, -0.000000186)
+conn1 = neuronSeq.Connection(kick, snare, -0.00000126, -0.000001186)
 conn2 = neuronSeq.Connection(kick, snare2, -0.00000062, -0.000000199)
 conn3 = neuronSeq.Connection(snare2, snare, 0.00000008, -0.00000023)
 
@@ -29,13 +29,10 @@ conn3 = neuronSeq.Connection(snare2, snare, 0.00000008, -0.00000023)
 conn3_1 = neuronSeq.Connection(snare, snare2, 0.0000000001, 0.0)
 
 #just playing with parameters
-conn4 = neuronSeq.Connection(hihat, kick, 0.002, -0.0001) 
+conn4 = neuronSeq.Connection(hihat, kick, -0.00002, -0.0001)
+conn5 = neuronSeq.Connection(hihat, snare, 0.00001, 0.00001)
 
-#free oscillation (adds to total oscillation)
-conn5 = neuronSeq.Connection(hihat, snare, 0.0, 0.0)
-
-#Bassline on a new channel (channels here are 0,...,15, so channel 1 here
-# is channel 2 in most DAWs)
+#Bassline on a new channel
 bass01 = neuronSeq.NNote(note = 16, duration = 0.3, velocity = 100, channel = 2)
 bass02 = neuronSeq.NNote(note = 18, duration = 0.3, velocity = 100, channel = 2)
 
@@ -46,6 +43,12 @@ connBass01 = neuronSeq.Connection(bass01, bass02, -0.000001, -0.000001)
 connBass02 = neuronSeq.Connection(bass02, kick, 0.00001, 0.00001)
 connBass03 = neuronSeq.Connection(bass01, kick, 0.000002, 0.000002)
 
+noise01 = neuronSeq.NNote(note = 22, duration = 0.3, velocity = 100, channel = 3)
+noise02 = neuronSeq.NNote(note = 26, duration = 0.35, velocity = 120, channel = 3)
+
+connNoise01 = neuronSeq.Connection(noise01, noise02, 0.000001, -0.00002)
+connNoise02 = neuronSeq.Connection(noise01, bass01, -0.00001, -0.000012)
+
 conn1.start()
 conn2.start()
 conn3.start()
@@ -54,6 +57,8 @@ conn5.start()
 connBass01.start()
 connBass02.start()
 connBass03.start()
+connNoise01.start()
+connNoise02.start()
 
 time.sleep(60.0)#playing time in seconds
 
@@ -65,6 +70,8 @@ conn5.stopSeq()
 connBass01.stopSeq()
 connBass02.stopSeq()
 connBass03.stopSeq()
+connNoise01.stopSeq()
+connNoise02.stopSeq()
 
 conn1.join()
 conn2.join()
@@ -74,7 +81,10 @@ conn5.join()
 connBass01.join()
 connBass02.join()
 connBass03.join()
+connNoise01.join()
+connNoise02.join()
 
 time.sleep(2)
 
 conn1.cleanup() #closes midiport, global
+000
