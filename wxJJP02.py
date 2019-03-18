@@ -113,15 +113,27 @@ class mainFrame(wx.Frame):
         event.Skip()
 
     def scroll06(self, event):  # wxGlade: mainFrame.<event_handler>
-        print "slider 06: " + str(event.GetInt()/1000.0)
+        value = event.GetInt()/-10000000.0
+        print "slider 06: " + str(value)
+        print "Changing weights for connection 01"
+        conn01.weight = [value, value]
+        print conn01.weight
         event.Skip()
 
     def scroll07(self, event):  # wxGlade: mainFrame.<event_handler>
-        print "slider 07: " + str(event.GetInt()/1000.0)
+        value = event.GetInt()/-10000000.0
+        print "slider 07: " + str(value)
+        print "Changing weights for connection 02"
+        conn02.weight = [value, value]
+        print conn02.weight
         event.Skip()
 
     def scroll08(self, event):  # wxGlade: mainFrame.<event_handler>
-        print "slider 08: " + str(event.GetInt()/1000.0)
+        value = event.GetInt()/-10000000.0
+        print "slider 08: " + str(value)
+        print "Changing weights for connection 03"
+        conn03.weight = [value, value]
+        print conn03.weight
         event.Skip()
 
 # end of class mainFrame
@@ -131,33 +143,36 @@ class MyApp(wx.App):
         self.frame = mainFrame(None, wx.ID_ANY, "")
         self.SetTopWindow(self.frame)
         self.frame.Show()
+        conn01.start()
+        conn02.start()
+        conn03.start()
+        conn04.start()
         return True
 
-# end of class MyApp
+    def OnExit(self):
+        conn01.stopSeq()
+        conn02.stopSeq()
+        conn03.stopSeq()
+        conn04.stopSeq()
+        
+        conn01.join()
+        conn02.join()
+        conn03.join()
+        conn04.join()
 
-conn01.start()
-conn02.start()
-conn03.start()
-conn04.start()
+        time.sleep(2)
+
+        conn01.cleanup()
+        return True
+
+
+# end of class MyApp
 
 if __name__ == "__main__":
     app = MyApp(0)
     app.MainLoop()
 
-time.sleep(120.0)
 
-conn01.stopSeq()
-conn02.stopSeq()
-conn03.stopSeq()
-conn04.stopSeq()
 
-conn01.join()
-conn02.join()
-conn03.join()
-conn04.join()
-
-time.sleep(2)
-
-conn01.cleanup()
 
 
