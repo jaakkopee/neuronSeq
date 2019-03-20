@@ -76,5 +76,9 @@ hardware synthesizers and drum machines.
 Check out file neuronSeqRun.py for usage examples. Classes NNote and Connection are in neuronSeq.py.
 NNoteTest2.mp3 at https://app.box.com/s/542a8aeb2z5sp37116mwuwe51l35m2rt contains some recorded output of
 neuronSeq. https://app.box.com/s/t9l9h0swjctf5r7iflazsn1vdbv3u7of with 8-slider controller GUI patch
-made with wxpython. GUI in wxJJP02.py. Requires wxpython.
+made with wxpython. GUI in wxJJP02.py.
+
+This is a bare bones sketch code. The core program is 102 lines long and is written with python. https://www.python.org
+
+
 
