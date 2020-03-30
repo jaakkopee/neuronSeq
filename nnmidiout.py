@@ -10,7 +10,7 @@ class NNMidiOut:
         self.out = rtmidi.RtMidiOut()
         portCount = self.out.getPortCount()
         print ("number of available MIDI  ports: "+str(portCount))
-        print ("using port" + self.portName)
+        print ("using port " + self.portName)
         
         #Using virtual ports by default
         self.out.openVirtualPort(self.portName)
