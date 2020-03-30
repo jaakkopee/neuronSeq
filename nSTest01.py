@@ -1,49 +1,63 @@
 import neuronSeq
 import time
+import rtmidi
 
-kick = neuronSeq.NNote(note = 36, velocity = 127, duration = 0.3, channel = 1)
-snare = neuronSeq.NNote(note = 38, velocity = 3, duration = 0.3, channel = 1)
-hihat = neuronSeq.NNote(note = 42, velocity = 83, duration = 0.3, channel = 1)
+#an alias for the sleep-function of module time
+playForSeconds = time.sleep
 
-kick.setNNParams(0.99, 0.00000000000003, 1.0)
-snare.setNNParams(0.6, 0.00000000000000763, 1.0)
-hihat.setNNParams(0.1, 0.000078, 1.0)
+#The fundamental instruments (neurons eg. NNote-objects).
+kick = neuronSeq.NNote(id = "Kick", note = 36, velocity = 127, duration = 0.3, channel = 1, activation = 0.99, addToCounter = 0.0000000000003, threshold = 1.0)
+snare = neuronSeq.NNote(id = "Snare", note = 38, velocity = 70, duration = 0.3, channel = 1, activation = 0.6, addToCounter = 0.00000000000000763, threshold = 1.0)
+hihat = neuronSeq.NNote(id = "Hihat", note = 42, velocity = 83, duration = 0.3, channel = 1, activation = 0.1, addToCounter = 0.000078, threshold = 1.0)
 
+#Kick and snare evade each other, the tend not to play at the same time because of the negative weights in connections
 drumConnection00 = neuronSeq.Connection(kick, snare, -0.111, -0.111)
+
+#Hihat does not react to kick at all (weight 0.0). Kick dodges the hihat.
 drumConnection01 = neuronSeq.Connection(kick, hihat, 0.0, -0.0000911)
+
+#Snare and hihat do not like to play at the same time.
 drumConnection02 = neuronSeq.Connection(snare, hihat, -0.1, -0.00000111)
 
-bass01 = neuronSeq.NNote(note = 16, duration = 0.6933, velocity = 100, channel = 2)
-bass02 = neuronSeq.NNote(note = 12, duration = 0.689, velocity = 100, channel = 2)
+#Bassline instruments (neurons).
+bass01 = neuronSeq.NNote(id = "Bass, note 1", note = 16, duration = 0.6933, velocity = 100, channel = 2, activation = 0.0, addToCounter = 0.0000113, threshold = 1.0)
+bass02 = neuronSeq.NNote(id = "Bass, note 2", note = 12, duration = 0.689, velocity = 100, channel = 2, activation = 0.5, addToCounter = 0.0000113, threshold = 1.0)
 
-bass01.setNNParams(0.0, 0.0000113, 1.0)
-bass02.setNNParams(0.5, 0.0000113, 1.0)
-
+#The two NNotes of the bassline do not tend to play at the same time.
 bassConnection00 = neuronSeq.Connection(bass01, bass02, -0.00000222, -0.00000222)
+#Both bass NNotes like to play simultaneously with the kickdrum.
 bassConnection01 = neuronSeq.Connection(bass02, kick, 0.0000000222, 0.0000000222)
 bassConnection02 = neuronSeq.Connection(bass01, kick, 0.0000000222, 0.0000000222)
 
-headOne = neuronSeq.NNote(note = 42, velocity = 0, duration = 0.001, channel = 3)
-dummyPair = neuronSeq.NNote(note= 42, velocity = 0,duration = 0.001, channel = 3)
+#Creating a neuron to keep the tempo for all NNotes. Notice that velocity = 1, so the note sounds just a bit.
+#A MIDI message with velocity = 0 is equal to a note off -event, which would actually be ok here codewise, but it feels logical to have an "active" NNote.
+#                                                                                                  init activation   activation increase               activation threshold
+headOne = neuronSeq.NNote(id = "Metronome", note = 42, velocity = 1, duration = 0.01, channel = 3, activation = 0.0, addToCounter = 0.000000000030303, threshold = 1.0)
 
-headOne.setNNParams(0.0, 0.0000000030303, 1.0)
-dummyPair.setNNParams(0.0, 0.0, 1.0)
+#have to create a dummy NNote, to get the metronome working, because Connection objects work only with pairs of neurons.
+dummyPair = neuronSeq.NNote(id = "Dummy neuron", note= 42, velocity = 1, duration = 0.001, channel = 3, activation = 0.0, addToCounter = 0.0, threshold = 1.0)
 
+#to enable oscillation of object headOne, a Connection object is created
 headConnection = neuronSeq.Connection(headOne, dummyPair, 0.0, 0.0)
 
-headConnKick = neuronSeq.Connection(headOne, kick, 0.0,  0.000121)
-headConnSnare = neuronSeq.Connection(headOne, snare, 0.0, 0.000121)
-headConnHihat = neuronSeq.Connection(headOne, hihat, 0.0, 0.000121)
-headConnBass01 = neuronSeq.Connection(headOne, bass01, 0.0, 0.000121)
-HeadConnBass02 = neuronSeq.Connection(headOne, bass02, 0.0, 0.000121)
+#All the sounding NNotes are connected heavily to object headOne
+headConnKick = neuronSeq.Connection(headOne, kick, 0.000121, 0.0)
+headConnSnare = neuronSeq.Connection(headOne, snare, 0.000121, 0.0)
+headConnHihat = neuronSeq.Connection(headOne, hihat, 0.000121, 0.0)
+headConnBass01 = neuronSeq.Connection(headOne, bass01, 0.000121, 0.0)
+headConnBass02 = neuronSeq.Connection(headOne, bass02, 0.000121, 0.0)
 
+
+#Gentlemen, start your engines!
+#The Connection objects request the NNotes for activation values via NNote's getActivation-function
+#and this way the make the whole thing run as the NNotes calculate the activation in the function.
 headConnection.start()
 
 headConnKick.start()
 headConnSnare.start()
 headConnHihat.start()
 headConnBass01.start()
-HeadConnBass02.start()
+headConnBass02.start()
 
 drumConnection00.start()
 drumConnection01.start()
@@ -53,15 +67,73 @@ bassConnection00.start()
 bassConnection01.start()
 bassConnection02.start()
 
-time.sleep(120.0)
 
+#The form of the piece of music is here, in three parts:
+
+print("\nNeural Chaos -- a Space-Time Structure in Several Dimensions\nJaakko Prättälä 2020 with neuronSeq\n")
+print("Part one: The Ascending Chaos\n")
+#play for one minute
+playForSeconds(60.0)
+
+print("Changing parameters...\n")
+#Changing some parameter values for variation:
+
+#Neural Network Parameters:
+#Object name
+#and function call.
+#    |         Initial
+#    |         activation
+#    |         value.
+#    |            |    Activation     Activation
+#    v            |    increase       threshold
+kick.setNNParams(2.99, 0.000000000003, 1.0)
+snare.setNNParams(0.6889, 0.000000000000763, 1.0)
+hihat.setNNParams(0.121, 0.00000078, 1.0)
+
+#Bass note kill:
+bass01.midiout.send_message(bass01.note_off)
+#  neuronSeq utilizes threads in it's operation, so some messages can be left undelivered
+#  It is sensible to kill the bass here, for in cases 7 out of 10 in test runs,
+#  a bass note was left playing throughout the song and after it had ended. Killing it to be sure is a simple but effective hack.
+
+
+#change bass note         values 0-127    dur in seconds
+bass01.setNote(note = 40, velocity = 120, duration = 0.1, channel = 2)
+
+print("Part two: A New Society\n")
+#and play for another minute
+playForSeconds(60.0)
+
+print("Changing parameters...\n")
+#change parameters again
+kick.setNNParams(0.006, 0.0000000000019, 1.0)
+snare.setNNParams(0.126689, 0.0000000000763, 1.0)
+hihat.setNNParams(0.008001, 0.00000700008, 1.0)
+
+#Kill Bass:
+bass01.midiout.send_message(bass01.note_off)
+
+#again, the bassline changes a bit
+bass01.setNote(note = 32, velocity = 123, duration = 0.1, channel = 2)
+
+#set new weights for kickdrum. First connection from neuron 0 to 1, then connection 1 to 0
+headConnKick.weight = [-0.8, 0.001023]
+drumConnection00.weight = [-0.002, 0.00009]
+
+print("Part three: The Final Destruction of the Myth of the Consumer\n")
+#and play for 30 seconds
+playForSeconds(30.0)
+
+print("Silence!")
+
+#stop sequencing
 headConnection.stopSeq()
 
 headConnKick.stopSeq()
 headConnSnare.stopSeq()
 headConnHihat.stopSeq()
 headConnBass01.stopSeq()
-HeadConnBass02.stopSeq()
+headConnBass02.stopSeq()
 
 drumConnection00.stopSeq()
 drumConnection01.stopSeq()
@@ -71,13 +143,14 @@ bassConnection00.stopSeq()
 bassConnection01.stopSeq()
 bassConnection02.stopSeq()
 
+#wait for processes to end
 headConnection.join()
 
 headConnKick.join()
 headConnSnare.join()
 headConnHihat.join()
 headConnBass01.join()
-HeadConnBass02.join()
+headConnBass02.join()
 
 drumConnection00.join()
 drumConnection01.join()
@@ -87,6 +160,8 @@ bassConnection00.join()
 bassConnection01.join()
 bassConnection02.join()
 
+#just in case, to not get a error message from python interpreter
 time.sleep(1)
 
+#close MIDI port. One call to any one of the Connection-objects is adequate.
 drumConnection00.cleanup()
