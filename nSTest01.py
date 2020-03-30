@@ -127,6 +127,9 @@ bass01.midiout.send_message(bass01.note_off)
 #change bass note         values 0-127    dur in seconds
 bass01.setNote(note = 40, velocity = 120, duration = 0.1, channel = 2)
 
+#kill strings3
+strings3.midiout.send_message(strings3.note_off)
+
 #change string note
 strings3.setNote(note = 39, velocity = 100, duration = 1.0, channel = 4)
 
@@ -145,6 +148,9 @@ bass01.midiout.send_message(bass01.note_off)
 
 #again, the bassline changes a bit
 bass01.setNote(note = 32, velocity = 123, duration = 0.1, channel = 2)
+
+#Kill Strings
+strings1.midiout.send_message(strings1.note_off)
 
 #... and so do the strings
 strings1.setNote(note = 78, velocity = 100, duration = 2.0, channel = 4)
