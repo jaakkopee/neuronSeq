@@ -40,14 +40,15 @@ dummyPair = neuronSeq.NNote(id = "Dummy neuron", note= 42, velocity = 1, duratio
 #to enable oscillation of object headOne, a Connection object is created
 headConnection = neuronSeq.Connection(headOne, dummyPair, 0.0, 0.0)
 
-#All the sounding NNotes are connected heavily to object headOne
+#All the sounding NNotes are connected heavily to object headOne.
+#The connection is from headOne to the instruments, the other direction is set to 0.0. headOne is master and instruments are slaves here.
 headConnKick = neuronSeq.Connection(headOne, kick, 0.000121, 0.0)
 headConnSnare = neuronSeq.Connection(headOne, snare, 0.000121, 0.0)
 headConnHihat = neuronSeq.Connection(headOne, hihat, 0.000121, 0.0)
 headConnBass01 = neuronSeq.Connection(headOne, bass01, 0.000121, 0.0)
 headConnBass02 = neuronSeq.Connection(headOne, bass02, 0.000121, 0.0)
 
-
+#And now, at last we get to hear some sounds!
 #Gentlemen, start your engines!
 #The Connection objects request the NNotes for activation values via NNote's getActivation-function
 #and this way the make the whole thing run as the NNotes calculate the activation in the function.

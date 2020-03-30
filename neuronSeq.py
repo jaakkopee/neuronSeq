@@ -7,7 +7,7 @@ import math
 
 midiout = nnmidiout.NNMidiOut()
 
-print ("neuronSeq by Jaakko Prattala 2019-2020. Use freely.")
+print ("\n\nneuronSeq by Jaakko Prattala 2019-2020. Use freely.\n\n\n")
 
        
 class Connection (threading.Thread):
@@ -88,7 +88,7 @@ class NNote:
         self.infostr += self.id + " " + str(self.note_on) +"\n"+ str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
         self.infostr += "\n"+ "Neural Network Parameters:\n"
-        self.infostr += "Activation entry level: "+ str(self.activation)+"\n"
+        self.infostr += "Initial activation level: "+ str(self.activation)+"\n"
         self.infostr += "Activation counter increase: "+ str(self.addToCounter)+"\n"
         self.infostr += "Activation threshold: " + str(self.threshold)+"\n\n\n"
 
@@ -113,7 +113,7 @@ class NNote:
         self.infostr = self.id + " " + str(self.note_on) + "\n" + str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
         self.infostr += "\n"+ "Neural Network Parameters:\n"
-        self.infostr += "Activation entry level: "+ str(self.activation)+"\n"
+        self.infostr += "Iniitial activation level: "+ str(self.activation)+"\n"
         self.infostr += "Activation counter increase: "+ str(self.addToCounter)+"\n"
         self.infostr += "Activation threshold: " + str(self.threshold)+"\n\n\n"
 
@@ -129,7 +129,7 @@ class NNote:
         self.infostr = self.id +" "+ str(self.note_on)+"\n"+str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
         self.infostr += "\n\n"+ "Neural Network Parameters:\n"
-        self.infostr += "Activation entry level: "+ str(self.activation)+"\n"
+        self.infostr += "Initial activation level: "+ str(self.activation)+"\n"
         self.infostr += "Activation counter increase: "+ str(self.addToCounter)+"\n"
         self.infostr += "Activation threshold: " + str(self.threshold)+"\n\n\n"
 
