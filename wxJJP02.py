@@ -9,9 +9,9 @@ import neuronSeq
 # end wxGlade
 
 kick = neuronSeq.NNote(note = 36, duration = 0.03, channel = 1, velocity= 127)
-snare = neuronSeq.NNote(note = 42, duration = 0.03, channel = 1, velocity = 127)
+snare = neuronSeq.NNote(note = 48, duration = 0.03, channel = 1, velocity = 127)
 hihat = neuronSeq.NNote(note = 52, duration= 0.06, channel = 1, velocity=127)
-syn01 = neuronSeq.NNote(note = 32, duration=0.6, channel=2,velocity=127)
+syn01 = neuronSeq.NNote(note = 56, duration=0.6, channel=2,velocity=127)
 tempokick = neuronSeq.NNote(note = 36, duration = 0.03, channel = 3, velocity=127)
 
 kick.setNNParams(0.0, 0.0, 1.0)
@@ -53,6 +53,9 @@ class mainFrame(wx.Frame):
         self.Bind(wx.EVT_COMMAND_SCROLL, self.scroll06, self.slider_6)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.scroll07, self.slider_7)
         self.Bind(wx.EVT_COMMAND_SCROLL, self.scroll08, self.slider_8)
+
+        self.CreateStatusBar()
+
         # end wxGlade
 
     def __set_properties(self):
@@ -77,63 +80,52 @@ class mainFrame(wx.Frame):
 
     def scroll01(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/10000000.0
-        print "slider 01: " + str(value)
-        print "Changing addToCounter for bass drum"
+        self.SetStatusText("slider 01: " + str(value) + " ... Changing addToCounter for bass drum")
         kick.addToCounter = value
         
         event.Skip()
 
     def scroll02(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/10000000.0
-        print "slider 02: " + str(value)
-        print "Changing addToCounter for snare drum"
+        self.SetStatusText("slider 02: " + str(value) + " ... Changing addToCounter for snare drum")
         snare.addToCounter = value
         event.Skip()
 
     def scroll03(self, event):  # wxGlade: mainFrame.<event_handler>
 
         value = event.GetInt()/10000000.0
-        print "slider 03: " + str(value)
-        print "Changing addToCounter for hihat"
+        self.SetStatusText ("slider 03: " + str(value) +" ... Changing addToCounter for hihat")
         hihat.addToCounter = value
         event.Skip()
 
     def scroll04(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/10000000.0
-        print "slider 04: " + str(value)
-        print "Changing addToCounter for synth bass"
+        self.SetStatusText ("slider 04: " + str(value) + " ... Changing addToCounter for synth bass")
         syn01.addToCounter = value
         event.Skip()
 
     def scroll05(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/10000000.0
-        print "slider 05: " + str(value)
-        print "Changing addToCounter for bass drum 2"
+        self.SetStatusText("slider 05: " + str(value) + " ... Changing addToCounter for bass drum 2")
         tempokick.addToCounter = value
         event.Skip()
 
     def scroll06(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/-10000000.0
-        print "slider 06: " + str(value)
-        print "Changing weights for connection 01"
+        self.SetStatusText ("slider 06: " + str(value) + " ... Changing weights for connection 01")
         conn01.weight = [value, value]
-        print conn01.weight
         event.Skip()
 
     def scroll07(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/-10000000.0
-        print "slider 07: " + str(value)
-        print "Changing weights for connection 02"
+        self.SetStatusText ("slider 07: " + str(value) + " ... Changing weights for connection 02")
         conn02.weight = [value, value]
-        print conn02.weight
         event.Skip()
 
     def scroll08(self, event):  # wxGlade: mainFrame.<event_handler>
         value = event.GetInt()/-10000000.0
-        print "slider 08: " + str(value)
-        print "Changing weights for connection 03"
+        self.SetStatusText ("slider 08: " + str(value) + " ... Changing weights for connection 03")
         conn03.weight = [value, value]
-        print conn03.weight
         event.Skip()
 
 # end of class mainFrame
