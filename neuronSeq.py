@@ -26,6 +26,12 @@ class Connection (threading.Thread):
             #One-way: set either weight to 0.0, other to >0.0
             #free oscillation: set both weights to 0.0
 
+            #handling negative activation values, this is the hacker's duct tape: arbitrary threshold values.
+            if (self.note[0].activation < -100000.0):
+                self.note[0].activation = 0.0
+            if (self.note[1].activation < -100000.0):
+                self.note[1].activation == 0.0
+
             #Calculate Activation:
             #   Connection from the first neuron (note[0]) to the second (note[1]) increases activation of note[1]
             #   Notice also addToCounter, which is a constant added to note[1]'s activation on each interation of Connection.run()'s while loop.
@@ -88,7 +94,7 @@ class NNote:
         self.infostr += self.id + " " + str(self.note_on) +"\n"+ str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
         self.infostr += "\n"+ "Neural Network Parameters:\n"
-        self.infostr += "Initial activation level: "+ str(self.activation)+"\n"
+        self.infostr += "Activation level: "+ str(self.activation)+"\n"
         self.infostr += "Activation counter increase: "+ str(self.addToCounter)+"\n"
         self.infostr += "Activation threshold: " + str(self.threshold)+"\n\n\n"
 
@@ -113,7 +119,7 @@ class NNote:
         self.infostr = self.id + " " + str(self.note_on) + "\n" + str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
         self.infostr += "\n"+ "Neural Network Parameters:\n"
-        self.infostr += "Iniitial activation level: "+ str(self.activation)+"\n"
+        self.infostr += "Activation level: "+ str(self.activation)+"\n"
         self.infostr += "Activation counter increase: "+ str(self.addToCounter)+"\n"
         self.infostr += "Activation threshold: " + str(self.threshold)+"\n\n\n"
 
@@ -128,8 +134,8 @@ class NNote:
 
         self.infostr = self.id +" "+ str(self.note_on)+"\n"+str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
-        self.infostr += "\n\n"+ "Neural Network Parameters:\n"
-        self.infostr += "Initial activation level: "+ str(self.activation)+"\n"
+        self.infostr += "\n"+ "Neural Network Parameters:\n"
+        self.infostr += "Activation level: "+ str(self.activation)+"\n"
         self.infostr += "Activation counter increase: "+ str(self.addToCounter)+"\n"
         self.infostr += "Activation threshold: " + str(self.threshold)+"\n\n\n"
 

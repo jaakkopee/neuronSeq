@@ -48,6 +48,22 @@ headConnHihat = neuronSeq.Connection(headOne, hihat, 0.000121, 0.0)
 headConnBass01 = neuronSeq.Connection(headOne, bass01, 0.000121, 0.0)
 headConnBass02 = neuronSeq.Connection(headOne, bass02, 0.000121, 0.0)
 
+
+#some strings
+
+strings1 = neuronSeq.NNote(id = "Strings, note 1", note = 69, velocity = 100, duration = 2.0, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 1.0)
+strings2 = neuronSeq.NNote(id = "Strings, note 2", note = 88, velocity = 100, duration = 1.5, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 1.0)
+strings3 = neuronSeq.NNote(id = "Strings, note 3", note = 56, velocity = 100, duration = 1.0, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 1.0)
+
+stringConnection1 = neuronSeq.Connection(strings1, strings2, -0.00008, -0.00008)
+stringConnection2 = neuronSeq.Connection(strings2, strings3, -0.00008, -0.00008)
+stringConnection3 = neuronSeq.Connection(strings1, strings3, -0.00008, -0.00008)
+stringConnection4 = neuronSeq.Connection(strings3, strings1, -0.00008, -0.00008)
+
+headConnStrings1 = neuronSeq.Connection(headOne, strings1, 0.00006, 0.00006)
+headConnStrings2 = neuronSeq.Connection(headOne, strings2, 0.000009, 0.000009)
+headConnStrings3 = neuronSeq.Connection(headOne, strings3, 0.000156, 0.000156)
+
 #And now, at last we get to hear some sounds!
 #Gentlemen, start your engines!
 #The Connection objects request the NNotes for activation values via NNote's getActivation-function
@@ -59,6 +75,9 @@ headConnSnare.start()
 headConnHihat.start()
 headConnBass01.start()
 headConnBass02.start()
+headConnStrings1.start()
+headConnStrings2.start()
+headConnStrings3.start()
 
 drumConnection00.start()
 drumConnection01.start()
@@ -67,6 +86,13 @@ drumConnection02.start()
 bassConnection00.start()
 bassConnection01.start()
 bassConnection02.start()
+
+stringConnection1.start()
+stringConnection2.start()
+stringConnection3.start()
+stringConnection4.start()
+
+
 
 
 #The form of the piece of music is here, in three parts:
@@ -101,6 +127,9 @@ bass01.midiout.send_message(bass01.note_off)
 #change bass note         values 0-127    dur in seconds
 bass01.setNote(note = 40, velocity = 120, duration = 0.1, channel = 2)
 
+#change string note
+strings3.setNote(note = 39, velocity = 100, duration = 1.0, channel = 4)
+
 print("Part two: A New Society\n")
 #and play for another minute
 playForSeconds(60.0)
@@ -116,6 +145,9 @@ bass01.midiout.send_message(bass01.note_off)
 
 #again, the bassline changes a bit
 bass01.setNote(note = 32, velocity = 123, duration = 0.1, channel = 2)
+
+#... and so do the strings
+strings1.setNote(note = 78, velocity = 100, duration = 2.0, channel = 4)
 
 #set new weights for kickdrum. First connection from neuron 0 to 1, then connection 1 to 0
 headConnKick.weight = [-0.8, 0.001023]
@@ -135,6 +167,9 @@ headConnSnare.stopSeq()
 headConnHihat.stopSeq()
 headConnBass01.stopSeq()
 headConnBass02.stopSeq()
+headConnStrings1.stopSeq()
+headConnStrings2.stopSeq()
+headConnStrings3.stopSeq()
 
 drumConnection00.stopSeq()
 drumConnection01.stopSeq()
@@ -144,6 +179,12 @@ bassConnection00.stopSeq()
 bassConnection01.stopSeq()
 bassConnection02.stopSeq()
 
+stringConnection1.stopSeq()
+stringConnection2.stopSeq()
+stringConnection3.stopSeq()
+stringConnection4.stopSeq()
+
+
 #wait for processes to end
 headConnection.join()
 
@@ -152,6 +193,9 @@ headConnSnare.join()
 headConnHihat.join()
 headConnBass01.join()
 headConnBass02.join()
+headConnStrings1.join()
+headConnStrings2.join()
+headConnStrings3.join()
 
 drumConnection00.join()
 drumConnection01.join()
@@ -161,8 +205,14 @@ bassConnection00.join()
 bassConnection01.join()
 bassConnection02.join()
 
+stringConnection1.join()
+stringConnection2.join()
+stringConnection3.join()
+stringConnection4.join()
+
+
 #just in case, to not get a error message from python interpreter
-time.sleep(1)
+time.sleep(2.5)
 
 #close MIDI port. One call to any one of the Connection-objects is adequate.
 drumConnection00.cleanup()
