@@ -4,7 +4,7 @@ class NNMidiOut:
     def __init__(self):
 
         #Name of the MIDI port in use
-        self.portName = "virtual1"
+        self.portName = "virmidi"
 
 
         self.out = rtmidi.RtMidiOut()
