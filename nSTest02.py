@@ -6,9 +6,9 @@ import rtmidi
 playForSeconds = time.sleep
 
 #The fundamental instruments (neurons eg. NNote-objects).
-kick = neuronSeq.NNote(id = "Kick", note = 36, velocity = 127, duration = 0.3, channel = 1, activation = 0.99, addToCounter = 0.0000000000003, threshold = 1.0)
-snare = neuronSeq.NNote(id = "Snare", note = 38, velocity = 70, duration = 0.3, channel = 1, activation = 0.6, addToCounter = 0.00000000000000763, threshold = 1.0)
-hihat = neuronSeq.NNote(id = "Hihat", note = 42, velocity = 83, duration = 0.3, channel = 1, activation = 0.1, addToCounter = 0.000078, threshold = 1.0)
+kick = neuronSeq.NNote(id = "Kick", note = 36, velocity = 127, duration = 0.3, channel = 1, activation = 0.99, addToCounter = 0.0000000000003, threshold = 10000.0)
+snare = neuronSeq.NNote(id = "Snare", note = 38, velocity = 70, duration = 0.3, channel = 1, activation = 0.6, addToCounter = 0.00000000000000763, threshold = 10000.0)
+hihat = neuronSeq.NNote(id = "Hihat", note = 42, velocity = 83, duration = 0.3, channel = 1, activation = 0.1, addToCounter = 0.000078, threshold = 10000.0)
 
 #Kick and snare evade each other, the tend not to play at the same time because of the negative weights in connections
 drumConnection00 = neuronSeq.Connection(kick, snare, -0.111, -0.111)
@@ -20,22 +20,22 @@ drumConnection01 = neuronSeq.Connection(kick, hihat, 0.0, -0.0000911)
 drumConnection02 = neuronSeq.Connection(snare, hihat, -0.1, -0.00000111)
 
 #Bassline instruments (neurons).
-bass01 = neuronSeq.NNote(id = "Bass, note 1", note = 16, duration = 0.6933, velocity = 100, channel = 2, activation = 0.0, addToCounter = 0.0000113, threshold = 1.0)
-bass02 = neuronSeq.NNote(id = "Bass, note 2", note = 12, duration = 0.689, velocity = 100, channel = 2, activation = 0.5, addToCounter = 0.0000113, threshold = 1.0)
+bass01 = neuronSeq.NNote(id = "Bass, note 1", note = 28, duration = 0.9933, velocity = 100, channel = 2, activation = 0.0, addToCounter = 0.00113, threshold = 1000.0)
+bass02 = neuronSeq.NNote(id = "Bass, note 2", note = 32, duration = 1.689, velocity = 100, channel = 2, activation = 0.5, addToCounter = 0.00113, threshold = 10000.0)
 
 #The two NNotes of the bassline do not tend to play at the same time.
-bassConnection00 = neuronSeq.Connection(bass01, bass02, -0.00000222, -0.00000222)
+bassConnection00 = neuronSeq.Connection(bass01, bass02, -0.000222, -0.00000222)
 #Both bass NNotes like to play simultaneously with the kickdrum.
-bassConnection01 = neuronSeq.Connection(bass02, kick, 0.0000000222, 0.0000000222)
-bassConnection02 = neuronSeq.Connection(bass01, kick, 0.0000000222, 0.0000000222)
+bassConnection01 = neuronSeq.Connection(bass02, kick, 0.00000222, 0.000003222)
+bassConnection02 = neuronSeq.Connection(bass01, kick, 0.00000222, 0.000003222)
 
 #Creating a neuron to keep the tempo for all NNotes. Notice that velocity = 1, so the note sounds just a bit.
 #A MIDI message with velocity = 0 is equal to a note off -event, which would actually be ok here codewise, but it feels logical to have an "active" NNote.
 #                                                                                                  init activation   activation increase               activation threshold
-headOne = neuronSeq.NNote(id = "Metronome", note = 42, velocity = 1, duration = 0.01, channel = 3, activation = 0.0, addToCounter = 0.000000000030303, threshold = 1.0)
+headOne = neuronSeq.NNote(id = "Metronome", note = 42, velocity = 1, duration = 0.01, channel = 3, activation = 0.0, addToCounter = 0.000000030303, threshold = 10000.0)
 
 #have to create a dummy NNote, to get the metronome working, because Connection objects work only with pairs of neurons.
-dummyPair = neuronSeq.NNote(id = "Dummy neuron", note= 42, velocity = 1, duration = 0.001, channel = 3, activation = 0.0, addToCounter = 0.0, threshold = 1.0)
+dummyPair = neuronSeq.NNote(id = "Dummy neuron", note= 42, velocity = 1, duration = 0.001, channel = 3, activation = 0.0, addToCounter = 0.0, threshold = 10000.0)
 
 #to enable oscillation of object headOne, a Connection object is created
 headConnection = neuronSeq.Connection(headOne, dummyPair, 0.0, 0.0)
@@ -51,9 +51,9 @@ headConnBass02 = neuronSeq.Connection(headOne, bass02, 0.000121, 0.0)
 
 #some strings
 
-strings1 = neuronSeq.NNote(id = "Strings, note 1", note = 69, velocity = 100, duration = 2.0, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 1.0)
-strings2 = neuronSeq.NNote(id = "Strings, note 2", note = 88, velocity = 100, duration = 1.5, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 1.0)
-strings3 = neuronSeq.NNote(id = "Strings, note 3", note = 56, velocity = 100, duration = 1.0, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 1.0)
+strings1 = neuronSeq.NNote(id = "Strings, note 1", note = 69, velocity = 100, duration = 2.0, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 10000.0)
+strings2 = neuronSeq.NNote(id = "Strings, note 2", note = 88, velocity = 100, duration = 1.5, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 10000.0)
+strings3 = neuronSeq.NNote(id = "Strings, note 3", note = 56, velocity = 100, duration = 1.0, channel = 4, activation = 0.0, addToCounter = 0.0000008, threshold = 10000.0)
 
 stringConnection1 = neuronSeq.Connection(strings1, strings2, -0.00008, -0.00008)
 stringConnection2 = neuronSeq.Connection(strings2, strings3, -0.00008, -0.00008)
@@ -110,9 +110,9 @@ playForSeconds(60.0)
 #    |         value.
 #    |            |    Activation     Activation
 #    v            |    increase       threshold
-kick.setNNParams(2.99, 0.000000000003, 1.0)
-snare.setNNParams(0.6889, 0.000000000000763, 1.0)
-hihat.setNNParams(0.121, 0.00000078, 1.0)
+kick.setNNParams(2.99, 0.000000000003, 10000.0)
+snare.setNNParams(0.6889, 0.000000000000763, 10000.0)
+hihat.setNNParams(0.121, 0.00000078, 10000.0)
 
 #Bass note kill:
 bass01.midiout.send_message(bass01.note_off)
@@ -130,13 +130,12 @@ strings3.midiout.send_message(strings3.note_off)
 #change string note
 strings3.setNote(note = 39, velocity = 100, duration = 1.0, channel = 4)
 
-#print("Part two: A New Society\n")
 #and play for another minute
 playForSeconds(60.0)
 #change parameters again
-kick.setNNParams(0.006, 0.0000000000019, 1.0)
-snare.setNNParams(0.126689, 0.0000000000763, 1.0)
-hihat.setNNParams(0.008001, 0.00000700008, 1.0)
+kick.setNNParams(0.006, 0.0000000000019, 10000.0)
+snare.setNNParams(0.126689, 0.0000000000763, 10000.0)
+hihat.setNNParams(0.008001, 0.00000700008, 10000.0)
 
 #Kill Bass:
 bass01.midiout.send_message(bass01.note_off)
