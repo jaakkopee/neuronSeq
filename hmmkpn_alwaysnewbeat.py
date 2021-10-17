@@ -14,7 +14,7 @@ somedrum = neuronSeq.NNote(id = "somedrum", note = 39, velocity = 127, duration 
 
 drumConnection00 = neuronSeq.Connection(kick, snare01, -0.0000000061009, -0.00614120000009)
 
-drumConnection01 = neuronSeq.Connection(somedrum, snare01, 1.0, -0.00614120000009)
+drumConnection01 = neuronSeq.Connection(somedrum, snare01, 0.00005, -0.00614120000009)
 
 drumConnection02 = neuronSeq.Connection(somedrum, kick, -0.0000000061009, -0.00614120000009)
 
