@@ -1,5 +1,4 @@
 import time
-import mido
 import rtmidi
 import threading
 import nnmidiout #connection to rtmidi
