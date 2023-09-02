@@ -6,21 +6,21 @@ class NNMidiOut:
         #Name of the MIDI port in use
         self.portName = "virmidi"
 
+        self.midiout = None
+        self.midiout = rtmidi.RtMidiOut()
+        available_ports = self.midiout.getPortCount()
 
-        self.out = rtmidi.RtMidiOut()
-        portCount = self.out.getPortCount()
-        print ("number of available MIDI  ports: "+str(portCount))
-        print ("using port " + self.portName)
-        
-        #Using virtual ports by default
-        self.out.openVirtualPort(self.portName)
-        
+        if available_ports:
+            self.midiout.openPort(0)
+        else:
+            self.midiout.openVirtualPort(self.portName)
+                
         return
     
     def send_message(self, msg):
-        self.out.sendMessage(msg)
+        self.midiout.sendMessage(msg)
         return
     
     def cleanup(self):
-        del self.out
+        del self.midiout
         return
