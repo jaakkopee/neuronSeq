@@ -6,7 +6,7 @@ import math
 
 midiout = nnmidiout.NNMidiOut()
 
-print ("\n\nneuronSeq by Jaakko Prattala 2019-2020. Use freely.\n\n\n")
+print ("\n\nneuronSeq by Jaakko Prattala 2019-2023. Use freely.\n\n\n")
 
 ACTIVATION_PARAMETER = 0
 ADC_PARAMETER = 1
