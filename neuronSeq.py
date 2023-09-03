@@ -14,6 +14,8 @@ THRESHOLD_PARAMETER = 2
 MIDI_NOTE_PARAMETER = 3
 MIDI_VELOCITY_PARAMETER = 4
 MIDI_DURATION_PARAMETER = 5
+WEIGHT_0_1_PARAMETER = 6
+WEIGHT_1_0_PARAMETER = 7
 
 def get_param_name(parameter_idx):
     if parameter_idx == ACTIVATION_PARAMETER:
@@ -28,6 +30,10 @@ def get_param_name(parameter_idx):
         return "midi velocity"
     elif parameter_idx == MIDI_DURATION_PARAMETER:
         return "midi duration"
+    elif parameter_idx == WEIGHT_0_1_PARAMETER:
+        return "weight 0->1"
+    elif parameter_idx == WEIGHT_1_0_PARAMETER:
+        return "weight 1->0"
     else:
         return "error"
 
@@ -192,7 +198,6 @@ class NNote:
     def get_midi_duration(self):
         return self.note_length
      
-    
     def setNNParams(self, activation = 0.0, addToCounter = 0.0001, threshold=1.0):
         self.activation = activation
         self.addToCounter = addToCounter
@@ -241,7 +246,7 @@ class ParameterModulationHub:
         parameter_list = []
         for conn in range(len(self.connection_list)):
             for note in range(2):
-                for parameter_idx in range(6):
+                for parameter_idx in range(8):
                     parameter_list.append((conn, note, parameter_idx))
 
         return parameter_list
@@ -269,6 +274,10 @@ class ParameterModulationHub:
                     conn.note[neuron_idx].set_midi_velocity(value)
                 elif parameter_idx ==  MIDI_DURATION_PARAMETER:
                     conn.note[neuron_idx].set_midi_duration(value)
+                elif parameter_idx == WEIGHT_0_1_PARAMETER:
+                    conn.weight[0] = value
+                elif parameter_idx == WEIGHT_1_0_PARAMETER:
+                    conn.weight[1] = value
                     
                 else:
                     print("Error: parameter index out of range")
@@ -288,6 +297,10 @@ class ParameterModulationHub:
                     conn.note[neuron_idx].set_midi_velocity(100)
                 elif parameter_idx ==  MIDI_DURATION_PARAMETER:
                     conn.note[neuron_idx].set_midi_duration(0.2)
+                elif parameter_idx == WEIGHT_0_1_PARAMETER:
+                    conn.weight[0] = 0.00000121
+                elif parameter_idx == WEIGHT_1_0_PARAMETER:
+                    conn.weight[1] = 0.00000121
                 else:
                     print("Error: parameter index out of range")
                     

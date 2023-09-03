@@ -11,7 +11,7 @@ class NeuronSeqGUISlider(tk.Scale):
         self.name += " slider"
         self["label"] = self.name
         self["length"] = 300
-        self["width"] = 50
+        self["width"] = 20
         self["showvalue"] = 1
         self["sliderlength"] = 20
         self["sliderrelief"] = tk.RAISED
@@ -50,6 +50,14 @@ class NeuronSeqGUISlider(tk.Scale):
             self["from_"] = 0.0
             self["to"] = 10.0
             self["resolution"] = 0.1
+        elif pi==ns.WEIGHT_0_1_PARAMETER:
+            self["from_"] = -0.000000001
+            self["to"] = 0.000000001
+            self["resolution"] = 0.0000000001
+        elif pi==ns.WEIGHT_1_0_PARAMETER:
+            self["from_"] = -0.000000001
+            self["to"] = 0.000000001
+            self["resolution"] = 0.0000000001
 
         self.pack(side="left")
         self.bind("<ButtonRelease-1>", self.update_parameter)
