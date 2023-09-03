@@ -32,8 +32,8 @@ class NeuronSeqGUISlider(tk.Scale):
             self["resolution"] = 0.01
         elif pi==ns.ADC_PARAMETER:
             self["from_"] = 0.0
-            self["to"] = 1.0
-            self["resolution"] = 0.01
+            self["to"] = 0.1
+            self["resolution"] = 0.001
         elif pi==ns.THRESHOLD_PARAMETER:
             self["from_"] = 0.0
             self["to"] = 1.0
