@@ -29,13 +29,30 @@ import rtmidi
 #global variables
 #neuron parameters
 ACTIVATION_PARAMETER = 0
-ADC_PARAMETER = 1
-THRESHOLD_PARAMETER = 2
-MIDI_NOTE_PARAMETER = 3
-MIDI_VELOCITY_PARAMETER = 4
-MIDI_DURATION_PARAMETER = 5
-WEIGHT_0_1_PARAMETER = 6
-WEIGHT_1_0_PARAMETER = 7
+THRESHOLD_PARAMETER = 1
+MIDI_NOTE_PARAMETER = 2
+MIDI_VELOCITY_PARAMETER = 3
+MIDI_DURATION_PARAMETER = 4
+WEIGHT_0_1_PARAMETER = 5
+WEIGHT_1_0_PARAMETER = 6
+#neuron parameter names
+NEURON_PARAMETER_NAMES = []
+NEURON_PARAMETER_NAMES.append("Activation")
+NEURON_PARAMETER_NAMES.append("Threshold")
+NEURON_PARAMETER_NAMES.append("MIDI Note")
+NEURON_PARAMETER_NAMES.append("MIDI Velocity")
+NEURON_PARAMETER_NAMES.append("MIDI Duration")
+NEURON_PARAMETER_NAMES.append("Weight 0->1")
+NEURON_PARAMETER_NAMES.append("Weight 1->0")
+#neuron parameter values
+NEURON_PARAMETER_VALUES = []
+NEURON_PARAMETER_VALUES.append(ACTIVATION_PARAMETER)
+NEURON_PARAMETER_VALUES.append(THRESHOLD_PARAMETER)
+NEURON_PARAMETER_VALUES.append(MIDI_NOTE_PARAMETER)
+NEURON_PARAMETER_VALUES.append(MIDI_VELOCITY_PARAMETER)
+NEURON_PARAMETER_VALUES.append(MIDI_DURATION_PARAMETER)
+NEURON_PARAMETER_VALUES.append(WEIGHT_0_1_PARAMETER)
+NEURON_PARAMETER_VALUES.append(WEIGHT_1_0_PARAMETER)
 #neuron activation functions
 NEURON_ACTIVATION_FUNCTION_LINEAR = 0
 NEURON_ACTIVATION_FUNCTION_SIGMOID = 1
@@ -249,4 +266,40 @@ class Connection(threading.Thread):
                 self.nnotes[1].activation = 0.0
 
             time.sleep(0.001)
+        return
+
+class NeuronSeq:
+    def __init__(self):
+        self.connections = []
+        return
+    
+    def add_nnote(self, nnote):
+        self.nnotes.append(nnote)
+        return
+    
+    def add_connection(self, connection):
+        self.connections.append(connection)
+        return
+    
+    def get_nnotes(self):
+        return self.nnotes
+    
+    def get_connections(self):
+        return self.connections
+    
+    def edit_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
+        if parameter_idx==ACTIVATION_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_activation_function(parameter_value)
+        elif parameter_idx==THRESHOLD_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_threshold(parameter_value)
+        elif parameter_idx==MIDI_NOTE_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_note(parameter_value)
+        elif parameter_idx==MIDI_VELOCITY_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_velocity(parameter_value)
+        elif parameter_idx==MIDI_DURATION_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_duration(parameter_value)
+        elif parameter_idx==WEIGHT_0_1_PARAMETER:
+            self.connections[connection_idx].set_weight(0, parameter_value)
+        elif parameter_idx==WEIGHT_1_0_PARAMETER:
+            self.connections[connection_idx].set_weight(1, parameter_value)
         return
