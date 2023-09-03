@@ -250,32 +250,3 @@ class Connection(threading.Thread):
 
             time.sleep(0.001)
         return
-    
-#usage example
-#create 4 nnotes
-nnotes = []
-nnotes.append(NNote(channel=0, note=KICK, velocity=127, duration=0.1, id="Kick"))
-nnotes.append(NNote(channel=0, note=SNARE, velocity=127, duration=0.1, id="Snare"))
-nnotes.append(NNote(channel=0, note=CLOSED_HIHAT, velocity=127, duration=0.1, id="Closed Hihat"))
-nnotes.append(NNote(channel=0, note=OPEN_HIHAT, velocity=127, duration=0.1, id="Open Hihat"))
-
-#set activation functions
-nnotes[0].set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-nnotes[1].set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-nnotes[2].set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-nnotes[3].set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-
-#connect nnotes
-connections = []
-connections.append(Connection(nnotes[0], nnotes[1], 0.001, 0.001))
-connections.append(Connection(nnotes[1], nnotes[2], 0.002, 0.002))
-connections.append(Connection(nnotes[2], nnotes[3], 0.004, 0.004))
-connections.append(Connection(nnotes[3], nnotes[0], 0.008, 0.008))
-
-#start connections
-for connection in connections:
-    connection.start()
-
-
-
-
