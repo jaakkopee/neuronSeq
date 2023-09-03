@@ -17,6 +17,8 @@ MIDI_DURATION_PARAMETER = 5
 WEIGHT_0_1_PARAMETER = 6
 WEIGHT_1_0_PARAMETER = 7
 
+FLOAT_PARAMETER_SCALE = 1000000000000000.0
+
 def get_param_name(parameter_idx):
     if parameter_idx == ACTIVATION_PARAMETER:
         return "activation"
@@ -42,7 +44,7 @@ class Connection (threading.Thread):
         threading.Thread.__init__(self)
 
         self.note = [note0, note1]
-        self.weight = [weight0to1, weight1to0]
+        self.weight = [weight0to1/FLOAT_PARAMETER_SCALE, weight1to0/FLOAT_PARAMETER_SCALE]
         self.running = True
        
     def run(self):
@@ -112,9 +114,9 @@ class NNote:
         self.note_off = midiMsg.noteOn(self.channel, self.midinote, 0)
 
         #NN settings:
-        self.activation = activation #Initial activation level.
-        self.addToCounter = addToCounter #Activation increase per call to Connection.run().
-        self.threshold = threshold #Activation threshold, which, when reached, results to activation set to 0.0 and NNote.bang() is called.
+        self.activation = activation/FLOAT_PARAMETER_SCALE #Initial activation level.
+        self.addToCounter = addToCounter/FLOAT_PARAMETER_SCALE #Activation increase per call to Connection.run().
+        self.threshold = threshold/FLOAT_PARAMETER_SCALE #Activation threshold, which, when reached, results to activation set to 0.0 and NNote.bang() is called.
 
         self.infostr += self.id + " " + str(self.note_on) +"\n"+ str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)
@@ -157,21 +159,21 @@ class NNote:
         return
 
     def set_activation(self, activation):
-        self.activation = activation
+        self.activation = activation/FLOAT_PARAMETER_SCALE
         return
     
     def get_activation(self):
         return self.activation
 
     def set_adc(self, adc):
-        self.addToCounter = adc
+        self.addToCounter = adc/FLOAT_PARAMETER_SCALE
         return
     
     def get_adc(self):
         return self.addToCounter
     
     def set_threshold(self, threshold):
-        self.threshold = threshold
+        self.threshold = threshold/FLOAT_PARAMETER_SCALE
         return
     
     def get_threshold(self):
@@ -181,7 +183,7 @@ class NNote:
         self.note = note
         return
     
-    def get_midi_note():
+    def get_midi_note(self):
         return self.note
     
     def set_midi_velocity(self, velocity):
@@ -199,9 +201,9 @@ class NNote:
         return self.note_length
      
     def setNNParams(self, activation = 0.0, addToCounter = 0.0001, threshold=1.0):
-        self.activation = activation
-        self.addToCounter = addToCounter
-        self.threshold = threshold
+        self.activation = activation/FLOAT_PARAMETER_SCALE
+        self.addToCounter = addToCounter/FLOAT_PARAMETER_SCALE
+        self.threshold = threshold/FLOAT_PARAMETER_SCALE
 
         self.infostr = self.id +" "+ str(self.note_on)+"\n"+str(self.note_off)
         self.infostr += "\n" + "Duration: "+str(self.note_length)

@@ -32,8 +32,8 @@ class NeuronSeqGUISlider(tk.Scale):
             self["resolution"] = 0.01
         elif pi==ns.ADC_PARAMETER:
             self["from_"] = 0.0
-            self["to"] = 0.000000001
-            self["resolution"] = 0.0000000001
+            self["to"] = 1.0
+            self["resolution"] = 0.01
         elif pi==ns.THRESHOLD_PARAMETER:
             self["from_"] = 0.0
             self["to"] = 1.0
@@ -51,13 +51,13 @@ class NeuronSeqGUISlider(tk.Scale):
             self["to"] = 10.0
             self["resolution"] = 0.1
         elif pi==ns.WEIGHT_0_1_PARAMETER:
-            self["from_"] = -0.000000001
-            self["to"] = 0.000000001
-            self["resolution"] = 0.0000000001
+            self["from_"] = -0.1
+            self["to"] = 0.1
+            self["resolution"] = 0.001
         elif pi==ns.WEIGHT_1_0_PARAMETER:
-            self["from_"] = -0.000000001
-            self["to"] = 0.000000001
-            self["resolution"] = 0.0000000001
+            self["from_"] = -0.1
+            self["to"] = 0.1
+            self["resolution"] = 0.001
 
         self.pack(side="left")
         self.bind("<ButtonRelease-1>", self.update_parameter)
@@ -120,15 +120,15 @@ class NeuronSeqGUI(tk.Frame):
 
 if __name__ == "__main__":
     #create NNote objects
-    kick = ns.NNote(id = "Kick", note = 36, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.000000000030303, threshold = 1.0)
-    snare = ns.NNote(id = "Snare", note = 38, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.000000000030303, threshold = 1.0)
-    hihat = ns.NNote(id = "Hihat", note = 42, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.000000000030303, threshold = 1.0)
-    bass01 = ns.NNote(id = "Bass01", note = 48, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.000000000030303, threshold = 1.0)
+    kick = ns.NNote(id = "Kick", note = 36, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.00001, threshold = 1.0)
+    snare = ns.NNote(id = "Snare", note = 38, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.00001, threshold = 1.0)
+    hihat = ns.NNote(id = "Hihat", note = 42, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.00001, threshold = 1.0)
+    bass01 = ns.NNote(id = "Bass01", note = 48, velocity = 100, duration = 0.5, channel = 1, activation = 0.0, addToCounter = 0.00001, threshold = 1.0)
 
     #create Connection objects
-    drumConnection00 = ns.Connection(kick, snare, 0.000121, 0.000121)
-    drumConnection01 = ns.Connection(snare, hihat, 0.000121, 0.000121)
-    drumConnection02 = ns.Connection(hihat, kick, 0.000121, 0.000121)
+    drumConnection00 = ns.Connection(kick, snare, -0.001, -0.001)
+    drumConnection01 = ns.Connection(snare, hihat, -0.001, -0.001)
+    drumConnection02 = ns.Connection(hihat, kick, -0.001, -0.001)
 
     #create parameter modulation hub
     parameter_modulation_hub = ns.ParameterModulationHub()
