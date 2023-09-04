@@ -289,7 +289,7 @@ class NSW0to1Slider:
         self.ns = ns
         self.ci = ci
         self.ni = 0
-        self.pi = 0
+        self.pi = ns2.WEIGHT_0_1_PARAMETER
         self.create_widgets()
         return
     
@@ -315,7 +315,7 @@ class NSW1to0Slider:
         self.ns = ns
         self.ci = ci
         self.ni = 0
-        self.pi = 1
+        self.pi = ns2.WEIGHT_1_0_PARAMETER
         self.create_widgets()
         return
     
