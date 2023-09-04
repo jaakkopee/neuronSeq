@@ -214,7 +214,7 @@ class Connection(threading.Thread):
     
     def get_nnotes(self):
         return self.nnotes
-    
+        
     def run(self):
         while True:
             if self.nnotes[0].Y[self.nnotes[0].activation_index] < self.nnotes[0].threshold:

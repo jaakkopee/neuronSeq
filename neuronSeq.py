@@ -91,8 +91,27 @@ class Connection (threading.Thread):
         midiout.cleanup() #closes port for all NNotes!!!
         return
 
+    def set_weight_0_1(self, weight):
+        self.weight[0] = weight
+        return
+    
+    def get_weight_0_1(self):
+        return self.weight[0]
+    
+    def set_weight_1_0(self, weight):
+        self.weight[1] = weight
+        return
+    
+    def get_weight_1_0(self):
+        return self.weight[1]
 
-
+    def get_nnote(self, nnote_idx):
+        return self.note[nnote_idx]
+    
+    def set_nnote(self, nnote_idx, nnote):
+        self.note[nnote_idx] = nnote
+        return
+    
 class NNote:
     def __init__(self, note=60, velocity=100, duration = 0.2, id = "", channel = 1, activation = 0.0, addToCounter = 0.0001, threshold = 1.0, parameter_modulation_hub = None):
 
