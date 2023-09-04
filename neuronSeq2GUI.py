@@ -196,7 +196,6 @@ class NSGUICreateSliderWindow(tk.Toplevel):
         self.slider_creation_window.create_slider_button["text"] = "Create Slider"
         self.slider_creation_window.create_slider_button["command"] = self.create_slider
         self.slider_creation_window.create_slider_button.pack(side="left")
-
         return
     
     def create_slider(self):
@@ -254,6 +253,51 @@ class NSGUI(tk.Frame):
     
     def create_widgets(self):
         self.nsgui_main_window = NSGUIMainWindow(self.master, self.ns)
+        self.nsgui_main_window.pack(side="left")
+
+        self.nsgui_operation_window = NSGUIOperationWindow(self.master, self.ns)
+        self.nsgui_operation_window.pack(side="left")
+
+        return
+
+class NSGUIOperationWindow(tk.Frame):
+    def __init__(self, master=None, ns=None):
+        super().__init__(master)
+        self.master = master
+        self.ns = ns
+        self.pack()
+        self.sliders = []
+        self.create_widgets()
+        return
+    
+    def add_slider(self, ci, ni, pi):
+        self.sliders.append(NSGUISLider(self, self.ns, ci, ni, pi))
+        self.nsgui_operation_window.sliders_label["text"] = "Sliders: "+str(len(self.sliders))
+        return
+    
+    def create_widgets(self):
+        self.nsgui_operation_window = tk.Frame(self.master)
+        self.nsgui_operation_window.pack(side="left")
+        #nnote display
+        self.nsgui_operation_window.nnote_display = tk.Frame(self.nsgui_operation_window)
+        self.nsgui_operation_window.nnote_display.pack(side="left")
+        self.nsgui_operation_window.nnote_display_label = tk.Label(self.nsgui_operation_window.nnote_display)
+        self.nsgui_operation_window.nnote_display_label["text"] = "N Notes: "+str(len(self.ns.nnotes))
+        self.nsgui_operation_window.nnote_display_label.pack(side="left")
+
+        #connection display
+        self.nsgui_operation_window.connection_display = tk.Frame(self.nsgui_operation_window)
+        self.nsgui_operation_window.connection_display.pack(side="left")
+        self.nsgui_operation_window.connection_display_label = tk.Label(self.nsgui_operation_window.connection_display)
+        self.nsgui_operation_window.connection_display_label["text"] = "Connections: "+str(len(self.ns.connections))
+        self.nsgui_operation_window.connection_display_label.pack(side="left")
+
+        #sliders
+        self.nsgui_operation_window.sliders = tk.Frame(self.nsgui_operation_window)
+        self.nsgui_operation_window.sliders.pack(side="left")
+        self.nsgui_operation_window.sliders_label = tk.Label(self.nsgui_operation_window.sliders)
+        self.nsgui_operation_window.sliders_label["text"] = "Sliders: "+str(len(self.nsgui_operation_window.sliders))
+
         return
     
 #usage example
