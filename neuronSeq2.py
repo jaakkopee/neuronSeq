@@ -263,9 +263,7 @@ class NeuronSeq:
         return self.connections
     
     def change_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
-        if parameter_idx==ACTIVATION_FUNCTION_PARAMETER:
-            self.connections[connection_idx].get_nnote(nnote_idx).set_activation_function(parameter_value)
-        elif parameter_idx==THRESHOLD_PARAMETER:
+        if parameter_idx==THRESHOLD_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_threshold(parameter_value)
         elif parameter_idx==MIDI_NOTE_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_note(parameter_value)
@@ -280,9 +278,7 @@ class NeuronSeq:
         return
     
     def get_parameter(self, connection_idx, nnote_idx, parameter_idx):
-        if parameter_idx==ACTIVATION_PARAMETER:
-            return self.connections[connection_idx].get_nnote(nnote_idx).get_activation_function()
-        elif parameter_idx==THRESHOLD_PARAMETER:
+        if parameter_idx==THRESHOLD_PARAMETER:
             return self.connections[connection_idx].get_nnote(nnote_idx).get_threshold()
         elif parameter_idx==MIDI_NOTE_PARAMETER:
             return self.connections[connection_idx].get_nnote(nnote_idx).note

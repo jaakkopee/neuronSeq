@@ -57,7 +57,8 @@ class NSGUICreateNNoteWindow(tk.Toplevel):
         nnote_midi_velocity = int(self.nnote_midi_velocity_entry.get())
         nnote_midi_duration = float(self.nnote_midi_duration_entry.get())
         nnote_id = self.nnote_id_entry.get()
-        self.ns.create_nnote(nnote_channel, nnote_midi_note, nnote_midi_velocity, nnote_midi_duration, nnote_id)
+        nnote = self.ns.create_nnote(nnote_channel, nnote_midi_note, nnote_midi_velocity, nnote_midi_duration, nnote_id)
+        nnote.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
         self.destroy()
         return
     
@@ -124,11 +125,7 @@ class NSGUISLider(tk.Scale):
         return
     
     def create_widgets(self):
-        if self.pi == ns2.ACTIVATION_PARAMETER:
-            self["from_"] = 0.0
-            self["to"] = 1.0
-            self["resolution"] = 0.01
-        elif self.pi == ns2.THRESHOLD_PARAMETER:
+        if self.pi == ns2.THRESHOLD_PARAMETER:
             self["from_"] = 0.0
             self["to"] = 1.0
             self["resolution"] = 0.01
@@ -155,12 +152,10 @@ class NSGUISLider(tk.Scale):
 
         self.pack(side="left")
         self.bind("<ButtonRelease-1>", self.update_parameter)
-        self.parameter_modulation_hub = None
-        self.parameter_modulation_hub = self.ns
         return
 
     def update_parameter(self, event):
-        self.parameter_modulation_hub.change_parameter(self.conn_idx, self.neuron_idx, self.parameter_idx, self.get())
+        self.ns.change_parameter(self.ci, self.ni, self.pi, self.get())
         return
 
 class NSGUICreateSliderWindow(tk.Toplevel):
