@@ -112,8 +112,8 @@ class NSGUICreateConnectionWindow(tk.Toplevel):
         self.ns.create_connection(conn_name, conn_from, conn_to, conn_weight_0_to_1, conn_weight_1_to_0)
         self.destroy()
         return
-    
-class NSGUISLider(tk.Scale):
+
+class NSGUISlider(tk.Scale):
     def __init__(self, master=None, ns=None, ci=None, ni=None, pi=None):
         super().__init__(master)
         self.master = master
@@ -125,6 +125,7 @@ class NSGUISLider(tk.Scale):
         return
     
     def create_widgets(self):
+        # Set the slider's scale of values based on self.pi
         if self.pi == ns2.THRESHOLD_PARAMETER:
             self["from_"] = 0.0
             self["to"] = 1.0
@@ -150,13 +151,29 @@ class NSGUISLider(tk.Scale):
             self["to"] = 0.1
             self["resolution"] = 0.001
 
+        
         self.pack(side="left")
-        self.bind("<ButtonRelease-1>", self.update_parameter)
+        self.bind("<ButtonRelease-1>", self.update_parameter)  # Bind to update parameter when slider is released
         return
 
     def update_parameter(self, event):
-        self.ns.change_parameter(self.ci, self.ni, self.pi, self.get())
+        # Implement this method to update the parameter in your ns2 module
+        # Example:
+        new_value = self.get()  # Get the current value of the slider
+        if self.pi == ns2.THRESHOLD_PARAMETER:
+            self.ns.set_threshold(self.ci, self.ni, new_value)
+        elif self.pi == ns2.MIDI_NOTE_PARAMETER:
+            self.ns.set_midi_note(self.ci, self.ni, new_value)
+        elif self.pi == ns2.MIDI_VELOCITY_PARAMETER:
+            self.ns.set_midi_velocity(self.ci, self.ni, new_value)
+        elif self.pi == ns2.MIDI_DURATION_PARAMETER:
+            self.ns.set_midi_duration(self.ci, self.ni, new_value)
+        elif self.pi == ns2.WEIGHT_0_1_PARAMETER:
+            self.ns.set_weight_0_to_1(self.ci, new_value)
+        elif self.pi == ns2.WEIGHT_1_0_PARAMETER:
+            self.ns.set_weight_1_to_0(self.ci, new_value)
         return
+
 
 class NSGUICreateSliderWindow(tk.Toplevel):
     def __init__(self, master=None, ns=None, ci=None, ni=None, pi=None):
@@ -199,7 +216,7 @@ class NSGUICreateSliderWindow(tk.Toplevel):
         return
     
     def create_slider(self):
-        self.slider = NSGUISLider(self.master, self.ns, self.ci, self.ni, self.pi)
+        self.slider = NSGUISlider(self.master, self.ns, self.ci, self.ni, self.pi)
         self.slider_creation_window.destroy()
         return self.slider
 

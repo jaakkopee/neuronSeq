@@ -262,6 +262,50 @@ class NeuronSeq:
     def get_connections(self):
         return self.connections
     
+    def set_threshold(self, connection_idx, nnote_idx, threshold):
+        self.connections[connection_idx].get_nnote(nnote_idx).set_threshold(threshold)
+        return
+    
+    def get_threshold(self, connection_idx, nnote_idx):
+        return self.connections[connection_idx].get_nnote(nnote_idx).get_threshold()
+    
+    def set_midi_note(self, connection_idx, nnote_idx, note):
+        self.connections[connection_idx].get_nnote(nnote_idx).set_note(note)
+        return
+    
+    def get_midi_note(self, connection_idx, nnote_idx):
+        return self.connections[connection_idx].get_nnote(nnote_idx).note
+    
+    def set_midi_velocity(self, connection_idx, nnote_idx, velocity):
+        self.connections[connection_idx].get_nnote(nnote_idx).set_velocity(velocity)
+        return
+    
+    def get_midi_velocity(self, connection_idx, nnote_idx):
+        return self.connections[connection_idx].get_nnote(nnote_idx).velocity
+    
+    def set_midi_duration(self, connection_idx, nnote_idx, duration):
+        self.connections[connection_idx].get_nnote(nnote_idx).set_duration(duration)
+        return
+    
+    def get_midi_duration(self, connection_idx, nnote_idx):
+        return self.connections[connection_idx].get_nnote(nnote_idx).duration
+    
+    def set_weight_0_to_1(self, connection_idx, weight):
+        self.connections[connection_idx].set_weight(0, weight)
+        return
+    
+    def get_weight_0_to_1(self, connection_idx):
+        return self.connections[connection_idx].get_weight(0)
+    
+    def set_weight_1_to_0(self, connection_idx, weight):
+        self.connections[connection_idx].set_weight(1, weight)
+        return
+    
+    def get_weight_1_to_0(self, connection_idx):
+        return self.connections[connection_idx].get_weight(1)
+    
+
+    
     def change_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
         if parameter_idx==THRESHOLD_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_threshold(parameter_value)
