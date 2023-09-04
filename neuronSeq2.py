@@ -1,34 +1,13 @@
 #complete rewrite of neuronSeq.py
 
-import random
-import math
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import tkinter as tk
-import tkinter.ttk as ttk
-import tkinter.messagebox as tkmb
-import tkinter.filedialog as tkfd
-import tkinter.simpledialog as tksd
-import os
-import sys
 import time
-import copy
-import pickle
 import threading
-import queue
-import subprocess
-import platform
-import re
-import socket
-import struct
-import select
-import json
 import rtmidi
 
 #global variables
 #neuron parameters
-ACTIVATION_PARAMETER = 0
+ACTIVATION_FUNCTION_PARAMETER = 0
 THRESHOLD_PARAMETER = 1
 MIDI_NOTE_PARAMETER = 2
 MIDI_VELOCITY_PARAMETER = 3
@@ -37,22 +16,13 @@ WEIGHT_0_1_PARAMETER = 5
 WEIGHT_1_0_PARAMETER = 6
 #neuron parameter names
 NEURON_PARAMETER_NAMES = []
-NEURON_PARAMETER_NAMES.append("Activation")
+NEURON_PARAMETER_NAMES.append("Activation Function")
 NEURON_PARAMETER_NAMES.append("Threshold")
 NEURON_PARAMETER_NAMES.append("MIDI Note")
 NEURON_PARAMETER_NAMES.append("MIDI Velocity")
 NEURON_PARAMETER_NAMES.append("MIDI Duration")
 NEURON_PARAMETER_NAMES.append("Weight 0->1")
 NEURON_PARAMETER_NAMES.append("Weight 1->0")
-#neuron parameter values
-NEURON_PARAMETER_VALUES = []
-NEURON_PARAMETER_VALUES.append(ACTIVATION_PARAMETER)
-NEURON_PARAMETER_VALUES.append(THRESHOLD_PARAMETER)
-NEURON_PARAMETER_VALUES.append(MIDI_NOTE_PARAMETER)
-NEURON_PARAMETER_VALUES.append(MIDI_VELOCITY_PARAMETER)
-NEURON_PARAMETER_VALUES.append(MIDI_DURATION_PARAMETER)
-NEURON_PARAMETER_VALUES.append(WEIGHT_0_1_PARAMETER)
-NEURON_PARAMETER_VALUES.append(WEIGHT_1_0_PARAMETER)
 #neuron activation functions
 NEURON_ACTIVATION_FUNCTION_LINEAR = 0
 NEURON_ACTIVATION_FUNCTION_SIGMOID = 1
@@ -219,10 +189,11 @@ class NNote:
         return
     
 class Connection(threading.Thread):
-    def __init__(self, nnote1, nnnote2, weight_0_to_1=0.0, weight_1_to_0=0.0):
+    def __init__(self, name, nnote1, nnnote2, weight_0_to_1=0.0, weight_1_to_0=0.0):
         threading.Thread.__init__(self)
         self.weights = (weight_0_to_1, weight_1_to_0)
         self.nnotes = (nnote1, nnnote2)
+        self.name = name
 
     def set_weight(self, weight_idx, weight_value):
         self.weights[weight_idx] = weight_value
@@ -271,24 +242,28 @@ class Connection(threading.Thread):
 class NeuronSeq:
     def __init__(self):
         self.connections = []
-        return
-    
-    def add_nnote(self, nnote):
-        self.nnotes.append(nnote)
+        self.neurons = []
+        self.nnotes = []
         return
     
     def add_connection(self, connection):
         self.connections.append(connection)
+        #start connection thread
+        connection.start()
         return
     
     def get_nnotes(self):
-        return self.nnotes
+        nnotes = []
+        for connection in self.connections:
+            nnotes.append(connection.get_nnotes()[0])
+            nnotes.append(connection.get_nnotes()[1])
+        return nnotes
     
     def get_connections(self):
         return self.connections
     
-    def edit_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
-        if parameter_idx==ACTIVATION_PARAMETER:
+    def change_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
+        if parameter_idx==ACTIVATION_FUNCTION_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_activation_function(parameter_value)
         elif parameter_idx==THRESHOLD_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_threshold(parameter_value)
@@ -303,3 +278,70 @@ class NeuronSeq:
         elif parameter_idx==WEIGHT_1_0_PARAMETER:
             self.connections[connection_idx].set_weight(1, parameter_value)
         return
+    
+    def get_parameter(self, connection_idx, nnote_idx, parameter_idx):
+        if parameter_idx==ACTIVATION_PARAMETER:
+            return self.connections[connection_idx].get_nnote(nnote_idx).get_activation_function()
+        elif parameter_idx==THRESHOLD_PARAMETER:
+            return self.connections[connection_idx].get_nnote(nnote_idx).get_threshold()
+        elif parameter_idx==MIDI_NOTE_PARAMETER:
+            return self.connections[connection_idx].get_nnote(nnote_idx).note
+        elif parameter_idx==MIDI_VELOCITY_PARAMETER:
+            return self.connections[connection_idx].get_nnote(nnote_idx).velocity
+        elif parameter_idx==MIDI_DURATION_PARAMETER:
+            return self.connections[connection_idx].get_nnote(nnote_idx).duration
+        elif parameter_idx==WEIGHT_0_1_PARAMETER:
+            return self.connections[connection_idx].get_weight(0)
+        elif parameter_idx==WEIGHT_1_0_PARAMETER:
+            return self.connections[connection_idx].get_weight(1)
+        return
+    
+    def create_nnote(self, channel=0, note=0, velocity=0, duration=0.0, id="NNote"):
+        nnote = NNote()
+        nnote.set_note(note)
+        nnote.set_velocity(velocity)
+        nnote.set_duration(duration)
+        nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_LINEAR)
+        nnote.set_threshold(1.0)
+        nnote.channel = channel
+        self.nnotes.append(nnote)
+        return nnote
+    
+    def create_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
+        connection = Connection(name, self.nnotes[nnote1_idx], self.nnotes[nnote2_idx], weight_0_to_1, weight_1_to_0)
+        self.connections.append(connection)
+        #start connection thread
+        connection.start()
+        return connection
+
+    def get_connection_name(self, connection_idx):
+        return self.connections[connection_idx].name
+    
+if __name__ == "__main__": 
+    #usage example
+    ns = NeuronSeq()
+
+    #create 6 NNotes
+    kick = NNote(channel=0, note=KICK, velocity=127, duration=0.1, id="kick")
+    snare = NNote(channel=0, note=SNARE, velocity=127, duration=0.1, id="snare")
+    closed_hihat = NNote(channel=0, note=CLOSED_HIHAT, velocity=127, duration=0.1, id="closed_hihat")
+    open_hihat = NNote(channel=0, note=OPEN_HIHAT, velocity=127, duration=0.1, id="open_hihat")
+    crash = NNote(channel=0, note=CRASH, velocity=127, duration=0.1, id="crash")
+    ride = NNote(channel=0, note=RIDE, velocity=127, duration=0.1, id="ride")
+
+    #change activation function
+    kick.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+    snare.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+    closed_hihat.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+    open_hihat.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+    crash.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+    ride.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+
+    #add NNotes to NeuronSeq
+    ns.add_connection(Connection(kick, snare, weight_0_to_1=0.0001, weight_1_to_0=-0.0001))
+    ns.add_connection(Connection(snare, closed_hihat, weight_0_to_1=0.002, weight_1_to_0=0.002))
+    ns.add_connection(Connection(closed_hihat, open_hihat, weight_0_to_1=-0.001, weight_1_to_0=-0.001))
+    ns.add_connection(Connection(open_hihat, crash, weight_0_to_1=-0.001, weight_1_to_0=-0.001))
+    ns.add_connection(Connection(crash, ride, weight_0_to_1=-0.001, weight_1_to_0=-0.001))
+    ns.add_connection(Connection(ride, kick, weight_0_to_1=0.008, weight_1_to_0=0.008))
+
