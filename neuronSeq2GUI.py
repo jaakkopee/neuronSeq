@@ -292,12 +292,6 @@ class NSGUIOperationWindow(tk.Frame):
         self.nsgui_operation_window.connection_display_label["text"] = "Connections: "+str(len(self.ns.connections))
         self.nsgui_operation_window.connection_display_label.pack(side="left")
 
-        #sliders
-        self.nsgui_operation_window.sliders = tk.Frame(self.nsgui_operation_window)
-        self.nsgui_operation_window.sliders.pack(side="left")
-        self.nsgui_operation_window.sliders_label = tk.Label(self.nsgui_operation_window.sliders)
-        self.nsgui_operation_window.sliders_label["text"] = "Sliders: "+str(len(self.nsgui_operation_window.sliders))
-
         return
     
 #usage example
