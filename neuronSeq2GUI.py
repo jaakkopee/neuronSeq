@@ -112,69 +112,7 @@ class NSGUICreateConnectionWindow(tk.Toplevel):
         self.ns.create_connection(conn_name, conn_from, conn_to, conn_weight_0_to_1, conn_weight_1_to_0)
         self.destroy()
         return
-
-class NSGUISlider(tk.Scale):
-    def __init__(self, master=None, ns=None, ci=None, ni=None, pi=None):
-        super().__init__(master)
-        self.master = master
-        self.ns = ns
-        self.ci = ci
-        self.ni = ni
-        self.pi = pi
-        self.create_widgets()
-        return
     
-    def create_widgets(self):
-        # Set the slider's scale of values based on self.pi
-        if self.pi == ns2.THRESHOLD_PARAMETER:
-            self["from_"] = 0.0
-            self["to"] = 1.0
-            self["resolution"] = 0.01
-        elif self.pi == ns2.MIDI_NOTE_PARAMETER:
-            self["from_"] = 0
-            self["to"] = 127
-            self["resolution"] = 1
-        elif self.pi == ns2.MIDI_VELOCITY_PARAMETER:
-            self["from_"] = 0
-            self["to"] = 127
-            self["resolution"] = 1
-        elif self.pi == ns2.MIDI_DURATION_PARAMETER:
-            self["from_"] = 0.0
-            self["to"] = 10.0
-            self["resolution"] = 0.1
-        elif self.pi == ns2.WEIGHT_0_1_PARAMETER:
-            self["from_"] = -0.1
-            self["to"] = 0.1
-            self["resolution"] = 0.001
-        elif self.pi == ns2.WEIGHT_1_0_PARAMETER:
-            self["from_"] = -0.1
-            self["to"] = 0.1
-            self["resolution"] = 0.001
-
-        
-        self.pack(side="left")
-        self.bind("<ButtonRelease-1>", self.update_parameter)  # Bind to update parameter when slider is released
-        return
-
-    def update_parameter(self, event):
-        # Implement this method to update the parameter in your ns2 module
-        # Example:
-        new_value = self.get()  # Get the current value of the slider
-        if self.pi == ns2.THRESHOLD_PARAMETER:
-            self.ns.set_threshold(self.ci, self.ni, new_value)
-        elif self.pi == ns2.MIDI_NOTE_PARAMETER:
-            self.ns.set_midi_note(self.ci, self.ni, new_value)
-        elif self.pi == ns2.MIDI_VELOCITY_PARAMETER:
-            self.ns.set_midi_velocity(self.ci, self.ni, new_value)
-        elif self.pi == ns2.MIDI_DURATION_PARAMETER:
-            self.ns.set_midi_duration(self.ci, self.ni, new_value)
-        elif self.pi == ns2.WEIGHT_0_1_PARAMETER:
-            self.ns.set_weight_0_to_1(self.ci, new_value)
-        elif self.pi == ns2.WEIGHT_1_0_PARAMETER:
-            self.ns.set_weight_1_to_0(self.ci, new_value)
-        return
-
-
 class NSGUICreateSliderWindow(tk.Toplevel):
     def __init__(self, master=None, ns=None, ci=None, ni=None, pi=None):
         self.master = master
@@ -216,9 +154,186 @@ class NSGUICreateSliderWindow(tk.Toplevel):
         return
     
     def create_slider(self):
-        self.slider = NSGUISlider(self.master, self.ns, self.ci, self.ni, self.pi)
+        if self.ci == None:
+            self.ci = int(self.slider_creation_window.ci_entry.get())
+        if self.ni == None:
+            self.ni = int(self.slider_creation_window.ni_entry.get())
+        if self.pi == None:
+            self.pi = int(self.slider_creation_window.pi_entry.get())
+        if self.pi == ns2.THRESHOLD_PARAMETER:
+            self.slider = NSThresholdSlider(self.master, self.ns, self.ci, self.ni)
+        elif self.pi == ns2.MIDI_NOTE_PARAMETER:
+            self.slider = NSMidiNoteSlider(self.master, self.ns, self.ci, self.ni)
+        elif self.pi == ns2.MIDI_VELOCITY_PARAMETER:
+            self.slider = NSMidiVelocitySlider(self.master, self.ns, self.ci, self.ni)
+        elif self.pi == ns2.MIDI_DURATION_PARAMETER:
+            self.slider = NSMidiDurationSlider(self.master, self.ns, self.ci, self.ni)
+        elif self.pi == ns2.WEIGHT_0_1_PARAMETER:
+            self.slider = NSW0to1Slider(self.master, self.ns, self.ci)
+        elif self.pi == ns2.WEIGHT_1_0_PARAMETER:
+            self.slider = NSW1to0Slider(self.master, self.ns, self.ci)
+        else:
+            print("Error: invalid parameter index")
         self.slider_creation_window.destroy()
         return self.slider
+
+class NSThresholdSlider:
+    def __init__(self, master=None, ns=None, ci=None, ni=None):
+        self.master = master
+        self.ns = ns
+        self.ci = ci
+        self.ni = ni
+        self.pi = 1 #threshold is the second parameter
+        self.create_widgets()
+        return
+    
+    def create_widgets(self):
+        self.threshold_slider = tk.Scale(self.master)
+        self.threshold_slider["from_"] = 0
+        self.threshold_slider["to"] = 1
+        self.threshold_slider["resolution"] = 0.01
+        self.threshold_slider["orient"] = tkConstants.VERTICAL
+        self.threshold_slider["length"] = 200
+        self.threshold_slider["label"] = "Threshold"
+        self.threshold_slider["command"] = self.set_threshold
+        self.threshold_slider.pack(side="left")
+        return
+    
+    def set_threshold(self, value):
+        self.ns.set_threshold(self.ci, self.ni, float(value))
+        return
+    
+
+class NSMidiNoteSlider():
+    def __init__(self, master=None, ns=None, ci=None, ni=None):
+        self.master = master
+        self.ns = ns
+        self.ci = ci
+        self.ni = ni
+        self.pi = 2 #midi note is the third parameter
+        self.create_widgets()
+        return
+    
+    def create_widgets(self):
+        self.midi_note_slider = tk.Scale(self.master)
+        self.midi_note_slider["from_"] = 0
+        self.midi_note_slider["to"] = 127
+        self.midi_note_slider["resolution"] = 1
+        self.midi_note_slider["orient"] = tkConstants.VERTICAL
+        self.midi_note_slider["length"] = 200
+        self.midi_note_slider["label"] = "MIDI note"
+        self.midi_note_slider["command"] = self.set_midi_note
+        self.midi_note_slider.pack(side="left")
+        return
+    
+    def set_midi_note(self, value):
+        self.ns.set_midi_note(self.ci, self.ni, int(value))
+        return
+    
+class NSMidiVelocitySlider:
+    def __init__(self, master=None, ns=None, ci=None, ni=None):
+        self.master = master
+        self.ns = ns
+        self.ci = ci
+        self.ni = ni
+        self.pi = 3 #midi velocity is the fourth parameter
+        self.create_widgets()
+        return
+    
+    def create_widgets(self):
+        self.midi_velocity_slider = tk.Scale(self.master)
+        self.midi_velocity_slider["from_"] = 0
+        self.midi_velocity_slider["to"] = 127
+        self.midi_velocity_slider["resolution"] = 1
+        self.midi_velocity_slider["orient"] = tkConstants.VERTICAL
+        self.midi_velocity_slider["length"] = 200
+        self.midi_velocity_slider["label"] = "MIDI velocity"
+        self.midi_velocity_slider["command"] = self.set_midi_velocity
+        self.midi_velocity_slider.pack(side="left")
+        return
+    
+    def set_midi_velocity(self, value):
+        self.ns.set_midi_velocity(self.ci, self.ni, int(value))
+        return
+    
+class NSMidiDurationSlider:
+    def __init__(self, master=None, ns=None, ci=None, ni=None):
+        super().__init__(master)
+        self.master = master
+        self.ns = ns
+        self.ci = ci
+        self.ni = ni
+        self.pi = 4 #midi duration is the fifth parameter
+        self.create_widgets()
+        return
+    
+    def create_widgets(self):
+        self.midi_duration_slider = tk.Scale(self.master)
+        self.midi_duration_slider["from_"] = 0
+        self.midi_duration_slider["to"] = 10
+        self.midi_duration_slider["resolution"] = 0.1
+        self.midi_duration_slider["orient"] = tkConstants.VERTICAL
+        self.midi_duration_slider["length"] = 200
+        self.midi_duration_slider["label"] = "MIDI duration"
+        self.midi_duration_slider["command"] = self.set_midi_duration
+        self.midi_duration_slider.pack(side="left")
+        return
+    
+    def set_midi_duration(self, value):
+        self.ns.set_midi_duration(self.ci, self.ni, float(value))
+        return
+    
+class NSW0to1Slider:
+    def __init__(self, master=None, ns=None, ci=None):
+        self.master = master
+        self.ns = ns
+        self.ci = ci
+        self.ni = 0
+        self.pi = 0
+        self.create_widgets()
+        return
+    
+    def create_widgets(self):
+        self.w0to1_slider = tk.Scale(self.master)
+        self.w0to1_slider["from_"] = -1
+        self.w0to1_slider["to"] = 1
+        self.w0to1_slider["resolution"] = 0.01
+        self.w0to1_slider["orient"] = tkConstants.VERTICAL
+        self.w0to1_slider["length"] = 200
+        self.w0to1_slider["label"] = "W 0 to 1"
+        self.w0to1_slider["command"] = self.set_w0to1
+        self.w0to1_slider.pack(side="left")
+        return
+    
+    def set_w0to1(self, value):
+        self.ns.set_weight_0_to_1(self.ci, float(value))
+        return 
+    
+class NSW1to0Slider:
+    def __init__(self, master=None, ns=None, ci=None):
+        self.master = master
+        self.ns = ns
+        self.ci = ci
+        self.ni = 0
+        self.pi = 1
+        self.create_widgets()
+        return
+    
+    def create_widgets(self):
+        self.w1to0_slider = tk.Scale(self.master)
+        self.w1to0_slider["from_"] = -1
+        self.w1to0_slider["to"] = 1
+        self.w1to0_slider["resolution"] = 0.01
+        self.w1to0_slider["orient"] = tkConstants.VERTICAL
+        self.w1to0_slider["length"] = 200
+        self.w1to0_slider["label"] = "W 1 to 0"
+        self.w1to0_slider["command"] = self.set_w1to0
+        self.w1to0_slider.pack(side="left")
+        return
+    
+    def set_w1to0(self, value):
+        self.ns.set_weight_1_to_0(self.ci, float(value))
+        return
 
 class NSGUIMainWindow(tk.Frame):
     def __init__(self, master=None, ns=None):
@@ -228,6 +343,7 @@ class NSGUIMainWindow(tk.Frame):
         self.pack()
         self.create_widgets()
         self.sliders = []
+        return
 
     def create_widgets(self):
         self.create_nnote_button = tk.Button(self)
@@ -250,7 +366,7 @@ class NSGUIMainWindow(tk.Frame):
     def create_nnote(self):
         self.nsgui_create_nnote_window = NSGUICreateNNoteWindow(self.master, self.ns)
         return
-    
+
     def create_connection(self):
         self.nsgui_create_connection_window = NSGUICreateConnectionWindow(self.master, self.ns)
         return

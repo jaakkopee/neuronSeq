@@ -191,8 +191,8 @@ class NNote:
 class Connection(threading.Thread):
     def __init__(self, name, nnote1, nnnote2, weight_0_to_1=0.0, weight_1_to_0=0.0):
         threading.Thread.__init__(self)
-        self.weights = (weight_0_to_1, weight_1_to_0)
-        self.nnotes = (nnote1, nnnote2)
+        self.weights = [weight_0_to_1, weight_1_to_0]
+        self.nnotes = [nnote1, nnnote2]
         self.name = name
 
     def set_weight(self, weight_idx, weight_value):
@@ -214,7 +214,7 @@ class Connection(threading.Thread):
     
     def get_nnotes(self):
         return self.nnotes
-        
+
     def run(self):
         while True:
             if self.nnotes[0].Y[self.nnotes[0].activation_index] < self.nnotes[0].threshold:
@@ -303,8 +303,6 @@ class NeuronSeq:
     
     def get_weight_1_to_0(self, connection_idx):
         return self.connections[connection_idx].get_weight(1)
-    
-
     
     def change_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
         if parameter_idx==THRESHOLD_PARAMETER:
