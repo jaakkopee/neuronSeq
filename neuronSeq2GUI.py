@@ -258,7 +258,6 @@ class NSMidiVelocitySlider:
     
 class NSMidiDurationSlider:
     def __init__(self, master=None, ns=None, ci=None, ni=None):
-        super().__init__(master)
         self.master = master
         self.ns = ns
         self.ci = ci
