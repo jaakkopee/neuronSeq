@@ -72,7 +72,7 @@ class NNote:
         self.activation = 0.0
         self.activation_function = NEURON_ACTIVATION_FUNCTION_LINEAR
         self.activation_function_name = NEURON_ACTIVATION_FUNCTION_NAME_LINEAR
-
+        self.id = id
         self.activation_index=0
         self.X = []
         self.Y = []
@@ -168,6 +168,9 @@ class NNote:
         self.note_thread = threading.Thread(target=self.execute_note_thread)
         self.note_thread.start()
         return
+    
+    def get_id(self):
+        return self.id
             
     def execute_note_thread(self):
         #create midi event
@@ -214,6 +217,9 @@ class Connection(threading.Thread):
     
     def get_nnotes(self):
         return self.nnotes
+    
+    def get_id(self):
+        return self.name
 
     def run(self):
         while True:
@@ -341,6 +347,7 @@ class NeuronSeq:
         nnote.set_duration(duration)
         nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_LINEAR)
         nnote.set_threshold(1.0)
+        nnote.id = id
         nnote.channel = channel
         self.nnotes.append(nnote)
         return nnote
@@ -354,6 +361,13 @@ class NeuronSeq:
 
     def get_connection_name(self, connection_idx):
         return self.connections[connection_idx].name
+    
+    def get_neuron_graph_data(self):
+        neuron_graph_data = []
+        for nnote in self.nnotes:
+            neuron_graph_data.append(nnote.X)
+            neuron_graph_data.append(nnote.Y)
+        return neuron_graph_data
     
 if __name__ == "__main__": 
     #usage example
