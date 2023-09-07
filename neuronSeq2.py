@@ -260,12 +260,14 @@ class NeuronSeq:
         return
     
     
+    def neuron_list_string(self):
+        neuron_list_string = ""
+        for nnote in self.nnotes:
+            neuron_list_string += nnote.id + " "+ str(nnote.note) + " / " + str(nnote.velocity) + "\n"
+        return neuron_list_string
+    
     def get_nnotes(self):
-        nnotes = []
-        for connection in self.connections:
-            nnotes.append(connection.get_nnotes()[0])
-            nnotes.append(connection.get_nnotes()[1])
-        return nnotes
+        return self.nnotes
     
     def get_connections(self):
         return self.connections
@@ -394,7 +396,7 @@ class NetworkGraph(nx.Graph):
         #add the connections to graph
         for connection in connections:
             self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id(), connection=connection)
-            
+
         return self
 
     def is_directed(self):

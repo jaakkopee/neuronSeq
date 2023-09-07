@@ -75,6 +75,10 @@ class NeuronSeq2GUI(tk.Tk):
         self.neuron_graph.create_graph()       
         self.neuron_graph_canvas = NSGUINetworkCanvas(self.neuron_graph, self)
 
+        #create a label for the neuron list output
+        self.neuron_list_label = tk.Label(self, text="Neuron List:")
+        self.neuron_list_label.grid(row=2, column=0, sticky="W")
+
     def add_neuron_note(self):
         #create a new window for adding a neuron/note
         self.add_nnote_window = tk.Toplevel(self)
@@ -187,9 +191,14 @@ class NeuronSeq2GUI(tk.Tk):
         duration = float(self.nnote_duration_entry.get())
         identity = self.nnote_id_entry.get()
         #create the neuron/note object
-        self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, identity)
+        new_note = self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, identity)
+        new_note.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
         #update and draw the neuron graph
         self.neuron_graph_canvas.update_neuron_graph()
+
+        #update the neuron list
+        self.neuron_list_label["text"] = "Neuron List:\n" + str(self.neuron_graph.neuronSeq.neuron_list_string())
+
         #destroy the add neuron/note window
         self.add_nnote_window.destroy()
 
