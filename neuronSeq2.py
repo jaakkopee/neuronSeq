@@ -4,6 +4,8 @@ import numpy as np
 import time
 import threading
 import rtmidi
+import networkx as nx
+
 
 #global variables
 #neuron parameters
@@ -250,6 +252,9 @@ class NeuronSeq:
         self.connections = []
         self.neurons = []
         self.nnotes = []
+        self.graph = nx.DiGraph()
+
+        
         return
     
     def add_connection(self, connection):
