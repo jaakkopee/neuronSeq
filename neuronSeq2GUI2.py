@@ -262,7 +262,7 @@ class NeuronSeq2GUI(tk.Tk):
         duration = float(self.nnote_duration_entry.get())
         identity = self.nnote_id_entry.get()
         #create the neuron/note object
-        self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, identity)
+        self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, identity)
         #update the neuron graph
         self.update_neuron_graph()
         #destroy the add neuron/note window
@@ -277,7 +277,7 @@ class NeuronSeq2GUI(tk.Tk):
         weight_1_to_0 = float(self.connection_weight_1_to_0_entry.get())
         identity = self.connection_id_entry.get()
         #create the connection object
-        self.neuronSeq.create_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
+        self.neuron_graph.add_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
 
         #update the neuron graph
         self.update_neuron_graph()
