@@ -152,9 +152,6 @@ class NeuronSeq2GUI(tk.Tk):
         #create the neuron/note object
         self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, identity)
 
-        #update the neuron graph
-        self.update_neuron_graph()
-
         #destroy the add neuron/note window
         self.add_nnote_window.destroy()
 
@@ -183,18 +180,8 @@ class NeuronSeq2GUI(tk.Tk):
         nnotes = self.neuronSeq.get_nnotes()
         connections = self.neuronSeq.get_connections()
 
-        #create a list of neuron/note ids
-        nnote_ids = []
-        for nnote in nnotes:
-            nnote_ids.append(nnote.get_id())
-
-        #create a list of connection ids
-        connection_ids = []
-        for connection in connections:
-            connection_ids.append(connection.get_id())
-
-
-
+        return
+    
 
 
 
