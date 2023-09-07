@@ -16,10 +16,10 @@ import networkx as nx
 # NSGUINerworkCanvas class
 class NSGUINetworkCanvas(FigureCanvasTkAgg):
     def __init__(self, neuron_graph, master=None):
-        #create a figure
+        #create the figure
         self.fig = Figure(figsize=(5, 5), dpi=100)
+        #create the axis
         self.ax = self.fig.add_subplot(111)
-
         #create the canvas
         FigureCanvasTkAgg.__init__(self, self.fig, master=master)
         self.get_tk_widget().grid(row=1, column=0, columnspan=2, sticky="W")
@@ -28,14 +28,14 @@ class NSGUINetworkCanvas(FigureCanvasTkAgg):
         self.neuron_graph = neuron_graph
 
         #draw the neuron graph
-        self.draw_neuron_graph()
+        self.update_neuron_graph()
 
     def draw_neuron_graph(self):
         #clear the axis
         self.ax.clear()
 
         #draw the neuron graph
-        nx.draw(self.neuron_graph, ax=self.ax)
+        nx.draw_networkx(self.neuron_graph, ax=self.ax)
 
         #draw the canvas
         self.draw()
@@ -45,83 +45,10 @@ class NSGUINetworkCanvas(FigureCanvasTkAgg):
     def update_neuron_graph(self):
         #update the neuron graph
         self.neuron_graph.create_graph()
-
         #draw the neuron graph
         self.draw_neuron_graph()
 
         return
-
-# network graph class
-class NetworkGraph(nx.Graph):
-    def __init__(self, neuronSeq):
-        nx.Graph.__init__(self)
-        self.neuronSeq = neuronSeq
-        self.create_graph()
-
-    def create_graph(self):
-        #clear the graph
-        self.clear()
-
-        #add the neurons/notes
-        for nnote in self.neuronSeq.nnotes:
-            self.add_node(nnote.id, type="nnote", midi_channel=nnote.channel, note=nnote.note, velocity=nnote.velocity, duration=nnote.duration)
-
-        #add the connections
-        for connection in self.neuronSeq.connections:
-            self.add_edge(connection.source, connection.destination, type="connection", weight_0_to_1=connection.weight_0_to_1, weight_1_to_0=connection.weight_1_to_0)
-
-        return self
-
-    def add_nnote(self, midi_channel, note, velocity, duration, identity):
-        #create the neuron/note object
-        self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, identity)
-
-        #update the graph
-        self.create_graph()
-
-        return
-
-    def add_connection(self, identity, source, destination, weight_0_to_1, weight_1_to_0):
-        #create the connection object
-        self.neuronSeq.create_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
-
-        #update the graph
-        self.create_graph()
-
-        return
-
-    def update_connection(self, identity, source, destination, weight_0_to_1, weight_1_to_0):
-        #update the connection object
-        self.neuronSeq.update_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
-
-        #update the graph
-        self.create_graph()
-
-        return
-
-    def delete_nnote(self, identity):
-        #delete the neuron/note object
-        self.neuronSeq.delete_nnote(identity)
-
-        #update the graph
-        self.create_graph()
-
-        return
-
-    def delete_connection(self, identity):
-        #delete the connection object
-        self.neuronSeq.delete_connection(identity)
-
-        #update the graph
-        self.create_graph()
-
-        return
-
-    def get_nnote(self, identity):
-        #get the neuron/note object
-        nnote = self.neuronSeq.get_nnote(identity)
-
-        return nnote
     
 # main window class
 class NeuronSeq2GUI(tk.Tk):
@@ -131,8 +58,6 @@ class NeuronSeq2GUI(tk.Tk):
         self.geometry("800x600")
         self.resizable(width=False, height=False)
         self.neuronSeq = ns2.NeuronSeq()
-        self.neuron_graph = NetworkGraph(self.neuronSeq)
-        self.neuron_graph_canvas = NSGUINetworkCanvas(self.neuron_graph, self)
 
         self.create_widgets()
 
@@ -145,10 +70,10 @@ class NeuronSeq2GUI(tk.Tk):
         self.add_connection_button = tk.Button(self, text="Add Connection", command=self.add_connection)
         self.add_connection_button.grid(row=0, column=1, sticky="W")
 
-        #update the neuron graph
-        self.update_neuron_graph()
-
-
+        #create a neuron graph
+        self.neuron_graph = ns2.NetworkGraph(self.neuronSeq)
+        self.neuron_graph.create_graph()       
+        self.neuron_graph_canvas = NSGUINetworkCanvas(self.neuron_graph, self)
 
     def add_neuron_note(self):
         #create a new window for adding a neuron/note
@@ -263,8 +188,8 @@ class NeuronSeq2GUI(tk.Tk):
         identity = self.nnote_id_entry.get()
         #create the neuron/note object
         self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, identity)
-        #update the neuron graph
-        self.update_neuron_graph()
+        #update and draw the neuron graph
+        self.neuron_graph_canvas.update_neuron_graph()
         #destroy the add neuron/note window
         self.add_nnote_window.destroy()
 
@@ -280,7 +205,7 @@ class NeuronSeq2GUI(tk.Tk):
         self.neuron_graph.add_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
 
         #update the neuron graph
-        self.update_neuron_graph()
+        self.neuron_graph_canvas.update_neuron_graph()
 
         #destroy the add connection window
         self.add_connection_window.destroy()
@@ -297,11 +222,11 @@ class NeuronSeq2GUI(tk.Tk):
 def main():
     #create the main window
     app = NeuronSeq2GUI()
-
     #run the main loop
     app.mainloop()
 
 # run main function
 if __name__ == "__main__":
     main()
+
 

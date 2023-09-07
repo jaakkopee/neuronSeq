@@ -259,12 +259,6 @@ class NeuronSeq:
         self.nnotes = []
         return
     
-
-    def add_connection(self, connection):
-        self.connections.append(connection)
-        #start connection thread
-        connection.start()
-        return
     
     def get_nnotes(self):
         nnotes = []
@@ -377,31 +371,79 @@ class NeuronSeq:
             neuron_graph_data.append(nnote.Y)
         return neuron_graph_data
     
+# network graph class
+class NetworkGraph(nx.Graph):
+    def __init__(self, neuronSeq):
+        nx.Graph.__init__(self)
+        self.neuronSeq = neuronSeq
+        self.create_graph()
+
+    def create_graph(self):
+        #clear the graph
+        self.clear()
+
+        #get nnnotes
+        nnotes = self.neuronSeq.get_nnotes()
+        #get connections
+        connections = self.neuronSeq.get_connections()
+
+        #add the nnotes to graph
+        for nnote in nnotes:
+            self.add_node(nnote.get_id(), nnote=nnote)
+
+        #add the connections to graph
+        for connection in connections:
+            self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id(), connection=connection)
+            
+        return self
+
+    def is_directed(self):
+        return super().is_directed()
+
+    def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, id="NNote"):
+        #create the neuron/note object
+        new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, id)
+        #update and draw the neuron graph
+        self.create_graph()
+        return new_nnote
+
+    def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
+        #create the connection object
+        new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
+        #update the neuron graph
+        self.create_graph()
+        return new_connection    
+
 if __name__ == "__main__": 
-    #usage example
-    ns = NeuronSeq()
+    #create the neuron sequence
+    neuronSeq = NeuronSeq()
 
-    #create 6 NNotes
-    kick = NNote(channel=0, note=KICK, velocity=127, duration=0.1, id="kick")
-    snare = NNote(channel=0, note=SNARE, velocity=127, duration=0.1, id="snare")
-    closed_hihat = NNote(channel=0, note=CLOSED_HIHAT, velocity=127, duration=0.1, id="closed_hihat")
-    open_hihat = NNote(channel=0, note=OPEN_HIHAT, velocity=127, duration=0.1, id="open_hihat")
-    crash = NNote(channel=0, note=CRASH, velocity=127, duration=0.1, id="crash")
-    ride = NNote(channel=0, note=RIDE, velocity=127, duration=0.1, id="ride")
+    #create the neurons/notes
+    for note in range(9):
+        random_midi_note = np.random.randint(32, 45)
+        new_nnote = neuronSeq.create_nnote(0, random_midi_note, 100, 0.1, "NNote"+str(note))
+        new_nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
 
-    #change activation function
-    kick.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-    snare.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-    closed_hihat.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-    open_hihat.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-    crash.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-    ride.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+    #create the connections
+    neuronSeq.create_connection("Connection1", 0, 1, 0.005, 0.005)
+    neuronSeq.create_connection("Connection2", 1, 2, 0.005, 000.5)
+    neuronSeq.create_connection("Connection3", 2, 3, 0.005, 0.005)
+    neuronSeq.create_connection("Connection4", 3, 4, 0.005, 0.005)
+    neuronSeq.create_connection("Connection5", 4, 5, 0.005, 0.005)
+    neuronSeq.create_connection("Connection6", 5, 6, 0.005, 0.005)
+    neuronSeq.create_connection("Connection7", 6, 7, 0.005, 0.005)
+    neuronSeq.create_connection("Connection8", 7, 8, 0.005, 0.005)
+    neuronSeq.create_connection("Connection9", 8, 0, 0.005, 0.005)
 
-    #add NNotes to NeuronSeq
-    ns.add_connection(Connection(kick, snare, weight_0_to_1=0.0001, weight_1_to_0=-0.0001))
-    ns.add_connection(Connection(snare, closed_hihat, weight_0_to_1=0.002, weight_1_to_0=0.002))
-    ns.add_connection(Connection(closed_hihat, open_hihat, weight_0_to_1=-0.001, weight_1_to_0=-0.001))
-    ns.add_connection(Connection(open_hihat, crash, weight_0_to_1=-0.001, weight_1_to_0=-0.001))
-    ns.add_connection(Connection(crash, ride, weight_0_to_1=-0.001, weight_1_to_0=-0.001))
-    ns.add_connection(Connection(ride, kick, weight_0_to_1=0.008, weight_1_to_0=0.008))
+    #create the neuron graph
+    neuron_graph = NetworkGraph(neuronSeq)
+
+    print (neuron_graph.nodes(data=True))
+    print (neuron_graph.edges(data=True))
+
+    #plot the neuron graph
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(10,10))
+    nx.draw(neuron_graph, with_labels=True)
+    plt.show()
 
