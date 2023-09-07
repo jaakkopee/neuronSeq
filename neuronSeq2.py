@@ -427,7 +427,7 @@ if __name__ == "__main__":
 
     #create the connections
     neuronSeq.create_connection("Connection1", 0, 1, 0.005, 0.005)
-    neuronSeq.create_connection("Connection2", 1, 2, 0.005, 000.5)
+    neuronSeq.create_connection("Connection2", 1, 2, 0.005, 0.005)
     neuronSeq.create_connection("Connection3", 2, 3, 0.005, 0.005)
     neuronSeq.create_connection("Connection4", 3, 4, 0.005, 0.005)
     neuronSeq.create_connection("Connection5", 4, 5, 0.005, 0.005)
