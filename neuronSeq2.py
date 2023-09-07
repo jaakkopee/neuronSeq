@@ -263,7 +263,7 @@ class NeuronSeq:
     def neuron_list_string(self):
         neuron_list_string = ""
         for nnote in self.nnotes:
-            neuron_list_string += nnote.id + " "+ str(nnote.note) + " / " + str(nnote.velocity) + "\n"
+            neuron_list_string += nnote.id + " "+ str(nnote.note)  + ", "
         return neuron_list_string
     
     def get_nnotes(self):
