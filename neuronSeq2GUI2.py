@@ -22,7 +22,7 @@ class NSGUINetworkCanvas(FigureCanvasTkAgg):
 
         #create the canvas
         FigureCanvasTkAgg.__init__(self, self.fig, master=master)
-        self.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.get_tk_widget().grid(row=1, column=0, columnspan=2, sticky="W")
 
         #set the neuron graph
         self.neuron_graph = neuron_graph
