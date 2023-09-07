@@ -254,8 +254,15 @@ class NeuronSeq:
         self.nnotes = []
         self.graph = nx.DiGraph()
 
-        
+
         return
+    
+    def create_graph(self):
+        self.graph.clear()
+        for connection in self.connections:
+            self.graph.add_edge(connection.get_nnote(0).get_id(), connection.get_nnote(1).get_id(), weight=connection.get_weight(0))
+            self.graph.add_edge(connection.get_nnote(1).get_id(), connection.get_nnote(0).get_id(), weight=connection.get_weight(1))
+        return self.graph
     
     def add_connection(self, connection):
         self.connections.append(connection)
