@@ -34,9 +34,13 @@ class NeuronSeq2GUI(tk.Tk):
 
         #create a canvas for the neuron/connection graph
         self.neuron_graph = Figure(figsize=(5, 5), dpi=100)
+        G = self.neuronSeq.create_graph()
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=True, font_weight='bold')
         self.neuron_graph_canvas = FigureCanvasTkAgg(self.neuron_graph, self)
         self.neuron_graph_canvas.get_tk_widget().grid(row=1, column=0, columnspan=2, sticky="NSEW")
 
+        
 
 
     def add_neuron_note(self):
@@ -182,7 +186,7 @@ class NeuronSeq2GUI(tk.Tk):
         #create a canvas for the neuron/connection graph
         self.neuron_graph_canvas = FigureCanvasTkAgg(self.neuron_graph, self)
         self.neuron_graph_canvas.get_tk_widget().grid(row=1, column=0, columnspan=2, sticky="NSEW")
-        
+
 
         return
     

@@ -260,6 +260,8 @@ class NeuronSeq:
     def create_graph(self):
         self.graph.clear()
         for connection in self.connections:
+            self.graph.add_node(connection.get_nnote(0).get_id(), pos=(connection.get_nnote(0).X[connection.get_nnote(0).activation_index], connection.get_nnote(0).Y[connection.get_nnote(0).activation_index]))
+            self.graph.add_node(connection.get_nnote(1).get_id(), pos=(connection.get_nnote(1).X[connection.get_nnote(1).activation_index], connection.get_nnote(1).Y[connection.get_nnote(1).activation_index]))
             self.graph.add_edge(connection.get_nnote(0).get_id(), connection.get_nnote(1).get_id(), weight=connection.get_weight(0))
             self.graph.add_edge(connection.get_nnote(1).get_id(), connection.get_nnote(0).get_id(), weight=connection.get_weight(1))
         return self.graph
