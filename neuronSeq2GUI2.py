@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 
 import neuronSeq2 as ns2
 import numpy as np
+import networkx as nx
 
 # main window class
 class NeuronSeq2GUI(tk.Tk):
@@ -175,10 +176,13 @@ class NeuronSeq2GUI(tk.Tk):
     def update_neuron_graph(self):
         #clear the neuron graph
         self.neuron_graph.clear()
-
-        #generate the neuron graph from the neuronSeq object
-        nnotes = self.neuronSeq.get_nnotes()
-        connections = self.neuronSeq.get_connections()
+        G = self.neuronSeq.create_graph()
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos, with_labels=True, font_weight='bold')
+        #create a canvas for the neuron/connection graph
+        self.neuron_graph_canvas = FigureCanvasTkAgg(self.neuron_graph, self)
+        self.neuron_graph_canvas.get_tk_widget().grid(row=1, column=0, columnspan=2, sticky="NSEW")
+        
 
         return
     
