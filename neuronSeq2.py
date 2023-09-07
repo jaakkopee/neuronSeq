@@ -252,20 +252,9 @@ class NeuronSeq:
         self.connections = []
         self.neurons = []
         self.nnotes = []
-        self.graph = nx.DiGraph()
-
-
         return
     
-    def create_graph(self):
-        self.graph.clear()
-        for connection in self.connections:
-            self.graph.add_node(connection.get_nnote(0).get_id(), pos=(connection.get_nnote(0).X[connection.get_nnote(0).activation_index], connection.get_nnote(0).Y[connection.get_nnote(0).activation_index]))
-            self.graph.add_node(connection.get_nnote(1).get_id(), pos=(connection.get_nnote(1).X[connection.get_nnote(1).activation_index], connection.get_nnote(1).Y[connection.get_nnote(1).activation_index]))
-            self.graph.add_edge(connection.get_nnote(0).get_id(), connection.get_nnote(1).get_id(), weight=connection.get_weight(0))
-            self.graph.add_edge(connection.get_nnote(1).get_id(), connection.get_nnote(0).get_id(), weight=connection.get_weight(1))
-        return self.graph
-    
+
     def add_connection(self, connection):
         self.connections.append(connection)
         #start connection thread
@@ -376,7 +365,7 @@ class NeuronSeq:
     def get_connection_name(self, connection_idx):
         return self.connections[connection_idx].name
     
-    def get_neuron_graph_data(self):
+    def get_neuron_graph_data_act_func(self):
         neuron_graph_data = []
         for nnote in self.nnotes:
             neuron_graph_data.append(nnote.X)
