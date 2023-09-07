@@ -255,7 +255,6 @@ class Connection(threading.Thread):
 class NeuronSeq:
     def __init__(self):
         self.connections = []
-        self.neurons = []
         self.nnotes = []
         return
     
