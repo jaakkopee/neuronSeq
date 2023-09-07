@@ -199,7 +199,12 @@ class Connection(threading.Thread):
         self.weights = [weight_0_to_1, weight_1_to_0]
         self.nnotes = [nnote1, nnnote2]
         self.name = name
-
+        self.source = nnote1
+        self.destination = nnnote2
+        self.weight_0_to_1 = weight_0_to_1
+        self.weight_1_to_0 = weight_1_to_0
+        return
+    
     def set_weight(self, weight_idx, weight_value):
         self.weights[weight_idx] = weight_value
         return

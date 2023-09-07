@@ -64,7 +64,7 @@ class NetworkGraph(nx.Graph):
 
         #add the neurons/notes
         for nnote in self.neuronSeq.nnotes:
-            self.add_node(nnote.identity, type="nnote", midi_channel=nnote.midi_channel, note=nnote.note, velocity=nnote.velocity, duration=nnote.duration)
+            self.add_node(nnote.id, type="nnote", midi_channel=nnote.channel, note=nnote.note, velocity=nnote.velocity, duration=nnote.duration)
 
         #add the connections
         for connection in self.neuronSeq.connections:
