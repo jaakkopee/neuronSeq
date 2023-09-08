@@ -266,7 +266,7 @@ class NeuronSeq2GUI(tk.Tk):
         tk.Tk.__init__(self)
         self.title("NeuronSeq2")
         self.geometry("800x600")
-        self.resizable(width=False, height=False)
+        self.resizable(width=True, height=False)
         self.neuronSeq = ns2.NeuronSeq()
 
         self.create_widgets()
