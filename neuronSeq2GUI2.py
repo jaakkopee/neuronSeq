@@ -291,7 +291,7 @@ class NeuronSeq2GUI(tk.Tk):
 
         #create a label for the neuron list output
         self.neuron_list_label = tk.Label(self, text="Neuron/Connection List:")
-        self.neuron_list_label.grid(row=2, column=0, sticky="W")
+        self.neuron_list_label.grid(row=2, column=0, columnspan=4, sticky="W")
 
         #create slider window
         self.slider_window = NSGUISliderWindow(self)
