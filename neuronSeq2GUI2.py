@@ -21,10 +21,6 @@ class NSGUISliderWindow(tk.Toplevel):
         return
 
     def create_widgets(self):
-        #destroy the old widgets
-        for widget in self.winfo_children():
-            widget.destroy()
-
         #create the sliders
         for slider in self.sliders:
             slider.create_widgets()
@@ -34,6 +30,11 @@ class NSGUISliderWindow(tk.Toplevel):
     
     def add_slider(self, slider):
         self.sliders.append(slider)
+        return
+    
+    def erase_display(self):
+        for widget in self.winfo_children():
+            widget.destroy()
         return
     
 # NSGUINerworkCanvas class
@@ -357,6 +358,8 @@ class NeuronSeq2GUI(tk.Tk):
             slider = NSGUIW1to0Slider(self.slider_window, self.neuronSeq, connection_index)
         else:
             print("Error: invalid parameter index")
+        #empty the slider window
+        self.slider_window.erase_display()
 
         #add the slider to the slider window
         self.slider_window.add_slider(slider)
