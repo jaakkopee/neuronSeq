@@ -231,9 +231,9 @@ class Connection(threading.Thread):
     def run(self):
         while True:
             if self.nnotes[0].Y[self.nnotes[0].activation_index] < self.nnotes[0].threshold:
-                self.nnotes[1].advance_activation_index()
-            if self.nnotes[1].Y[self.nnotes[1].activation_index] < self.nnotes[1].threshold:
                 self.nnotes[0].advance_activation_index()
+            if self.nnotes[1].Y[self.nnotes[1].activation_index] < self.nnotes[1].threshold:
+                self.nnotes[1].advance_activation_index()
             
             #calculate new activation
             self.nnotes[0].activation += self.nnotes[1].Y[self.nnotes[1].activation_index] * self.weights[0]
