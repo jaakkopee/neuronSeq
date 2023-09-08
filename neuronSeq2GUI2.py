@@ -290,7 +290,7 @@ class NeuronSeq2GUI(tk.Tk):
         self.neuron_graph_canvas = NSGUINetworkCanvas(self.neuron_graph, self)
 
         #create a label for the neuron list output
-        self.neuron_list_label = tk.Label(self, text="Neuron List:")
+        self.neuron_list_label = tk.Label(self, text="Neuron/Connection List:")
         self.neuron_list_label.grid(row=2, column=0, sticky="W")
 
         #create slider window
@@ -486,7 +486,7 @@ class NeuronSeq2GUI(tk.Tk):
         self.neuron_graph_canvas.update_neuron_graph()
 
         #update the neuron list
-        self.neuron_list_label["text"] = "Neuron List:\n" + str(self.neuron_graph.neuronSeq.neuron_list_string())
+        self.neuron_list_label["text"] = "Neuron/Connection List:\n" + str(self.neuron_graph.neuronSeq.neuron_list_string())
 
         #destroy the add neuron/note window
         self.add_nnote_window.destroy()
@@ -504,6 +504,9 @@ class NeuronSeq2GUI(tk.Tk):
 
         #update the neuron graph
         self.neuron_graph_canvas.update_neuron_graph()
+
+        #update the neuron list
+        self.neuron_list_label["text"] = "Neuron/Connection List:\n" + str(self.neuron_graph.neuronSeq.neuron_list_string())
 
         #destroy the add connection window
         self.add_connection_window.destroy()

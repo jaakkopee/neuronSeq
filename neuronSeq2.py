@@ -50,6 +50,7 @@ TOM2 = 45
 TOM3 = 43
 TOM4 = 41
 
+X_AXIS_LENGTH = 65536
 
 #midi output
 MIDI_OUTPUT_PORT_NAME = "NeuronSeq"
@@ -139,7 +140,7 @@ class NNote:
     
     #activation function
     def create_activation_X_axis(self):
-        self.X = np.arange(0, 32767)
+        self.X = np.arange(0, X_AXIS_LENGTH, 1)
         return
     
     def create_activation_Y_axis(self):
@@ -191,7 +192,7 @@ class NNote:
         self.activation_index += 1
         if self.activation_index >= len(self.X):
             self.activation_index = len(self.X)-1
-        return
+        return self.Y[self.activation_index]
     
 class Connection(threading.Thread):
     def __init__(self, name, nnote1, nnnote2, weight_0_to_1=0.0, weight_1_to_0=0.0):
@@ -230,15 +231,10 @@ class Connection(threading.Thread):
 
     def run(self):
         while True:
-            if self.nnotes[0].Y[self.nnotes[0].activation_index] < self.nnotes[0].threshold:
-                self.nnotes[0].advance_activation_index()
-            if self.nnotes[1].Y[self.nnotes[1].activation_index] < self.nnotes[1].threshold:
-                self.nnotes[1].advance_activation_index()
-            
             #calculate new activation
-            self.nnotes[0].activation += self.nnotes[1].Y[self.nnotes[1].activation_index] * self.weights[0]
-            self.nnotes[1].activation += self.nnotes[0].Y[self.nnotes[0].activation_index] * self.weights[1]
-
+            self.nnotes[0].activation += self.nnotes[1].advance_activation_index() * self.weights[0]
+            self.nnotes[1].activation += self.nnotes[0].advance_activation_index() * self.weights[1]
+            
             #if activation reaches threshold, start note thread
             if self.nnotes[0].activation >= self.nnotes[0].threshold:
                 self.nnotes[0].note_thread_start()
@@ -263,6 +259,9 @@ class NeuronSeq:
         neuron_list_string = ""
         for nnote in self.nnotes:
             neuron_list_string += nnote.id + " "+ str(nnote.note)  + ", "
+        neuron_list_string += "\n"
+        for connection in self.connections:
+            neuron_list_string += connection.name + ": " + connection.nnotes[0].id + " " + connection.nnotes[1].id + ", "
         return neuron_list_string
     
     def get_nnotes(self):
