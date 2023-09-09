@@ -204,6 +204,7 @@ class Connection(threading.Thread):
         self.destination = nnnote2
         self.weight_0_to_1 = weight_0_to_1
         self.weight_1_to_0 = weight_1_to_0
+        self.running = True
         return
     
     def set_weight(self, weight_idx, weight_value):
@@ -230,11 +231,18 @@ class Connection(threading.Thread):
         return self.name
 
     def run(self):
-        while True:
+        while self.running:
             #calculate new activation
             self.nnotes[0].activation += self.nnotes[1].advance_activation_index() * self.weights[0]
             self.nnotes[1].activation += self.nnotes[0].advance_activation_index() * self.weights[1]
-            
+
+            if self.nnotes[0].activation < 0.0:
+                self.nnotes[0].activation = 0.0
+                self.nnotes[0].activation_index = 0
+            if self.nnotes[1].activation < 0.0:
+                self.nnotes[1].activation = 0.0
+                self.nnotes[1].activation_index = 0
+
             #if activation reaches threshold, start note thread
             if self.nnotes[0].activation >= self.nnotes[0].threshold:
                 self.nnotes[0].note_thread_start()
@@ -246,7 +254,13 @@ class Connection(threading.Thread):
                 self.nnotes[1].activation = 0.0
 
             time.sleep(0.001)
+
         return
+    def stop(self):
+        self.running=False
+        return
+    
+
 
 class NeuronSeq:
     def __init__(self):
@@ -370,6 +384,13 @@ class NeuronSeq:
             neuron_graph_data.append(nnote.X)
             neuron_graph_data.append(nnote.Y)
         return neuron_graph_data
+    
+    def stop(self):
+        for connection in self.connections:
+            connection.stop()
+            connection.join()
+        return
+    
     
 # network graph class
 class NetworkGraph(nx.Graph):

@@ -269,8 +269,17 @@ class NeuronSeq2GUI(tk.Tk):
         self.geometry("800x600")
         self.resizable(width=True, height=False)
         self.neuronSeq = ns2.NeuronSeq()
+        #handle closing the window
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.create_widgets()
+
+    def on_closing(self):
+        #stop the neuronSeq
+        self.neuronSeq.stop()
+        #destroy the window
+        self.destroy()
+        return
 
     def create_widgets(self):
         #create add neuron/note button
@@ -482,7 +491,7 @@ class NeuronSeq2GUI(tk.Tk):
         velocity = int(self.nnote_velocity_entry.get())
         duration = float(self.nnote_duration_entry.get())
         identity = self.nnote_id_entry.get()
-        #create the neuron/note object
+        #create the neuron/note object. neuron_graph.add_nnote() updates neuronSeq instance too.
         new_note = self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, identity)
         new_note.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
         #update and draw the neuron graph
@@ -502,7 +511,7 @@ class NeuronSeq2GUI(tk.Tk):
         weight_0_to_1 = float(self.connection_weight_0_to_1_entry.get())
         weight_1_to_0 = float(self.connection_weight_1_to_0_entry.get())
         identity = self.connection_id_entry.get()
-        #create the connection object
+        #create the connection object. neuron_graph.add_connection() updates neuronSeq instance too.
         self.neuron_graph.add_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
 
         #update the neuron graph
