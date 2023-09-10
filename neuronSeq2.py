@@ -145,7 +145,7 @@ class NNote:
     
     def create_activation_Y_axis(self):
         if self.activation_function==NEURON_ACTIVATION_FUNCTION_LINEAR:
-            self.Y = self.X
+            self.Y = self.X/len(self.X)
         elif self.activation_function==NEURON_ACTIVATION_FUNCTION_SIGMOID:
             self.Y = 1.0 / (1.0 + np.exp(-self.X))
         elif self.activation_function==NEURON_ACTIVATION_FUNCTION_TANH:
@@ -237,22 +237,22 @@ class Connection(threading.Thread):
             self.nnotes[0].activation += self.nnotes[1].advance_activation_index() * self.weights[1]
             self.nnotes[1].activation += self.nnotes[0].advance_activation_index() * self.weights[0]
 
-            if self.nnotes[0].activation < 0.0:
-                self.nnotes[0].activation = 0.0
+            if self.nnotes[0].activation < self.nnotes[0].Y[0]:
+                self.nnotes[0].activation = self.nnotes[0].Y[0]
                 self.nnotes[0].activation_index = 0
-            if self.nnotes[1].activation < 0.0:
-                self.nnotes[1].activation = 0.0
+            if self.nnotes[1].activation < self.nnotes[1].Y[0]:
+                self.nnotes[1].activation = self.nnotes[1].Y[0]
                 self.nnotes[1].activation_index = 0
 
             #if activation reaches threshold, start note thread
-            if self.nnotes[0].activation >= self.nnotes[0].threshold:
+            if self.nnotes[0].activation >= self.nnotes[0].Y[-1]:
                 self.nnotes[0].note_thread_start()
                 self.nnotes[0].activation_index = 0
-                self.nnotes[0].activation = 0.0
-            if self.nnotes[1].activation >= self.nnotes[1].threshold:
+                self.nnotes[0].activation = self.nnotes[0].Y[0]
+            if self.nnotes[1].activation >= self.nnotes[1].Y[-1]:
                 self.nnotes[1].note_thread_start()
                 self.nnotes[1].activation_index = 0
-                self.nnotes[1].activation = 0.0
+                self.nnotes[1].activation = self.nnotes[1].Y[0]
 
             time.sleep(0.001)
 

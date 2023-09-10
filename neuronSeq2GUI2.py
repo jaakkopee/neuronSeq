@@ -294,6 +294,10 @@ class NeuronSeq2GUI(tk.Tk):
         self.add_slider_button = tk.Button(self, text="Add Slider", command=self.add_slider)
         self.add_slider_button.grid(row=0, column=2, sticky="W")
 
+        #create create drum set button
+        self.create_drum_set_button = tk.Button(self, text="Create Drum Set", command=self.create_drum_set)
+        self.create_drum_set_button.grid(row=0, column=3, sticky="W")
+
         #create a neuron graph
         self.neuron_graph = ns2.NetworkGraph(self.neuronSeq)
         self.neuron_graph.create_graph()       
@@ -309,6 +313,34 @@ class NeuronSeq2GUI(tk.Tk):
         self.slider_window.geometry("400x200")
         self.slider_window.resizable(width=True, height=False)
 
+
+    def create_drum_set(self):
+        kick = self.neuron_graph.add_nnote(1, ns2.KICK, 127, 0.1, "kick")
+        kick.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        snare = self.neuron_graph.add_nnote(1, ns2.SNARE, 127, 0.1, "snare")
+        snare.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        closed_hihat = self.neuron_graph.add_nnote(1, ns2.CLOSED_HIHAT, 127, 0.1, "chh")
+        closed_hihat.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        open_hihat = self.neuron_graph.add_nnote(1, ns2.OPEN_HIHAT, 127, 0.1, "ohh")
+        open_hihat.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        crash = self.neuron_graph.add_nnote(1, ns2.CRASH, 127, 0.1, "crash")
+        crash.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        ride = self.neuron_graph.add_nnote(1, ns2.RIDE, 127, 0.1, "ride")
+        ride.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        tom1 = self.neuron_graph.add_nnote(1, ns2.TOM1, 127, 0.1, "tom1")
+        tom1.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        tom2 = self.neuron_graph.add_nnote(1, ns2.TOM2, 127, 0.1, "tom2")
+        tom2.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        tom3 = self.neuron_graph.add_nnote(1, ns2.TOM3, 127, 0.1, "tom3")
+        tom3.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        
+        #update the neuron graph
+        self.neuron_graph_canvas.update_neuron_graph()
+
+        #update the neuron list
+        self.neuron_list_label["text"] = "Neuron/Connection List:\n" + str(self.neuron_graph.neuronSeq.neuron_list_string())
+
+        return
 
     def add_slider(self):
         #create a new window for adding a slider
