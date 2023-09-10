@@ -50,7 +50,7 @@ TOM2 = 45
 TOM3 = 43
 TOM4 = 41
 
-X_AXIS_LENGTH = 2**20
+X_AXIS_LENGTH = 2**24
 
 #midi output
 MIDI_OUTPUT_PORT_NAME = "NeuronSeq"
