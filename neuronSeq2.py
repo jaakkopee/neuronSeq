@@ -50,7 +50,7 @@ TOM2 = 45
 TOM3 = 43
 TOM4 = 41
 
-X_AXIS_LENGTH = 65536
+X_AXIS_LENGTH = 2**20
 
 #midi output
 MIDI_OUTPUT_PORT_NAME = "NeuronSeq"
@@ -231,10 +231,11 @@ class Connection(threading.Thread):
         return self.name
 
     def run(self):
+        #negative weights do not work, TODO: fix this
         while self.running:
             #calculate new activation
-            self.nnotes[0].activation += self.nnotes[1].advance_activation_index() * self.weights[0]
-            self.nnotes[1].activation += self.nnotes[0].advance_activation_index() * self.weights[1]
+            self.nnotes[0].activation += self.nnotes[1].advance_activation_index() * self.weights[1]
+            self.nnotes[1].activation += self.nnotes[0].advance_activation_index() * self.weights[0]
 
             if self.nnotes[0].activation < 0.0:
                 self.nnotes[0].activation = 0.0
