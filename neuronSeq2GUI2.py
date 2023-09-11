@@ -315,23 +315,23 @@ class NeuronSeq2GUI(tk.Tk):
 
 
     def create_drum_set(self):
-        kick = self.neuron_graph.add_nnote(1, ns2.KICK, 127, 0.1, "kick")
+        kick = self.neuron_graph.add_nnote(1, ns2.KICK, 127, 0.1, 2**24, "kick")
         kick.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        snare = self.neuron_graph.add_nnote(1, ns2.SNARE, 127, 0.1, "snare")
+        snare = self.neuron_graph.add_nnote(1, ns2.SNARE, 127, 0.1, 2**24, "snare")
         snare.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        closed_hihat = self.neuron_graph.add_nnote(1, ns2.CLOSED_HIHAT, 127, 0.1, "chh")
+        closed_hihat = self.neuron_graph.add_nnote(1, ns2.CLOSED_HIHAT, 127, 0.1, 2**24, "chh")
         closed_hihat.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        open_hihat = self.neuron_graph.add_nnote(1, ns2.OPEN_HIHAT, 127, 0.1, "ohh")
+        open_hihat = self.neuron_graph.add_nnote(1, ns2.OPEN_HIHAT, 127, 0.1, 2**24, "ohh")
         open_hihat.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        crash = self.neuron_graph.add_nnote(1, ns2.CRASH, 127, 0.1, "crash")
+        crash = self.neuron_graph.add_nnote(1, ns2.CRASH, 127, 0.1, 2**24, "crash")
         crash.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        ride = self.neuron_graph.add_nnote(1, ns2.RIDE, 127, 0.1, "ride")
+        ride = self.neuron_graph.add_nnote(1, ns2.RIDE, 127, 0.1, 2**24, "ride")
         ride.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        tom1 = self.neuron_graph.add_nnote(1, ns2.TOM1, 127, 0.1, "tom1")
+        tom1 = self.neuron_graph.add_nnote(1, ns2.TOM1, 127, 0.1, 2**24, "tom1")
         tom1.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        tom2 = self.neuron_graph.add_nnote(1, ns2.TOM2, 127, 0.1, "tom2")
+        tom2 = self.neuron_graph.add_nnote(1, ns2.TOM2, 127, 0.1, 2**24, "tom2")
         tom2.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        tom3 = self.neuron_graph.add_nnote(1, ns2.TOM3, 127, 0.1, "tom3")
+        tom3 = self.neuron_graph.add_nnote(1, ns2.TOM3, 127, 0.1, 2**24, "tom3")
         tom3.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
         
         #update the neuron graph
