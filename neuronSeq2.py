@@ -142,14 +142,15 @@ class NNote:
     
     #activation function
     def create_activation_X_axis(self):
-        self.X = np.arange(0, self.lenX, 1)
+        self.X = np.arange(0, 1, 1/self.lenX)
         return
     
     def create_activation_Y_axis(self):
         if self.activation_function==NEURON_ACTIVATION_FUNCTION_LINEAR:
-            self.Y = self.X/len(self.X)
+            self.Y = self.X
         elif self.activation_function==NEURON_ACTIVATION_FUNCTION_SIGMOID:
-            self.Y = 1.0 / (1.0 + np.exp(-self.X))
+            temp_X = (self.X-0.5)*24
+            self.Y = (1 / (1 + np.exp(-temp_X)))
         elif self.activation_function==NEURON_ACTIVATION_FUNCTION_TANH:
             self.Y = np.tanh(self.X)
         elif self.activation_function==NEURON_ACTIVATION_FUNCTION_RELU:
@@ -361,10 +362,11 @@ class NeuronSeq:
     def create_nnote(self, channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
         nnote = NNote()
         nnote.lenX = lenX
+        nnote.create_activation_X_axis()
+        nnote.create_activation_Y_axis()
         nnote.set_note(note)
         nnote.set_velocity(velocity)
         nnote.set_duration(duration)
-        nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_LINEAR)
         nnote.set_threshold(1.0)
         nnote.id = id
         nnote.channel = channel
@@ -413,11 +415,11 @@ class NetworkGraph(nx.Graph):
 
         #add the nnotes to graph
         for nnote in nnotes:
-            self.add_node(nnote.get_id(), nnote=nnote)
+            self.add_node(nnote.get_id(), strokecolor="black", fillcolor="white", shape="circle", style="filled", label=nnote.get_id()+" "+str(nnote.note))
 
         #add the connections to graph
         for connection in connections:
-            self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id(), connection=connection)
+            self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id(), label=connection.get_id()+"\n"+str(connection.weights[0])+" "+str(connection.weights[1]), color="black")
 
         return self
 
@@ -467,6 +469,9 @@ if __name__ == "__main__":
     #plot the neuron graph
     import matplotlib.pyplot as plt
     plt.figure(figsize=(10,10))
-    nx.draw(neuron_graph, with_labels=True)
+    nx.draw_networkx(neuron_graph, pos=nx.spring_layout(neuron_graph), node_color="white", edge_color="black", font_color="black", font_size=8, node_size=1000)
+    #nx.draw_networkx_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), labels=nx.get_node_attributes(neuron_graph, 'label'))
+    nx.draw_networkx_edge_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), edge_labels=nx.get_edge_attributes(neuron_graph, 'label'))
+    
     plt.show()
 

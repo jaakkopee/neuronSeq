@@ -59,7 +59,9 @@ class NSGUINetworkCanvas(FigureCanvasTkAgg):
         self.ax.clear()
 
         #draw the neuron graph
-        nx.draw_networkx(self.neuron_graph, ax=self.ax)
+        nx.draw_networkx(self.neuron_graph, ax=self.ax, pos=nx.spring_layout(self.neuron_graph), node_color="blue", edge_color="black", font_color="black", font_size=10, node_size=480)
+        #nx.draw_networkx_edge_labels(self.neuron_graph, ax=self.ax, pos=nx.spring_layout(self.neuron_graph), edge_labels=nx.get_edge_attributes(self.neuron_graph, 'label'))
+
 
         #draw the canvas
         self.draw()
@@ -535,7 +537,7 @@ class NeuronSeq2GUI(tk.Tk):
         #create the neuron/note object. neuron_graph.add_nnote() updates neuronSeq instance too.
         new_note = self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, lenX, identity)
         new_note.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        print("new note: ", new_note.get_id(), new_note.channel, new_note.note, new_note.velocity, new_note.duration, new_note.lenX)
+        print("new note: ", new_note.get_id(), new_note.channel, new_note.note, new_note.velocity, new_note.duration, new_note.lenX, new_note.Y[0], new_note.Y[-1])
         #update and draw the neuron graph
         self.neuron_graph_canvas.update_neuron_graph()
 
