@@ -67,8 +67,10 @@ else:
     midi_output.openVirtualPort(midi_output_port_name)
 
 #NNote is a neuron that outputs a midi events
+#TODO: add parameter for len(X).
 class NNote:
-    def __init__(self, channel=0, note=0, velocity=0, duration=0.0, id="NNote"):
+    def __init__(self, channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
+        self.lenX = lenX
         self.note = note
         self.velocity = velocity
         self.duration = duration
@@ -140,7 +142,7 @@ class NNote:
     
     #activation function
     def create_activation_X_axis(self):
-        self.X = np.arange(0, X_AXIS_LENGTH, 1)
+        self.X = np.arange(0, self.lenX, 1)
         return
     
     def create_activation_Y_axis(self):
@@ -356,8 +358,9 @@ class NeuronSeq:
             return self.connections[connection_idx].get_weight(1)
         return
     
-    def create_nnote(self, channel=0, note=0, velocity=0, duration=0.0, id="NNote"):
+    def create_nnote(self, channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
         nnote = NNote()
+        nnote.lenX = lenX
         nnote.set_note(note)
         nnote.set_velocity(velocity)
         nnote.set_duration(duration)
@@ -421,9 +424,9 @@ class NetworkGraph(nx.Graph):
     def is_directed(self):
         return super().is_directed()
 
-    def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, id="NNote"):
+    def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
-        new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, id)
+        new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
         #update and draw the neuron graph
         self.create_graph()
         return new_nnote
@@ -436,31 +439,30 @@ class NetworkGraph(nx.Graph):
         return new_connection    
 
 if __name__ == "__main__": 
-    #create the neuron sequence
+    #create the neuronSeq
     neuronSeq = NeuronSeq()
 
     #create the neurons/notes
     for note in range(9):
         random_midi_note = np.random.randint(32, 45)
-        new_nnote = neuronSeq.create_nnote(0, random_midi_note, 100, 0.1, "NNote"+str(note))
+        random_lenX = np.random.randint(2**16, 2**24)
+        new_nnote = neuronSeq.create_nnote(3, random_midi_note, 100, 0.1, random_lenX, "NNote"+str(note)+"_"+str(random_lenX))
         new_nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        print (new_nnote.get_id())
 
     #create the connections
-    neuronSeq.create_connection("Connection1", 0, 1, 0.005, 0.005)
-    neuronSeq.create_connection("Connection2", 1, 2, 0.005, 0.005)
-    neuronSeq.create_connection("Connection3", 2, 3, 0.005, 0.005)
-    neuronSeq.create_connection("Connection4", 3, 4, 0.005, 0.005)
-    neuronSeq.create_connection("Connection5", 4, 5, 0.005, 0.005)
-    neuronSeq.create_connection("Connection6", 5, 6, 0.005, 0.005)
-    neuronSeq.create_connection("Connection7", 6, 7, 0.005, 0.005)
-    neuronSeq.create_connection("Connection8", 7, 8, 0.005, 0.005)
-    neuronSeq.create_connection("Connection9", 8, 0, 0.005, 0.005)
+    neuronSeq.create_connection("Connection1", 0, 1, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection2", 1, 2, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection3", 2, 3, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection4", 3, 4, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection5", 4, 5, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection6", 5, 6, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection7", 6, 7, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection8", 7, 8, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection9", 8, 0, 0.0001, 0.0001)
 
     #create the neuron graph
     neuron_graph = NetworkGraph(neuronSeq)
-
-    print (neuron_graph.nodes(data=True))
-    print (neuron_graph.edges(data=True))
 
     #plot the neuron graph
     import matplotlib.pyplot as plt

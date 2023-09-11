@@ -449,20 +449,28 @@ class NeuronSeq2GUI(tk.Tk):
 
         #create an entry for the note duration
         self.nnote_duration_entry = tk.Entry(self.add_nnote_window)
-        self.nnote_duration_entry.grid(row=3, column=1, sticky="W") 
+        self.nnote_duration_entry.grid(row=3, column=1, sticky="W")
+
+        #create a label for lenX
+        self.nnote_lenX_label = tk.Label(self.add_nnote_window, text="Activation Buffer Length:") 
+        self.nnote_lenX_label.grid(row=4, column=0, sticky="W")
+
+        #create an entry for lenX
+        self.nnote_lenX_entry = tk.Entry(self.add_nnote_window)
+        self.nnote_lenX_entry.grid(row=4, column=1, sticky="W")
 
         #create a label for the neuron/note id
         self.nnote_id_label = tk.Label(self.add_nnote_window, text="ID:")
-        self.nnote_id_label.grid(row=4, column=0, sticky="W")
+        self.nnote_id_label.grid(row=5, column=0, sticky="W")
 
         #create an entry for the neuron/note id
         self.nnote_id_entry = tk.Entry(self.add_nnote_window)
-        self.nnote_id_entry.grid(row=4, column=1, sticky="W")
+        self.nnote_id_entry.grid(row=5, column=1, sticky="W")
 
 
         #create a add neuron/note button
         self.add_nnote_button = tk.Button(self.add_nnote_window, text="Add Neuron/Note", command=self.add_nnote_object)
-        self.add_nnote_button.grid(row=5, column=0, columnspan=2, sticky="W")
+        self.add_nnote_button.grid(row=6, column=0, columnspan=2, sticky="W")
 
 
     def add_connection(self):
@@ -522,10 +530,12 @@ class NeuronSeq2GUI(tk.Tk):
         note = int(self.nnote_note_entry.get())
         velocity = int(self.nnote_velocity_entry.get())
         duration = float(self.nnote_duration_entry.get())
+        lenX = 2**int(self.nnote_lenX_entry.get())
         identity = self.nnote_id_entry.get()
         #create the neuron/note object. neuron_graph.add_nnote() updates neuronSeq instance too.
-        new_note = self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, identity)
+        new_note = self.neuron_graph.add_nnote(midi_channel, note, velocity, duration, lenX, identity)
         new_note.set_activation_function(ns2.NEURON_ACTIVATION_FUNCTION_SIGMOID)
+        print("new note: ", new_note.get_id(), new_note.channel, new_note.note, new_note.velocity, new_note.duration, new_note.lenX)
         #update and draw the neuron graph
         self.neuron_graph_canvas.update_neuron_graph()
 
