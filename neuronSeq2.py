@@ -445,21 +445,21 @@ if __name__ == "__main__":
     #create the neurons/notes
     for note in range(9):
         random_midi_note = np.random.randint(32, 45)
-        random_lenX = np.random.randint(2**16, 2**24)
+        random_lenX = 2**np.random.randint(0, 24)
         new_nnote = neuronSeq.create_nnote(3, random_midi_note, 100, 0.1, random_lenX, "NNote"+str(note)+"_"+str(random_lenX))
         new_nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
         print (new_nnote.get_id())
 
     #create the connections
-    neuronSeq.create_connection("Connection1", 0, 1, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection2", 1, 2, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection3", 2, 3, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection4", 3, 4, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection5", 4, 5, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection6", 5, 6, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection7", 6, 7, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection8", 7, 8, 0.0001, 0.0001)
-    neuronSeq.create_connection("Connection9", 8, 0, 0.0001, 0.0001)
+    neuronSeq.create_connection("Connection1", 0, 1, 0.001, 0.001)
+    neuronSeq.create_connection("Connection2", 1, 2, 0.001, 0.001)
+    neuronSeq.create_connection("Connection3", 2, 3, 0.001, 0.001)
+    neuronSeq.create_connection("Connection4", 3, 4, 0.001, 0.001)
+    neuronSeq.create_connection("Connection5", 4, 5, 0.001, 0.001)
+    neuronSeq.create_connection("Connection6", 5, 6, 0.001, 0.001)
+    neuronSeq.create_connection("Connection7", 6, 7, 0.001, 0.001)
+    neuronSeq.create_connection("Connection8", 7, 8, 0.001, 0.001)
+    neuronSeq.create_connection("Connection9", 8, 0, 0.001, 0.001)
 
     #create the neuron graph
     neuron_graph = NetworkGraph(neuronSeq)
