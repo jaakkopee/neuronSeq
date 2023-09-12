@@ -67,4 +67,5 @@ $ python neuronSeq2GUI2.py
 </code>
 
 <img src="neuronSeq_kinkybeat1.png"></img>
+The mp3's in this repository were made with the network in the picture above.
 
