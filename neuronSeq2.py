@@ -16,6 +16,8 @@ MIDI_VELOCITY_PARAMETER = 3
 MIDI_DURATION_PARAMETER = 4
 WEIGHT_0_1_PARAMETER = 5
 WEIGHT_1_0_PARAMETER = 6
+ACT_BUFFER_SIZE_PARAMETER = 7
+
 #neuron parameter names
 NEURON_PARAMETER_NAMES = []
 NEURON_PARAMETER_NAMES.append("Activation Function")
@@ -89,6 +91,12 @@ class NNote:
         self.channel = channel        
         self.midi_msg = rtmidi.MidiMessage()
 
+        return
+    
+    def set_activation_buffer_size(self, lenX):
+        self.lenX = lenX
+        self.create_activation_X_axis()
+        self.create_activation_Y_axis()
         return
 
     def set_note(self, note):
@@ -330,18 +338,30 @@ class NeuronSeq:
         return self.connections[connection_idx].get_weight(1)
     
     def change_parameter(self, connection_idx, nnote_idx, parameter_idx, parameter_value):
+        if parameter_idx==ACTIVATION_FUNCTION_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_activation_function(parameter_value)
+            print ("Activation Function set to", self.connections[connection_idx].get_nnote(nnote_idx).get_activation_function_name())
         if parameter_idx==THRESHOLD_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_threshold(parameter_value)
+            print ("Threshold set to", self.connections[connection_idx].get_nnote(nnote_idx).get_threshold())
         elif parameter_idx==MIDI_NOTE_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_note(parameter_value)
+            print ("MIDI Note set to", self.connections[connection_idx].get_nnote(nnote_idx).note)
         elif parameter_idx==MIDI_VELOCITY_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_velocity(parameter_value)
+            print ("MIDI Velocity set to", self.connections[connection_idx].get_nnote(nnote_idx).velocity)
         elif parameter_idx==MIDI_DURATION_PARAMETER:
             self.connections[connection_idx].get_nnote(nnote_idx).set_duration(parameter_value)
+            print ("Duration set to", self.connections[connection_idx].get_nnote(nnote_idx).duration)
         elif parameter_idx==WEIGHT_0_1_PARAMETER:
             self.connections[connection_idx].set_weight(0, parameter_value)
+            print ("Weight 0->1 set to", self.connections[connection_idx].get_weight(0))
         elif parameter_idx==WEIGHT_1_0_PARAMETER:
             self.connections[connection_idx].set_weight(1, parameter_value)
+            print ("Weight 1->0 set to", self.connections[connection_idx].get_weight(1))
+        elif parameter_idx==ACT_BUFFER_SIZE_PARAMETER:
+            self.connections[connection_idx].get_nnote(nnote_idx).set_activation_buffer_size(parameter_value)
+            print ("Activation buffer size set to", self.connections[connection_idx].get_nnote(nnote_idx).lenX)
         return
     
     def get_parameter(self, connection_idx, nnote_idx, parameter_idx):
@@ -447,21 +467,22 @@ if __name__ == "__main__":
     #create the neurons/notes
     for note in range(9):
         random_midi_note = np.random.randint(32, 45)
-        random_lenX = 2**np.random.randint(0, 24)
-        new_nnote = neuronSeq.create_nnote(3, random_midi_note, 100, 0.1, random_lenX, "NNote"+str(note)+"_"+str(random_lenX))
+        random_lenX = 2**np.random.randint(10, 24)
+        new_nnote = neuronSeq.create_nnote(3, random_midi_note, 127, 0.1, random_lenX, "NNote"+str(note))
         new_nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        print (new_nnote.get_id())
+        print (new_nnote.get_id(), random_midi_note, random_lenX)
 
     #create the connections
-    neuronSeq.create_connection("Connection1", 0, 1, 0.001, 0.001)
-    neuronSeq.create_connection("Connection2", 1, 2, 0.001, 0.001)
-    neuronSeq.create_connection("Connection3", 2, 3, 0.001, 0.001)
-    neuronSeq.create_connection("Connection4", 3, 4, 0.001, 0.001)
-    neuronSeq.create_connection("Connection5", 4, 5, 0.001, 0.001)
-    neuronSeq.create_connection("Connection6", 5, 6, 0.001, 0.001)
-    neuronSeq.create_connection("Connection7", 6, 7, 0.001, 0.001)
-    neuronSeq.create_connection("Connection8", 7, 8, 0.001, 0.001)
-    neuronSeq.create_connection("Connection9", 8, 0, 0.001, 0.001)
+    for connection in range(8):
+        random_weight_0_to_1 = np.random.uniform(-256.0, 256.0)
+        random_weight_1_to_0 = np.random.uniform(-256.0, 256.0)
+        new_connection = neuronSeq.create_connection("Connection"+str(connection), connection, connection+1, random_weight_0_to_1, random_weight_1_to_0)
+        print (new_connection.get_id(), random_weight_0_to_1, random_weight_1_to_0)
+    #create the final connection
+    random_weight_0_to_1 = np.random.uniform(-256.0, 256.0)
+    random_weight_1_to_0 = np.random.uniform(-256.0, 256.0)
+    new_connection = neuronSeq.create_connection("Connection8", 8, 0, random_weight_0_to_1, random_weight_1_to_0)
+    print (new_connection.get_id(), random_weight_0_to_1, random_weight_1_to_0)
 
     #create the neuron graph
     neuron_graph = NetworkGraph(neuronSeq)
@@ -469,9 +490,9 @@ if __name__ == "__main__":
     #plot the neuron graph
     import matplotlib.pyplot as plt
     plt.figure(figsize=(10,10))
-    nx.draw_networkx(neuron_graph, pos=nx.spring_layout(neuron_graph), node_color="white", edge_color="black", font_color="black", font_size=8, node_size=1000)
+    nx.draw_networkx(neuron_graph, pos=nx.spring_layout(neuron_graph), node_color="blue", edge_color="black", font_color="black", font_size=8, node_size=256)
     #nx.draw_networkx_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), labels=nx.get_node_attributes(neuron_graph, 'label'))
-    nx.draw_networkx_edge_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), edge_labels=nx.get_edge_attributes(neuron_graph, 'label'))
+    #nx.draw_networkx_edge_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), edge_labels=nx.get_edge_attributes(neuron_graph, 'label'))
     
     plt.show()
 

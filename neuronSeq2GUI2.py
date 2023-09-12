@@ -300,6 +300,10 @@ class NeuronSeq2GUI(tk.Tk):
         self.create_drum_set_button = tk.Button(self, text="Create Drum Set", command=self.create_drum_set)
         self.create_drum_set_button.grid(row=0, column=3, sticky="W")
 
+        #create a button for edit parameter button
+        self.edit_parameter_button = tk.Button(self, text="Edit Parameter", command=self.edit_parameter)
+        self.edit_parameter_button.grid(row=0, column=4, sticky="W")
+
         #create a neuron graph
         self.neuron_graph = ns2.NetworkGraph(self.neuronSeq)
         self.neuron_graph.create_graph()       
@@ -315,6 +319,84 @@ class NeuronSeq2GUI(tk.Tk):
         self.slider_window.geometry("400x200")
         self.slider_window.resizable(width=True, height=False)
 
+    def edit_parameter(self):
+        #create a new window for editing a parameter
+        self.edit_parameter_window = tk.Toplevel(self)
+        self.edit_parameter_window.title("Edit Parameter")
+        self.edit_parameter_window.geometry("400x200")
+        self.edit_parameter_window.resizable(width=False, height=False)
+
+        #create a label for the connection index
+        self.edit_parameter_connection_index_label = tk.Label(self.edit_parameter_window, text="Connection Index:")
+        self.edit_parameter_connection_index_label.grid(row=0, column=0, sticky="W")
+
+        #create an entry for the connection index
+        self.edit_parameter_connection_index_entry = tk.Entry(self.edit_parameter_window)
+        self.edit_parameter_connection_index_entry.grid(row=0, column=1, sticky="W")
+
+        #create a label for the neuron index
+        self.edit_parameter_neuron_index_label = tk.Label(self.edit_parameter_window, text="Neuron Index:")
+        self.edit_parameter_neuron_index_label.grid(row=1, column=0, sticky="W")
+
+        #create an entry for the neuron index
+        self.edit_parameter_neuron_index_entry = tk.Entry(self.edit_parameter_window)
+        self.edit_parameter_neuron_index_entry.grid(row=1, column=1, sticky="W")
+
+        #create a label for the parameter index
+        self.edit_parameter_parameter_index_label = tk.Label(self.edit_parameter_window, text="Parameter Index:")
+        self.edit_parameter_parameter_index_label.grid(row=2, column=0, sticky="W")
+
+        #create an entry for the parameter index
+        self.edit_parameter_parameter_index_entry = tk.Entry(self.edit_parameter_window)
+        self.edit_parameter_parameter_index_entry.grid(row=2, column=1, sticky="W")
+
+        #create a label for the parameter value
+        self.edit_parameter_parameter_value_label = tk.Label(self.edit_parameter_window, text="Parameter Value:")
+        self.edit_parameter_parameter_value_label.grid(row=3, column=0, sticky="W")
+
+        #create an entry for the parameter value
+        self.edit_parameter_parameter_value_entry = tk.Entry(self.edit_parameter_window)
+        self.edit_parameter_parameter_value_entry.grid(row=3, column=1, sticky="W")
+
+        #create a edit parameter button
+        self.edit_parameter_button = tk.Button(self.edit_parameter_window, text="Edit Parameter", command=self.edit_parameter_fuction)
+        self.edit_parameter_button.grid(row=4, column=0, columnspan=2, sticky="W")
+
+    def edit_parameter_fuction(self):
+        #get the parameter values
+        connection_index = int(self.edit_parameter_connection_index_entry.get())
+        neuron_index = int(self.edit_parameter_neuron_index_entry.get())
+        parameter_index = int(self.edit_parameter_parameter_index_entry.get())
+        if parameter_index==ns2.ACTIVATION_FUNCTION_PARAMETER:
+            parameter_value = int(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.THRESHOLD_PARAMETER:
+            parameter_value = float(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.MIDI_NOTE_PARAMETER:
+            parameter_value = int(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.MIDI_VELOCITY_PARAMETER:
+            parameter_value = int(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.MIDI_DURATION_PARAMETER:
+            parameter_value = float(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.WEIGHT_0_1_PARAMETER:
+            parameter_value = float(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.WEIGHT_1_0_PARAMETER:
+            parameter_value = float(self.edit_parameter_parameter_value_entry.get())
+        elif parameter_index==ns2.ACT_BUFFER_SIZE_PARAMETER:
+            parameter_value = 2**int(self.edit_parameter_parameter_value_entry.get())
+        
+        #edit the parameter
+        self.neuronSeq.change_parameter(connection_index, neuron_index, parameter_index, parameter_value)
+
+        #update the neuron graph
+        self.neuron_graph_canvas.update_neuron_graph()
+
+        #update the neuron list
+        self.neuron_list_label["text"] = "Neuron/Connection List:\n" + str(self.neuron_graph.neuronSeq.neuron_list_string())
+
+        #destroy the edit parameter window
+        self.edit_parameter_window.destroy()
+
+        return
 
     def create_drum_set(self):
         kick = self.neuron_graph.add_nnote(1, ns2.KICK, 127, 0.1, 2**24, "kick")
@@ -557,6 +639,8 @@ class NeuronSeq2GUI(tk.Tk):
         identity = self.connection_id_entry.get()
         #create the connection object. neuron_graph.add_connection() updates neuronSeq instance too.
         self.neuron_graph.add_connection(identity, source, destination, weight_0_to_1, weight_1_to_0)
+
+        print("new connection: ", self.neuronSeq.connections[-1].get_id(), self.neuronSeq.connections[-1].source.get_id(), self.neuronSeq.connections[-1].destination.get_id(), self.neuronSeq.connections[-1].weight_0_to_1, self.neuronSeq.connections[-1].weight_1_to_0)
 
         #update the neuron graph
         self.neuron_graph_canvas.update_neuron_graph()

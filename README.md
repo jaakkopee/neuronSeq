@@ -66,3 +66,5 @@ Run the gui with
 $ python neuronSeq2GUI2.py
 </code>
 
+<img>neuronSeq_kinkybeat1.png</img>
+
