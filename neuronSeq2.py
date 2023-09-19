@@ -435,11 +435,11 @@ class NetworkGraph(nx.Graph):
 
         #add the nnotes to graph
         for nnote in nnotes:
-            self.add_node(nnote.get_id(), strokecolor="black", fillcolor="white", shape="circle", style="filled", label=nnote.get_id()+" "+str(nnote.note))
+            self.add_node(nnote.get_id())
 
         #add the connections to graph
         for connection in connections:
-            self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id(), label=connection.get_id()+"\n"+str(connection.weights[0])+" "+str(connection.weights[1]), color="black")
+            self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id())
 
         return self
 
