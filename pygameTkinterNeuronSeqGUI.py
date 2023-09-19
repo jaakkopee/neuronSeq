@@ -206,7 +206,7 @@ DVpos={}
 for node in G.nodes():
     DVpos[node] = DistanceVector(pos[node])
 
-def run_network_window():
+def run_network_window(event):
     global running
     if running == False:
         return
@@ -217,7 +217,6 @@ def run_network_window():
     global pan_offset
     
     # Handle events
-    event = pygame.event.wait(10)
     if event.type == pygame.QUIT:
         running = False
         return
@@ -278,6 +277,7 @@ def run_network_window():
         pygame.draw.circle(screen, (0, 0, 255), (int(x), int(y)), 12)
     
     pygame.display.update()
+
     return
 
 def main():
@@ -285,8 +285,9 @@ def main():
     global pan_offset
 
     while running:
+        event = pygame.event.poll()
         neuronSeq_window.update()
-        run_network_window()
+        run_network_window(event)
         #time.sleep(0.1)
     return
 
