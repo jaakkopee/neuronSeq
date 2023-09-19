@@ -34,7 +34,7 @@ def print_neuronSeq_nnotes():
 
 def print_neuronSeq_connections():
     for connection in neuronSeq.connections:
-        print(connection.name, connection.source, connection.target, connection.weight_0_to_1, connection.weight_1_to_0)
+        print(connection.name, connection.source, connection.destination, connection.weight_0_to_1, connection.weight_1_to_0)
     return
 
 class AddNeuronWindow(tk.Toplevel):
@@ -74,12 +74,17 @@ class AddNeuronWindow(tk.Toplevel):
         self.add_button.grid(row=5, column=0, padx=10, pady=10)
         
     def add_neuron(self):
+        global G, pos, DVpos
         neuron_name = self.neuron_name_entry.get()
         midi_channel = int(self.midi_channel_entry.get())
         midi_note = int(self.midi_note_entry.get())
         velocity = int(self.velocity_entry.get())
         duration = float(self.duration_entry.get())
         G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity)
+        pos = nx.spring_layout(G)
+        DVpos={}
+        for node in G.nodes():
+            DVpos[node] = DistanceVector(pos[node])
         print_neuronSeq_nnotes()
         return
     
@@ -120,12 +125,17 @@ class AddConnectionWindow(tk.Toplevel):
         self.add_connection_button.grid(row=5, column=0, padx=10, pady=10)
 
     def add_connection(self):
+        global G, pos, DVpos
         connection_name = self.connection_name_entry.get()
         source = int(self.source_entry.get())
         target = int(self.target_entry.get())
         weight0 = float(self.weight0_entry.get())
         weight1 = float(self.weight1_entry.get())
         G.add_connection(connection_name, source, target, weight0, weight1)
+        pos = nx.spring_layout(G)
+        DVpos={}
+        for node in G.nodes():
+            DVpos[node] = DistanceVector(pos[node])
         print_neuronSeq_connections()
         return
     
