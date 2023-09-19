@@ -230,16 +230,16 @@ def run_network_window():
         
         elif event.key == pygame.K_r:
             for node in G.nodes():
-                DVpos[node] = rotate_x(DVpos[node], 5)
+                DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle+0.1)
         elif event.key == pygame.K_t:
             for node in G.nodes():
-                DVpos[node] = rotate_x(DVpos[node], -5)
+                DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle-0.1)
         elif event.key == pygame.K_f:
             for node in G.nodes():
-                DVpos[node] = rotate_y(DVpos[node], 5)
+                DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle+0.1)
         elif event.key == pygame.K_g:
             for node in G.nodes():
-                DVpos[node] = rotate_y(DVpos[node], -5)
+                DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle-0.1)
 
     # Clear screen
     screen.fill((255, 255, 255))
