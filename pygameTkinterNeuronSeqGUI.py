@@ -1,3 +1,5 @@
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any
 import pygame
 import networkx as nx
 import math
@@ -206,89 +208,112 @@ DVpos={}
 for node in G.nodes():
     DVpos[node] = DistanceVector(pos[node])
 
-def run_network_window(event):
-    global running
-    if running == False:
-        return
+class NetworkRunner(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        
+    def run(self):
+        global running
+        while running:
+            self.update()
+            time.sleep(0.1)
 
-    # Variables for handling tilting, zooming, and panning
-    # Move zoom_factor and pan_offset to global
-    global zoom_factor
-    global pan_offset
+    def update(self):
+        # Variables for handling tilting, zooming, and panning
+        # Move zoom_factor and pan_offset to global
+        global zoom_factor
+        global pan_offset
+        global running
+        global G
+        global DVpos
+        # Get events
+        events = pygame.event.get()
+        # Handle events
+        for event in events:
+            if event.type == pygame.QUIT:
+                running = False
+                return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_PLUS:
+                    zoom_factor += 10.0
+                elif event.key == pygame.K_MINUS:
+                    zoom_factor -= 10.0
+                elif event.key == pygame.K_LEFT:
+                    pan_offset[0] -= 20
+                elif event.key == pygame.K_RIGHT:
+                    pan_offset[0] += 20
+                elif event.key == pygame.K_UP:
+                    pan_offset[1] -= 20
+                elif event.key == pygame.K_DOWN:
+                    pan_offset[1] += 20
+                elif event.key == pygame.K_ESCAPE:
+                    running = False
+                    return
+                
+                elif event.key == pygame.K_r:
+                    for node in G.nodes():
+                        DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle+0.1)
+                elif event.key == pygame.K_t:
+                    for node in G.nodes():
+                        DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle-0.1)
+                elif event.key == pygame.K_f:
+                    for node in G.nodes():
+                        DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle+0.1)
+                elif event.key == pygame.K_g:
+                    for node in G.nodes():
+                        DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle-0.1)
+
+        # Clear screen
+        screen.fill((255, 255, 255))
+
+        # Draw edges and nodes
+        for edge in G.edges():
+            color = (0, 0, 0)
+            r = np.random.randint(0,255,1)
+            g = np.random.randint(0,255,1)
+            b = np.random.randint(0,255,1)
+            color = (r,g,b)
+            # Scale and apply pan offset and zoom factor
+            x1, y1 = DVpos[edge[0]].get_coordinates()
+            x2, y2 = DVpos[edge[1]].get_coordinates()
+            x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
+            y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
+            x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
+            y2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+            pygame.draw.line(screen, color, (x1, y1), (x2, y2), 5)
+
+        # Draw nodes
+        for node in G.nodes():
+            x, y = DVpos[node].get_coordinates()
+            x = x * zoom_factor + width / 2 + pan_offset[0]
+            y = y * zoom_factor + height / 2 + pan_offset[1]
+            pygame.draw.circle(screen, (0, 0, 255), (int(x), int(y)), 12)
+
+        return
     
-    # Handle events
-    if event.type == pygame.QUIT:
+    def stop(self):
+        global running
         running = False
         return
-    elif event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_PLUS:
-            zoom_factor += 10.0
-        elif event.key == pygame.K_MINUS:
-            zoom_factor -= 10.0
-        elif event.key == pygame.K_LEFT:
-            pan_offset[0] -= 20
-        elif event.key == pygame.K_RIGHT:
-            pan_offset[0] += 20
-        elif event.key == pygame.K_UP:
-            pan_offset[1] -= 20
-        elif event.key == pygame.K_DOWN:
-            pan_offset[1] += 20
-        elif event.key == pygame.K_ESCAPE:
-            running = False
-            return
-        
-        elif event.key == pygame.K_r:
-            for node in G.nodes():
-                DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle+0.1)
-        elif event.key == pygame.K_t:
-            for node in G.nodes():
-                DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle-0.1)
-        elif event.key == pygame.K_f:
-            for node in G.nodes():
-                DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle+0.1)
-        elif event.key == pygame.K_g:
-            for node in G.nodes():
-                DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle-0.1)
-
-    # Clear screen
-    screen.fill((255, 255, 255))
-
-    # Draw edges and nodes
-    for edge in G.edges():
-        color = (0, 0, 0)
-        r = np.random.randint(0,255,1)
-        g = np.random.randint(0,255,1)
-        b = np.random.randint(0,255,1)
-        color = (r,g,b)
-        # Scale and apply pan offset and zoom factor
-        x1, y1 = DVpos[edge[0]].get_coordinates()
-        x2, y2 = DVpos[edge[1]].get_coordinates()
-        x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
-        y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
-        x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
-        y2 = y2 * zoom_factor + height / 2 + pan_offset[1]
-        pygame.draw.line(screen, color, (x1, y1), (x2, y2), 5)
-
-    # Draw nodes
-    for node in G.nodes():
-        x, y = DVpos[node].get_coordinates()
-        x = x * zoom_factor + width / 2 + pan_offset[0]
-        y = y * zoom_factor + height / 2 + pan_offset[1]
-        pygame.draw.circle(screen, (0, 0, 255), (int(x), int(y)), 12)
     
-    pygame.display.update()
-
-    return
-
 def main():
     global zoom_factor
     global pan_offset
+    global running
+    nwr = NetworkRunner()
 
+    def update():
+        nwr.update()
+        pygame.display.flip()
+        return
+    
     while running:
-        event = pygame.event.poll()
-        neuronSeq_window.update()
-        run_network_window(event)
-        #time.sleep(0.1)
+        update()
+        time.sleep(0.1)
+
+    nwr.stop()
+    nwr.join()
+
     return
 
 if __name__ == "__main__":
