@@ -28,13 +28,15 @@ G.add_connection("E->A", 4, 0, 156, 156)
 
 
 def print_neuronSeq_nnotes():
+    print("Neurons:")
     for nnote in neuronSeq.nnotes:
         print(nnote.id, nnote.channel, nnote.note, nnote.velocity, nnote.duration)
     return
 
 def print_neuronSeq_connections():
+    print("Connections:")
     for connection in neuronSeq.connections:
-        print(connection.name, connection.source, connection.destination, connection.weight_0_to_1, connection.weight_1_to_0)
+        print(connection.name, connection.source.id, "->", connection.destination.id, connection.weight_0_to_1, connection.weight_1_to_0)
     return
 
 class AddNeuronWindow(tk.Toplevel):
@@ -43,6 +45,7 @@ class AddNeuronWindow(tk.Toplevel):
         self.title("Add Neuron")
         self.geometry("300x300")
         self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.create_widgets()
 
     def close_window(self):
@@ -94,6 +97,7 @@ class AddConnectionWindow(tk.Toplevel):
         self.title("Add Connection")
         self.geometry("300x300")
         self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.create_widgets()
 
     def close_window(self):
@@ -159,7 +163,10 @@ neuronSeq_window.add_neuron_button = tk.Button(neuronSeq_window, text="Add Neuro
 neuronSeq_window.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
 neuronSeq_window.add_connection_button = tk.Button(neuronSeq_window, text="Add Connection", command=openAddConnectionWindow)
 neuronSeq_window.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
-
+neuronSeq_window.print_nnotes_button = tk.Button(neuronSeq_window, text="Print Neurons", command=print_neuronSeq_nnotes)
+neuronSeq_window.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
+neuronSeq_window.print_connections_button = tk.Button(neuronSeq_window, text="Print Connections", command=print_neuronSeq_connections)
+neuronSeq_window.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
 
 def get_angle(direction=1, angle=1):
     new_angle = angle * 30 * direction
@@ -245,7 +252,7 @@ class NetworkRunner(threading.Thread):
                 elif event.key == pygame.K_ESCAPE:
                     running = False
                     return
-                
+                """
                 elif event.key == pygame.K_r:
                     for node in G.nodes():
                         DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle+0.1)
@@ -258,16 +265,21 @@ class NetworkRunner(threading.Thread):
                 elif event.key == pygame.K_g:
                     for node in G.nodes():
                         DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle-0.1)
-
+                """
         # Clear screen
         screen.fill((255, 255, 255))
 
         # Draw edges and nodes
         for edge in G.edges():
+            """
             color = (0, 0, 0)
             r = np.random.randint(0,255,1)
             g = np.random.randint(0,255,1)
             b = np.random.randint(0,255,1)
+            """
+            r = 0
+            g = 0
+            b = 0
             color = (r,g,b)
             # Scale and apply pan offset and zoom factor
             x1, y1 = DVpos[edge[0]].get_coordinates()
@@ -324,7 +336,7 @@ def main():
 
     while running:
         nwr.update()
-        pygame.display.update()
+        pygame.display.flip()
         neuronSeq_window.update()
 
 
