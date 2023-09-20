@@ -1,3 +1,5 @@
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any
 import pygame
 import networkx as nx
 import math
@@ -6,6 +8,8 @@ import tkinter as tk
 import neuronSeq2 as ns
 import threading
 import time
+
+running = True   
 
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
@@ -142,12 +146,6 @@ class AddConnectionWindow(tk.Toplevel):
         self.close_window()
         return
 
-neuronSeq_window = tk.Tk()
-neuronSeq_window.title("NeuronSeq")
-neuronSeq_window.geometry("300x300")
-neuronSeq_window.resizable(True, True)
-neuronSeq_window.protocol("WM_DELETE_WINDOW", neuronSeq_window.destroy)
-
 def openAddNeuronWindow():
     global addNeuronWindow, neuronSeq_window
     addNeuronWindow=AddNeuronWindow(neuronSeq_window)
@@ -157,15 +155,50 @@ def openAddConnectionWindow():
     global addConnectionWindow, neuronSeq_window
     addConnectionWindow=AddConnectionWindow(neuronSeq_window)
     return
+
+
+class NeuronSeqWindow(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("NeuronSeq")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
+        
+        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
+        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
+        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
+        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
+        self.print_nnotes_button = tk.Button(self, text="Print Neurons", command=print_neuronSeq_nnotes)
+        self.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
+        self.print_connections_button = tk.Button(self, text="Print Connections", command=print_neuronSeq_connections)
+        self.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
+
+class NSWUpdateTicker(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.start()
+
+    def run(self):
+        global G
+        global DVpos
+        global running
+        global neuronSeq_window
+
+        while running:
+            continue
+        return    
     
-neuronSeq_window.add_neuron_button = tk.Button(neuronSeq_window, text="Add Neuron", command=openAddNeuronWindow)
-neuronSeq_window.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
-neuronSeq_window.add_connection_button = tk.Button(neuronSeq_window, text="Add Connection", command=openAddConnectionWindow)
-neuronSeq_window.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
-neuronSeq_window.print_nnotes_button = tk.Button(neuronSeq_window, text="Print Neurons", command=print_neuronSeq_nnotes)
-neuronSeq_window.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
-neuronSeq_window.print_connections_button = tk.Button(neuronSeq_window, text="Print Connections", command=print_neuronSeq_connections)
-neuronSeq_window.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
+    def update(self):
+        neuronSeq_window.update()
+        return
 
 def get_angle(direction=1, angle=1):
     new_angle = angle * 30 * direction
@@ -229,42 +262,41 @@ class NetworkRunner(threading.Thread):
         global G
         global DVpos
         # Get events
-        events = pygame.event.get()
+        event = pygame.event.wait()
         # Handle events
-        for event in events:
-            if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT:
+            running = False
+            return
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_PLUS:
+                zoom_factor += 10.0
+            elif event.key == pygame.K_MINUS:
+                zoom_factor -= 10.0
+            elif event.key == pygame.K_LEFT:
+                pan_offset[0] -= 20
+            elif event.key == pygame.K_RIGHT:
+                pan_offset[0] += 20
+            elif event.key == pygame.K_UP:
+                pan_offset[1] -= 20
+            elif event.key == pygame.K_DOWN:
+                pan_offset[1] += 20
+            elif event.key == pygame.K_ESCAPE:
                 running = False
                 return
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_PLUS:
-                    zoom_factor += 10.0
-                elif event.key == pygame.K_MINUS:
-                    zoom_factor -= 10.0
-                elif event.key == pygame.K_LEFT:
-                    pan_offset[0] -= 20
-                elif event.key == pygame.K_RIGHT:
-                    pan_offset[0] += 20
-                elif event.key == pygame.K_UP:
-                    pan_offset[1] -= 20
-                elif event.key == pygame.K_DOWN:
-                    pan_offset[1] += 20
-                elif event.key == pygame.K_ESCAPE:
-                    running = False
-                    return
-                """
-                elif event.key == pygame.K_r:
-                    for node in G.nodes():
-                        DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle+0.1)
-                elif event.key == pygame.K_t:
-                    for node in G.nodes():
-                        DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle-0.1)
-                elif event.key == pygame.K_f:
-                    for node in G.nodes():
-                        DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle+0.1)
-                elif event.key == pygame.K_g:
-                    for node in G.nodes():
-                        DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle-0.1)
-                """
+            """
+            elif event.key == pygame.K_r:
+                for node in G.nodes():
+                    DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle+0.1)
+            elif event.key == pygame.K_t:
+                for node in G.nodes():
+                    DVpos[node] = rotate_x(DVpos[node], DVpos[node].angle-0.1)
+            elif event.key == pygame.K_f:
+                for node in G.nodes():
+                    DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle+0.1)
+            elif event.key == pygame.K_g:
+                for node in G.nodes():
+                    DVpos[node] = rotate_y(DVpos[node], DVpos[node].angle-0.1)
+            """
         # Clear screen
         screen.fill((255, 255, 255))
 
@@ -296,13 +328,18 @@ class NetworkRunner(threading.Thread):
             y = y * zoom_factor + height / 2 + pan_offset[1]
             pygame.draw.circle(screen, (0, 0, 255), (int(x), int(y)), 12)
 
+        pygame.display.flip()
+
         return
     
     def stop(self):
         global running
         running = False
         return
-    
+
+neuronSeq_window = NeuronSeqWindow()
+nswud = NSWUpdateTicker()
+
 def main():
     global zoom_factor
     global pan_offset
@@ -315,6 +352,9 @@ def main():
     global screen
     global width
     global height
+    #global nwr
+    global nswud
+    global running
 
     # Initialize Pygame
     pygame.init()
@@ -323,7 +363,7 @@ def main():
     width, height = 800, 600
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("NeuronSeq network")
-    running = True
+ 
 
     # Define a layout for the nodes
     pos = nx.spring_layout(G)
@@ -333,14 +373,12 @@ def main():
 
     nwr = NetworkRunner()
 
-    while running:
+    while running:        
         nwr.update()
-        pygame.display.flip()
-        neuronSeq_window.update()
-
 
     nwr.stop()
     nwr.join()
+    neuronSeq.stop()
     # Quit Pygame
     pygame.quit()
     return
