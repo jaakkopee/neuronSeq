@@ -1,5 +1,3 @@
-from collections.abc import Callable, Iterable, Mapping
-from typing import Any
 import pygame
 import networkx as nx
 import math
@@ -156,93 +154,6 @@ def openAddConnectionWindow():
     addConnectionWindow=AddConnectionWindow(neuronSeq_window)
     return
 
-
-class NeuronSeqWindow(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("NeuronSeq")
-        self.geometry("300x300")
-        self.resizable(True, True)
-        self.protocol("WM_DELETE_WINDOW", self.close_window)
-        self.create_widgets()
-
-    def close_window(self):
-        self.destroy()
-
-    def create_widgets(self):
-        global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
-        
-        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
-        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
-        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
-        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
-        self.print_nnotes_button = tk.Button(self, text="Print Neurons", command=print_neuronSeq_nnotes)
-        self.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
-        self.print_connections_button = tk.Button(self, text="Print Connections", command=print_neuronSeq_connections)
-        self.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
-
-class NSWUpdateTicker(threading.Thread):
-    def __init__(self):
-        super().__init__()
-        self.start()
-
-    def run(self):
-        global G
-        global DVpos
-        global running
-        global neuronSeq_window
-
-        while running:
-            continue
-        return    
-    
-    def update(self):
-        neuronSeq_window.update()
-        return
-
-def get_angle(direction=1, angle=1):
-    new_angle = angle * 30 * direction
-    return new_angle%360
-
-class DistanceVector():
-    def __init__(self, nx_point):
-        angle = 1
-        direction = 1
-        self.nx_point = nx_point
-        self.angle = get_angle(direction, angle)
-        self.update_nx_point()
-
-    def change_angle_x(self, angle):
-        self.angle = angle
-        return self.update_nx_point()
-    
-    def change_angle_y(self, angle):
-        self.angle = angle
-        return self.update_nx_point()
-
-    def update_nx_point(self):
-        x, y = self.nx_point
-        #𝑥′=𝑥cos𝜃−𝑦sin𝜃
-        #𝑦′=𝑥sin𝜃+𝑦cos𝜃
-        new_x = x * math.cos(self.angle) + y * math.sin(self.angle)
-        new_y = x * math.sin(self.angle) - y * math.cos(self.angle)
-
-        self.vector_length = math.sqrt((new_x - x)**2 + (new_y - y)**2)
-        self.nx_point = (new_x, new_y)
-        return self
-        
-    def get_coordinates(self):
-        return self.nx_point
-    
-# Define rotation functions
-def rotate_x(distance_vector, rotation_angle):
-    distance_vector = distance_vector.change_angle_x(rotation_angle)
-    return distance_vector
-
-def rotate_y(distance_vector, rotation_angle):
-    distance_vector = distance_vector.change_angle_y(rotation_angle)
-    return distance_vector
-    
 class NetworkRunner(threading.Thread):
     def __init__(self):
         super().__init__()
@@ -337,8 +248,75 @@ class NetworkRunner(threading.Thread):
         running = False
         return
 
-neuronSeq_window = NeuronSeqWindow()
-nswud = NSWUpdateTicker()
+class NeuronSeqWindow(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+
+        self.title("NeuronSeq")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.create_widgets()
+        #self.mainloop()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
+        
+        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
+        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
+        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
+        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
+        self.print_nnotes_button = tk.Button(self, text="Print Neurons", command=print_neuronSeq_nnotes)
+        self.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
+        self.print_connections_button = tk.Button(self, text="Print Connections", command=print_neuronSeq_connections)
+        self.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
+
+def get_angle(direction=1, angle=1):
+    new_angle = angle * 30 * direction
+    return new_angle%360
+
+class DistanceVector():
+    def __init__(self, nx_point):
+        angle = 1
+        direction = 1
+        self.nx_point = nx_point
+        self.angle = get_angle(direction, angle)
+        self.update_nx_point()
+
+    def change_angle_x(self, angle):
+        self.angle = angle
+        return self.update_nx_point()
+    
+    def change_angle_y(self, angle):
+        self.angle = angle
+        return self.update_nx_point()
+
+    def update_nx_point(self):
+        x, y = self.nx_point
+        #𝑥′=𝑥cos𝜃−𝑦sin𝜃
+        #𝑦′=𝑥sin𝜃+𝑦cos𝜃
+        new_x = x * math.cos(self.angle) + y * math.sin(self.angle)
+        new_y = x * math.sin(self.angle) - y * math.cos(self.angle)
+
+        self.vector_length = math.sqrt((new_x - x)**2 + (new_y - y)**2)
+        self.nx_point = (new_x, new_y)
+        return self
+        
+    def get_coordinates(self):
+        return self.nx_point
+    
+# Define rotation functions
+def rotate_x(distance_vector, rotation_angle):
+    distance_vector = distance_vector.change_angle_x(rotation_angle)
+    return distance_vector
+
+def rotate_y(distance_vector, rotation_angle):
+    distance_vector = distance_vector.change_angle_y(rotation_angle)
+    return distance_vector
+    
 
 def main():
     global zoom_factor
@@ -352,10 +330,8 @@ def main():
     global screen
     global width
     global height
-    #global nwr
-    global nswud
-    global running
-
+    global nwr
+    global running 
     # Initialize Pygame
     pygame.init()
 
@@ -363,7 +339,18 @@ def main():
     width, height = 800, 600
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("NeuronSeq network")
- 
+
+    nwr = NetworkRunner()
+
+    neuronSeq_window = NeuronSeqWindow()
+
+    def updateNSWandNWR():
+        global neuronSeq_window, nwr
+        neuronSeq_window.update()
+        nwr.update()
+        neuronSeq_window.after(10, updateNSWandNWR)
+        return
+    updateNSWandNWR()
 
     # Define a layout for the nodes
     pos = nx.spring_layout(G)
@@ -371,10 +358,8 @@ def main():
     for node in G.nodes():
         DVpos[node] = DistanceVector(pos[node])
 
-    nwr = NetworkRunner()
-
-    while running:        
-        nwr.update()
+    while running:
+        continue
 
     nwr.stop()
     nwr.join()
