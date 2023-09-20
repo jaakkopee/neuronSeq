@@ -1,0 +1,302 @@
+#import pygame
+import networkx as nx
+import math
+import numpy as np
+import tkinter as tk
+import neuronSeq2 as ns
+import threading
+import time
+
+running = True   
+
+neuronSeq = ns.NeuronSeq()
+G = ns.NetworkGraph(neuronSeq)
+n = G.add_nnote(midi_channel=2, note=60, duration=0.5, id="A", velocity=100)
+n.set_activation_function(1)
+n = G.add_nnote(midi_channel=2, note=62, duration=0.5, id="B", velocity=100)
+n.set_activation_function(1)
+n = G.add_nnote(midi_channel=2, note=64, duration=0.5, id="C", velocity=100)
+n.set_activation_function(1)
+n = G.add_nnote(midi_channel=2, note=65, duration=0.5, id="D", velocity=100)
+n.set_activation_function(1)
+n = G.add_nnote(midi_channel=2, note=67, duration=0.5, id="E", velocity=100)
+n.set_activation_function(1)
+
+G.add_connection("AB", 0, 1, 156, 156)
+G.add_connection("BC", 1, 2, 156, 156)
+G.add_connection("CD", 2, 3, 156, 156)
+G.add_connection("DE", 3, 4, 156, 156)
+G.add_connection("EA", 4, 0, 156, 156)
+
+def print_neuronSeq_nnotes():
+    print("Neurons:")
+    for nnote in neuronSeq.nnotes:
+        print(nnote.id, nnote.channel, nnote.note, nnote.velocity, nnote.duration)
+    return
+
+def print_neuronSeq_connections():
+    print("Connections:")
+    for connection in neuronSeq.connections:
+        print(connection.name, connection.source.id + "->" + connection.destination.id, connection.weight_0_to_1, connection.weight_1_to_0)
+    return
+
+class AddNeuronWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Add Neuron")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        self.neuron_name_label = tk.Label(self, text="Neuron Name")
+        self.neuron_name_label.grid(row=0, column=0, padx=10, pady=10)
+        self.neuron_name_entry = tk.Entry(self)
+        self.neuron_name_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.midi_channel_label = tk.Label(self, text="MIDI Channel")
+        self.midi_channel_label.grid(row=1, column=0, padx=10, pady=10)
+        self.midi_channel_entry = tk.Entry(self)
+        self.midi_channel_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.midi_note_label = tk.Label(self, text="MIDI Note")
+        self.midi_note_label.grid(row=2, column=0, padx=10, pady=10)
+        self.midi_note_entry = tk.Entry(self)
+        self.midi_note_entry.grid(row=2, column=1, padx=10, pady=10)
+        self.velocity_label = tk.Label(self, text="Velocity")
+        self.velocity_label.grid(row=3, column=0, padx=10, pady=10)
+        self.velocity_entry = tk.Entry(self)
+        self.velocity_entry.grid(row=3, column=1, padx=10, pady=10)
+        self.duration_label = tk.Label(self, text="Duration")
+        self.duration_label.grid(row=4, column=0, padx=10, pady=10)
+        self.duration_entry = tk.Entry(self)
+        self.duration_entry.grid(row=4, column=1, padx=10, pady=10)
+        self.add_button = tk.Button(self, text="Add", command=self.add_neuron)
+        self.add_button.grid(row=5, column=0, padx=10, pady=10)
+        
+    def add_neuron(self):
+        global G, pos, DVpos
+        neuron_name = self.neuron_name_entry.get()
+        midi_channel = int(self.midi_channel_entry.get())
+        midi_note = int(self.midi_note_entry.get())
+        velocity = int(self.velocity_entry.get())
+        duration = float(self.duration_entry.get())
+        G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity)
+        pos = nx.spring_layout(G)
+        DVpos={}
+        for node in G.nodes():
+            DVpos[node] = DistanceVector(pos[node])
+        print_neuronSeq_nnotes()
+        self.close_window()
+        return
+    
+class AddConnectionWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Add Connection")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        connection_name_label = tk.Label(self, text="Connection Name")
+        connection_name_label.grid(row=0, column=0, padx=10, pady=10)
+        self.connection_name_entry = tk.Entry(self)
+        self.connection_name_entry.grid(row=0, column=1, padx=10, pady=10)
+        source_label = tk.Label(self, text="Source")
+        source_label.grid(row=1, column=0, padx=10, pady=10)
+        self.source_entry = tk.Entry(self)
+        self.source_entry.grid(row=1, column=1, padx=10, pady=10)
+        target_label = tk.Label(self, text="Target")
+        target_label.grid(row=2, column=0, padx=10, pady=10)
+        self.target_entry = tk.Entry(self)
+        self.target_entry.grid(row=2, column=1, padx=10, pady=10)
+        self.weight0_label = tk.Label(self, text="Weight 0")
+        self.weight0_label.grid(row=3, column=0, padx=10, pady=10)
+        self.weight0_entry = tk.Entry(self)
+        self.weight0_entry.grid(row=3, column=1, padx=10, pady=10)
+        self.weight1_label = tk.Label(self, text="Weight 1")
+        self.weight1_label.grid(row=4, column=0, padx=10, pady=10)
+        self.weight1_entry = tk.Entry(self)
+        self.weight1_entry.grid(row=4, column=1, padx=10, pady=10)
+        self.add_connection_button = tk.Button(self, text="Add", command=self.add_connection)
+        self.add_connection_button.grid(row=5, column=0, padx=10, pady=10)
+
+    def add_connection(self):
+        global G, pos, DVpos
+        connection_name = self.connection_name_entry.get()
+        source = int(self.source_entry.get())
+        target = int(self.target_entry.get())
+        weight0 = float(self.weight0_entry.get())
+        weight1 = float(self.weight1_entry.get())
+        G.add_connection(connection_name, source, target, weight0, weight1)
+        pos = nx.spring_layout(G)
+        DVpos={}
+        for node in G.nodes():
+            DVpos[node] = DistanceVector(pos[node])
+        print_neuronSeq_connections()
+        self.close_window()
+        return
+
+def openAddNeuronWindow():
+    global addNeuronWindow, neuronSeq_window
+    addNeuronWindow=AddNeuronWindow(neuronSeq_window)
+    return
+
+def openAddConnectionWindow():
+    global addConnectionWindow, neuronSeq_window
+    addConnectionWindow=AddConnectionWindow(neuronSeq_window)
+    return
+
+class NeuronSeqWindow(tk.Tk):
+    def __init__(self, nwr=None):
+        tk.Tk.__init__(self)
+        self.bind('<Key>', nwr.update)
+        self.title("NeuronSeq")
+        self.geometry("1024x800")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.create_widgets()
+
+    def close_window(self):
+        global running
+        running = False
+        global neuronSeq
+        neuronSeq.stop()
+        time.sleep(0.1)    
+        self.destroy()
+
+    def create_widgets(self):
+        global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
+        
+        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
+        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
+        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
+        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
+        self.print_nnotes_button = tk.Button(self, text="Print Neurons", command=print_neuronSeq_nnotes)
+        self.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
+        self.print_connections_button = tk.Button(self, text="Print Connections", command=print_neuronSeq_connections)
+        self.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
+
+def get_angle(direction=1, angle=1):
+    new_angle = angle * 30 * direction
+    return new_angle%360
+
+class DistanceVector():
+    def __init__(self, nx_point):
+        angle = 1
+        direction = 1
+        self.nx_point = nx_point
+        self.angle = get_angle(direction, angle)
+        self.update_nx_point()
+
+    def change_angle_x(self, angle):
+        self.angle = angle
+        return self.update_nx_point()
+    
+    def change_angle_y(self, angle):
+        self.angle = angle
+        return self.update_nx_point()
+
+    def update_nx_point(self):
+        x, y = self.nx_point
+        #𝑥′=𝑥cos𝜃−𝑦sin𝜃
+        #𝑦′=𝑥sin𝜃+𝑦cos𝜃
+        new_x = x * math.cos(self.angle) + y * math.sin(self.angle)
+        new_y = x * math.sin(self.angle) - y * math.cos(self.angle)
+
+        self.vector_length = math.sqrt((new_x - x)**2 + (new_y - y)**2)
+        self.nx_point = (new_x, new_y)
+        return self
+        
+    def get_coordinates(self):
+        return self.nx_point
+    
+# Define rotation functions
+def rotate_x(distance_vector, rotation_angle):
+    distance_vector = distance_vector.change_angle_x(rotation_angle)
+    return distance_vector
+
+def rotate_y(distance_vector, rotation_angle):
+    distance_vector = distance_vector.change_angle_y(rotation_angle)
+    return distance_vector
+
+zoom_factor = 100.0
+pan_offset = [0, 0]
+
+pos = nx.spring_layout(G)
+DVpos={}
+for node in G.nodes():
+    DVpos[node] = DistanceVector(pos[node])
+
+class NetworkRunner:
+    def __init__(self):
+        global width, height
+        global G, DVpos
+        global zoom_factor, pan_offset
+        width, height = 800, 600
+        self.canvas = None
+        self.G = G
+        self.DVpos = DVpos
+
+    def set_master(self, nsw):
+        canvas = tk.Canvas(nsw, width=width, height=height)
+        canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
+        self.canvas = canvas
+
+    def update(self, event):
+        global zoom_factor
+        global pan_offset
+        global width, height
+
+        # Handle events
+        if event.keysym == 'plus':
+            zoom_factor += 10.0
+        elif event.keysym == 'minus':
+            zoom_factor -= 10.0
+        elif event.keysym == 'Left':
+            pan_offset[0] -= 20
+        elif event.keysym == 'Right':
+            pan_offset[0] += 20
+        elif event.keysym == 'Up':
+            pan_offset[1] -= 20
+        elif event.keysym == 'Down':
+            pan_offset[1] += 20
+
+        # Clear screen
+        self.canvas.delete('all')
+
+        # Draw edges and nodes
+        for edge in self.G.edges():
+            x1, y1 = self.DVpos[edge[0]].get_coordinates()
+            x2, y2 = self.DVpos[edge[1]].get_coordinates()
+            x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
+            y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
+            x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
+            y2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+            self.canvas.create_line(x1, y1, x2, y2, fill='black', width=5)
+
+        # Draw nodes
+        for node in self.G.nodes():
+            x, y = self.DVpos[node].get_coordinates()
+            x = x * zoom_factor + width / 2 + pan_offset[0]
+            y = y * zoom_factor + height / 2 + pan_offset[1]
+            self.canvas.create_oval(x-6, y-6, x+6, y+6, fill='blue')
+
+
+
+# Initial values for zoom and pan
+zoom_factor = 1.0
+pan_offset = [0, 0]
+
+network_runner = NetworkRunner()
+neuronSeq_window = NeuronSeqWindow(network_runner)
+network_runner.set_master(neuronSeq_window)
+
+neuronSeq_window.mainloop()
