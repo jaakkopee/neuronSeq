@@ -32,6 +32,7 @@ class AddNeuronWindow(tk.Toplevel):
         self.resizable(True, True)
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.nwr = master.nwr
+        self.master = master
         self.create_widgets()
 
     def close_window(self):
@@ -68,12 +69,19 @@ class AddNeuronWindow(tk.Toplevel):
         midi_note = int(self.midi_note_entry.get())
         velocity = int(self.velocity_entry.get())
         duration = float(self.duration_entry.get())
-        note = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=17)
+        note = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
         note.set_activation_function(1)
         pos = nx.spring_layout(G)
         DVpos={}
         for node in G.nodes():
             DVpos[node] = DistanceVector(pos[node])
+        nn_conn_str="Neurons:\n"
+        for nnote in neuronSeq.nnotes:
+            nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
+        nn_conn_str += "\nConnections:\n"
+        for connection in neuronSeq.connections:
+            nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+str(connection.weight_1_to_0)+"\n"
+        self.master.nn_conn_label.config(text=nn_conn_str)
 
         self.nwr.canvas.delete('all')
         self.nwr.update(None)
@@ -90,6 +98,7 @@ class AddConnectionWindow(tk.Toplevel):
         self.resizable(True, True)
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.nwr = master.nwr
+        self.master = master
         self.create_widgets()
 
     def close_window(self):
@@ -132,6 +141,15 @@ class AddConnectionWindow(tk.Toplevel):
         for node in G.nodes():
             DVpos[node] = DistanceVector(pos[node])
         print_neuronSeq_connections()
+        
+        nn_conn_str="Neurons:\n"
+        for nnote in neuronSeq.nnotes:
+            nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
+        nn_conn_str += "\nConnections:\n"
+        for connection in neuronSeq.connections:
+            nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+" "+str(connection.weight_1_to_0)+"\n"
+        self.master.nn_conn_label.config(text=nn_conn_str)
+
         self.nwr.canvas.delete('all')
         self.nwr.update(None)
         self.close_window()
@@ -174,10 +192,8 @@ class NeuronSeqWindow(tk.Tk):
         self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
         self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
         self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
-        self.print_nnotes_button = tk.Button(self, text="Print Neurons", command=print_neuronSeq_nnotes)
-        self.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
-        self.print_connections_button = tk.Button(self, text="Print Connections", command=print_neuronSeq_connections)
-        self.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
+        self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
+        self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
         self.nwr.update(None)
 
 def get_angle(direction=1, angle=1):
@@ -222,9 +238,6 @@ def rotate_x(distance_vector, rotation_angle):
 def rotate_y(distance_vector, rotation_angle):
     distance_vector = distance_vector.change_angle_y(rotation_angle)
     return distance_vector
-
-zoom_factor = 100.0
-pan_offset = [0, 0]
 
 pos = nx.spring_layout(G)
 DVpos={}
@@ -288,7 +301,7 @@ class NetworkRunner:
 
 
 # Initial values for zoom and pan
-zoom_factor = 1.0
+zoom_factor = 10.0
 pan_offset = [0, 0]
 
 network_runner = NetworkRunner()
