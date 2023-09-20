@@ -233,9 +233,10 @@ class NetworkRunner:
         self.canvas.delete('all')
 
         # Draw edges and nodes
-        for edge in G.edges():
-            x1, y1 = DVpos[edge[0]].get_coordinates()
-            x2, y2 = DVpos[edge[1]].get_coordinates()
+        for connection in neuronSeq.connections:
+            dvs = DVpos[connection.get_id()]
+            x1, y1 = dvs[0].get_coordinates()
+            x2, y2 = dvs[1].get_coordinates()
             x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
             y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
             x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
@@ -243,8 +244,8 @@ class NetworkRunner:
             self.canvas.create_line(x1, y1, x2, y2, fill='black', width=5)
 
         # Draw nodes
-        for node in G.nodes():
-            x, y = DVpos[node].get_coordinates()
+        for nnote in neuronSeq.nnotes:
+            x, y = DVpos[nnote.get_id()].get_coordinates()
             x = x * zoom_factor + width / 2 + pan_offset[0]
             y = y * zoom_factor + height / 2 + pan_offset[1]
             self.canvas.create_oval(x-8, y-8, x+8, y+8, fill='blue')
