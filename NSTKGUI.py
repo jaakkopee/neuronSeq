@@ -47,6 +47,7 @@ class AddNeuronWindow(tk.Toplevel):
         self.geometry("300x300")
         self.resizable(True, True)
         self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.nwr = master.nwr
         self.create_widgets()
 
     def close_window(self):
@@ -88,6 +89,10 @@ class AddNeuronWindow(tk.Toplevel):
         DVpos={}
         for node in G.nodes():
             DVpos[node] = DistanceVector(pos[node])
+
+        self.nwr.canvas.delete('all')
+        self.nwr.update(None)
+
         print_neuronSeq_nnotes()
         self.close_window()
         return
@@ -99,6 +104,7 @@ class AddConnectionWindow(tk.Toplevel):
         self.geometry("300x300")
         self.resizable(True, True)
         self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.nwr = master.nwr
         self.create_widgets()
 
     def close_window(self):
@@ -141,6 +147,8 @@ class AddConnectionWindow(tk.Toplevel):
         for node in G.nodes():
             DVpos[node] = DistanceVector(pos[node])
         print_neuronSeq_connections()
+        self.nwr.canvas.delete('all')
+        self.nwr.update(None)
         self.close_window()
         return
 
@@ -157,7 +165,9 @@ def openAddConnectionWindow():
 class NeuronSeqWindow(tk.Tk):
     def __init__(self, nwr=None):
         tk.Tk.__init__(self)
-        self.bind('<Key>', nwr.update)
+        self.nwr = nwr
+        self.nwr.set_master(self)
+        self.bind('<Key>', self.nwr.update)
         self.title("NeuronSeq")
         self.geometry("1024x800")
         self.resizable(True, True)
@@ -183,6 +193,7 @@ class NeuronSeqWindow(tk.Tk):
         self.print_nnotes_button.grid(row=2, column=0, padx=10, pady=10)
         self.print_connections_button = tk.Button(self, text="Print Connections", command=print_neuronSeq_connections)
         self.print_connections_button.grid(row=3, column=0, padx=10, pady=10)
+        self.nwr.update(None)
 
 def get_angle(direction=1, angle=1):
     new_angle = angle * 30 * direction
@@ -242,8 +253,6 @@ class NetworkRunner:
         global zoom_factor, pan_offset
         width, height = 800, 600
         self.canvas = None
-        self.G = G
-        self.DVpos = DVpos
 
     def set_master(self, nsw):
         canvas = tk.Canvas(nsw, width=width, height=height)
@@ -254,28 +263,30 @@ class NetworkRunner:
         global zoom_factor
         global pan_offset
         global width, height
+        global G, DVpos
 
-        # Handle events
-        if event.keysym == 'plus':
-            zoom_factor += 10.0
-        elif event.keysym == 'minus':
-            zoom_factor -= 10.0
-        elif event.keysym == 'Left':
-            pan_offset[0] -= 20
-        elif event.keysym == 'Right':
-            pan_offset[0] += 20
-        elif event.keysym == 'Up':
-            pan_offset[1] -= 20
-        elif event.keysym == 'Down':
-            pan_offset[1] += 20
+        if event is not None:
+            # Handle events
+            if event.keysym == 'plus':
+                zoom_factor += 10.0
+            elif event.keysym == 'minus':
+                zoom_factor -= 10.0
+            elif event.keysym == 'Left':
+                pan_offset[0] -= 20
+            elif event.keysym == 'Right':
+                pan_offset[0] += 20
+            elif event.keysym == 'Up':
+                pan_offset[1] -= 20
+            elif event.keysym == 'Down':
+                pan_offset[1] += 20
 
         # Clear screen
         self.canvas.delete('all')
 
         # Draw edges and nodes
-        for edge in self.G.edges():
-            x1, y1 = self.DVpos[edge[0]].get_coordinates()
-            x2, y2 = self.DVpos[edge[1]].get_coordinates()
+        for edge in G.edges():
+            x1, y1 = DVpos[edge[0]].get_coordinates()
+            x2, y2 = DVpos[edge[1]].get_coordinates()
             x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
             y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
             x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
@@ -283,8 +294,8 @@ class NetworkRunner:
             self.canvas.create_line(x1, y1, x2, y2, fill='black', width=5)
 
         # Draw nodes
-        for node in self.G.nodes():
-            x, y = self.DVpos[node].get_coordinates()
+        for node in G.nodes():
+            x, y = DVpos[node].get_coordinates()
             x = x * zoom_factor + width / 2 + pan_offset[0]
             y = y * zoom_factor + height / 2 + pan_offset[1]
             self.canvas.create_oval(x-6, y-6, x+6, y+6, fill='blue')
@@ -297,6 +308,5 @@ pan_offset = [0, 0]
 
 network_runner = NetworkRunner()
 neuronSeq_window = NeuronSeqWindow(network_runner)
-network_runner.set_master(neuronSeq_window)
 
 neuronSeq_window.mainloop()
