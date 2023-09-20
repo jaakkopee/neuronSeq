@@ -20,12 +20,11 @@ n.set_activation_function(1)
 n = G.add_nnote(midi_channel=2, note=67, duration=0.5, id="E", velocity=100)
 n.set_activation_function(1)
 
-G.add_connection("A->B", 0, 1, 156, 156)
-G.add_connection("B->C", 1, 2, 156, 156)
-G.add_connection("C->D", 2, 3, 156, 156)
-G.add_connection("D->E", 3, 4, 156, 156)
-G.add_connection("E->A", 4, 0, 156, 156)
-
+G.add_connection("AB", 0, 1, 156, 156)
+G.add_connection("BC", 1, 2, 156, 156)
+G.add_connection("CD", 2, 3, 156, 156)
+G.add_connection("DE", 3, 4, 156, 156)
+G.add_connection("EA", 4, 0, 156, 156)
 
 def print_neuronSeq_nnotes():
     print("Neurons:")
