@@ -1,5 +1,3 @@
-from collections.abc import Callable, Iterable, Mapping
-from typing import Any
 import pygame
 import networkx as nx
 import math
@@ -45,7 +43,6 @@ class AddNeuronWindow(tk.Toplevel):
         self.title("Add Neuron")
         self.geometry("300x300")
         self.resizable(True, True)
-        self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.create_widgets()
 
     def close_window(self):
@@ -88,6 +85,7 @@ class AddNeuronWindow(tk.Toplevel):
         for node in G.nodes():
             DVpos[node] = DistanceVector(pos[node])
         print_neuronSeq_nnotes()
+        self.close_window()
         return
     
 class AddConnectionWindow(tk.Toplevel):
@@ -96,7 +94,6 @@ class AddConnectionWindow(tk.Toplevel):
         self.title("Add Connection")
         self.geometry("300x300")
         self.resizable(True, True)
-        self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.create_widgets()
 
     def close_window(self):
@@ -139,16 +136,30 @@ class AddConnectionWindow(tk.Toplevel):
         for node in G.nodes():
             DVpos[node] = DistanceVector(pos[node])
         print_neuronSeq_connections()
+        self.close_window()
         return
-    
+
 neuronSeq_window = tk.Tk()
 neuronSeq_window.title("NeuronSeq")
 neuronSeq_window.geometry("300x300")
 neuronSeq_window.resizable(True, True)
 neuronSeq_window.protocol("WM_DELETE_WINDOW", neuronSeq_window.destroy)
 
-addNeuronWindow = AddNeuronWindow(neuronSeq_window)
-addConnectionWindow = AddConnectionWindow(neuronSeq_window)
+def openAddNeuronWindow():
+    global addNeuronWindow, neuronSeq_window
+    addNeuronWindow=AddNeuronWindow(neuronSeq_window)
+    return
+
+def openAddConnectionWindow():
+    global addConnectionWindow, neuronSeq_window
+    addConnectionWindow=AddConnectionWindow(neuronSeq_window)
+    return
+    
+neuronSeq_window.add_neuron_button = tk.Button(neuronSeq_window, text="Add Neuron", command=openAddNeuronWindow)
+neuronSeq_window.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
+neuronSeq_window.add_connection_button = tk.Button(neuronSeq_window, text="Add Connection", command=openAddConnectionWindow)
+neuronSeq_window.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
+
 
 def get_angle(direction=1, angle=1):
     new_angle = angle * 30 * direction
@@ -193,30 +204,15 @@ def rotate_y(distance_vector, rotation_angle):
     distance_vector = distance_vector.change_angle_y(rotation_angle)
     return distance_vector
     
-# Initialize Pygame
-pygame.init()
-
-# Set window dimensions
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("NeuronSeq network")
-running = True
-
-# Define a layout for the nodes
-pos = nx.spring_layout(G)
-DVpos={}
-for node in G.nodes():
-    DVpos[node] = DistanceVector(pos[node])
-
 class NetworkRunner(threading.Thread):
     def __init__(self):
         super().__init__()
+        self.start()
         
     def run(self):
         global running
         while running:
-            self.update()
-            time.sleep(0.1)
+            continue
 
     def update(self):
         # Variables for handling tilting, zooming, and panning
@@ -300,20 +296,43 @@ def main():
     global zoom_factor
     global pan_offset
     global running
+    global G
+    global DVpos
+    global neuronSeq_window
+    global addNeuronWindow
+    global addConnectionWindow
+    global screen
+    global width
+    global height
+
+    # Initialize Pygame
+    pygame.init()
+
+    # Set window dimensions
+    width, height = 800, 600
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("NeuronSeq network")
+    running = True
+
+    # Define a layout for the nodes
+    pos = nx.spring_layout(G)
+    DVpos={}
+    for node in G.nodes():
+        DVpos[node] = DistanceVector(pos[node])
+
     nwr = NetworkRunner()
 
-    def update():
-        nwr.update()
-        pygame.display.flip()
-        return
-    
     while running:
-        update()
-        time.sleep(0.1)
+        nwr.update()
+        pygame.display.update()
+        neuronSeq_window.update()
+        time.sleep(0.01)
+
 
     nwr.stop()
     nwr.join()
-
+    # Quit Pygame
+    pygame.quit()
     return
 
 if __name__ == "__main__":
@@ -321,5 +340,3 @@ if __name__ == "__main__":
     pan_offset = [0, 0]  # Initial pan offset
     main()
 
-# Quit Pygame
-pygame.quit()
