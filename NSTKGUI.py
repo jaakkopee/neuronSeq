@@ -11,22 +11,6 @@ running = True
 
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
-n = G.add_nnote(midi_channel=2, note=60, duration=0.5, id="A", velocity=100)
-n.set_activation_function(1)
-n = G.add_nnote(midi_channel=2, note=62, duration=0.5, id="B", velocity=100)
-n.set_activation_function(1)
-n = G.add_nnote(midi_channel=2, note=64, duration=0.5, id="C", velocity=100)
-n.set_activation_function(1)
-n = G.add_nnote(midi_channel=2, note=65, duration=0.5, id="D", velocity=100)
-n.set_activation_function(1)
-n = G.add_nnote(midi_channel=2, note=67, duration=0.5, id="E", velocity=100)
-n.set_activation_function(1)
-
-G.add_connection("AB", 0, 1, 156, 156)
-G.add_connection("BC", 1, 2, 156, 156)
-G.add_connection("CD", 2, 3, 156, 156)
-G.add_connection("DE", 3, 4, 156, 156)
-G.add_connection("EA", 4, 0, 156, 156)
 
 def print_neuronSeq_nnotes():
     print("Neurons:")
@@ -84,7 +68,8 @@ class AddNeuronWindow(tk.Toplevel):
         midi_note = int(self.midi_note_entry.get())
         velocity = int(self.velocity_entry.get())
         duration = float(self.duration_entry.get())
-        G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity)
+        note = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=17)
+        note.set_activation_function(1)
         pos = nx.spring_layout(G)
         DVpos={}
         for node in G.nodes():
