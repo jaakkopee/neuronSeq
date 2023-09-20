@@ -36,7 +36,7 @@ def print_neuronSeq_nnotes():
 def print_neuronSeq_connections():
     print("Connections:")
     for connection in neuronSeq.connections:
-        print(connection.name, connection.source.id, "->", connection.destination.id, connection.weight_0_to_1, connection.weight_1_to_0)
+        print(connection.name, connection.source.id + "->" + connection.destination.id, connection.weight_0_to_1, connection.weight_1_to_0)
     return
 
 class AddNeuronWindow(tk.Toplevel):
