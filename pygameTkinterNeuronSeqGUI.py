@@ -326,7 +326,6 @@ def main():
         nwr.update()
         pygame.display.update()
         neuronSeq_window.update()
-        time.sleep(0.01)
 
 
     nwr.stop()
