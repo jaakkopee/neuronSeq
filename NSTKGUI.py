@@ -227,7 +227,7 @@ class NetworkRunner:
                 pan_offset[1] += 20
             elif event.keysym == 'r':
                 for node in G.nodes():
-                    DVpos[node] = ns.rotate_graph(DVpos[node], 11)
+                    DVpos[node] = ns.rotate_graph(DVpos[node], 10)
 
         # Clear screen
         self.canvas.delete('all')
