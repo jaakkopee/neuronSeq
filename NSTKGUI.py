@@ -8,9 +8,10 @@ import threading
 import time
 
 running = True   
-
+width, height = 800, 600
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
+DVpos={}
 
 def print_neuronSeq_nnotes():
     print("Neurons:")
@@ -63,18 +64,16 @@ class AddNeuronWindow(tk.Toplevel):
         self.add_button.grid(row=5, column=0, padx=10, pady=10)
         
     def add_neuron(self):
-        global G, pos, DVpos
+        global G, DVpos
         neuron_name = self.neuron_name_entry.get()
         midi_channel = int(self.midi_channel_entry.get())
         midi_note = int(self.midi_note_entry.get())
         velocity = int(self.velocity_entry.get())
         duration = float(self.duration_entry.get())
-        note = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
+        note, distance_vector = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
         note.set_activation_function(1)
-        pos = nx.spring_layout(G)
-        DVpos={}
-        for node in G.nodes():
-            DVpos[node] = DistanceVector(pos[node])
+        DVpos[note.get_id()] = distance_vector
+
         nn_conn_str="Neurons:\n"
         for nnote in neuronSeq.nnotes:
             nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
@@ -129,17 +128,14 @@ class AddConnectionWindow(tk.Toplevel):
         self.add_connection_button.grid(row=5, column=0, padx=10, pady=10)
 
     def add_connection(self):
-        global G, pos, DVpos
+        global G, DVpos
         connection_name = self.connection_name_entry.get()
         source = int(self.source_entry.get())
         target = int(self.target_entry.get())
         weight0 = float(self.weight0_entry.get())
         weight1 = float(self.weight1_entry.get())
-        G.add_connection(connection_name, source, target, weight0, weight1)
-        pos = nx.spring_layout(G)
-        DVpos={}
-        for node in G.nodes():
-            DVpos[node] = DistanceVector(pos[node])
+        connection, distance_vectors = G.add_connection(connection_name, source, target, weight0, weight1)
+        DVpos[connection.get_id()] = distance_vectors
         print_neuronSeq_connections()
         
         nn_conn_str="Neurons:\n"
@@ -195,61 +191,13 @@ class NeuronSeqWindow(tk.Tk):
         self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
         self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
         self.nwr.update(None)
-
-def get_angle(direction=1, angle=1):
-    new_angle = angle * 30 * direction
-    return new_angle%360
-
-class DistanceVector():
-    def __init__(self, nx_point):
-        angle = 1
-        direction = 1
-        self.nx_point = nx_point
-        self.angle = get_angle(direction, angle)
-        self.update_nx_point()
-
-    def change_angle_x(self, angle):
-        self.angle = angle
-        return self.update_nx_point()
-    
-    def change_angle_y(self, angle):
-        self.angle = angle
-        return self.update_nx_point()
-
-    def update_nx_point(self):
-        x, y = self.nx_point
-        #𝑥′=𝑥cos𝜃−𝑦sin𝜃
-        #𝑦′=𝑥sin𝜃+𝑦cos𝜃
-        new_x = x * math.cos(self.angle) + y * math.sin(self.angle)
-        new_y = x * math.sin(self.angle) - y * math.cos(self.angle)
-
-        self.vector_length = math.sqrt((new_x - x)**2 + (new_y - y)**2)
-        self.nx_point = (new_x, new_y)
-        return self
-        
-    def get_coordinates(self):
-        return self.nx_point
-    
-# Define rotation functions
-def rotate_x(distance_vector, rotation_angle):
-    distance_vector = distance_vector.change_angle_x(rotation_angle)
-    return distance_vector
-
-def rotate_y(distance_vector, rotation_angle):
-    distance_vector = distance_vector.change_angle_y(rotation_angle)
-    return distance_vector
-
-pos = nx.spring_layout(G)
-DVpos={}
-for node in G.nodes():
-    DVpos[node] = DistanceVector(pos[node])
+        return
 
 class NetworkRunner:
     def __init__(self):
         global width, height
         global G, DVpos
         global zoom_factor, pan_offset
-        width, height = 800, 600
         self.canvas = None
 
     def set_master(self, nsw):
@@ -279,10 +227,7 @@ class NetworkRunner:
                 pan_offset[1] += 20
             elif event.keysym == 'r':
                 for node in G.nodes():
-                    DVpos[node] = rotate_x(DVpos[node], 0.1)
-            elif event.keysym == 't':
-                for node in G.nodes():
-                    DVpos[node] = rotate_x(DVpos[node], -0.1)
+                    DVpos[node] = ns.rotate_graph(DVpos[node], 11)
 
         # Clear screen
         self.canvas.delete('all')
@@ -302,12 +247,12 @@ class NetworkRunner:
             x, y = DVpos[node].get_coordinates()
             x = x * zoom_factor + width / 2 + pan_offset[0]
             y = y * zoom_factor + height / 2 + pan_offset[1]
-            self.canvas.create_oval(x-6, y-6, x+6, y+6, fill='blue')
+            self.canvas.create_oval(x-8, y-8, x+8, y+8, fill='blue')
 
 
 
 # Initial values for zoom and pan
-zoom_factor = 10.0
+zoom_factor = 1.0
 pan_offset = [0, 0]
 
 network_runner = NetworkRunner()

@@ -5,7 +5,7 @@ import time
 import threading
 import rtmidi
 import networkx as nx
-
+import math
 
 #global variables
 #neuron parameters
@@ -278,8 +278,7 @@ class NeuronSeq:
         self.connections = []
         self.nnotes = []
         return
-    
-    
+       
     def neuron_list_string(self):
         neuron_list_string = ""
         for nnote in self.nnotes:
@@ -416,12 +415,56 @@ class NeuronSeq:
             connection.join()
         return
     
+def get_angle(angle, add_to_angle):
+    new_angle = angle+add_to_angle
+    return new_angle%360
+
+class DistanceVector():
+    def __init__(self, nx_point):
+        self.nx_point = nx_point
+        #calculate angle in radians
+        self.angle = math.atan2(0, 0) - math.atan2(self.nx_point[1], self.nx_point[0]) 
+        #convert to degrees
+        self.angle = math.degrees(self.angle)
+        self.vector_length = math.sqrt(self.nx_point[0]**2 + self.nx_point[1]**2)
+        self.update_nx_point()
+
+    def change_angle(self, add_to_angle):
+        self.angle = get_angle(self.angle, add_to_angle)
+        return self.update_nx_point()
+
+    def update_nx_point(self):
+        x, y = self.nx_point
+        #𝑥′=𝑥cos𝜃−𝑦sin𝜃
+        #𝑦′=𝑥sin𝜃+𝑦cos𝜃
+        #rotate point around origin
+
+        new_x = x*math.cos(math.radians(self.angle)) - y*math.sin(math.radians(self.angle))
+        new_y = x*math.sin(math.radians(self.angle)) + y*math.cos(math.radians(self.angle))
+
+        self.vector_length = math.sqrt(new_x**2 + new_y**2)
+        self.nx_point = (new_x, new_y)
+        return self
+        
+    def get_coordinates(self):
+        return self.nx_point
+    
+    def get_vector_length(self):
+        return self.vector_length
+    
+    
+# Define rotation functions
+def rotate_graph(distance_vector, add_to_angle):
+    distance_vector = distance_vector.change_angle(add_to_angle)
+    return distance_vector
     
 # network graph class
 class NetworkGraph(nx.Graph):
     def __init__(self, neuronSeq):
         nx.Graph.__init__(self)
         self.neuronSeq = neuronSeq
+        self.DVpos = {}
+        self.layout = nx.spring_layout(self)
         self.create_graph()
 
     def create_graph(self):
@@ -432,16 +475,18 @@ class NetworkGraph(nx.Graph):
         nnotes = self.neuronSeq.get_nnotes()
         #get connections
         connections = self.neuronSeq.get_connections()
-
         #add the nnotes to graph
         for nnote in nnotes:
             self.add_node(nnote.get_id())
+            x1, y1 = np.random.uniform(-1.0, 1.0), np.random.uniform(-1.0, 1.0)
+            self.DVpos[nnote.get_id()] = DistanceVector((x1, y1))
+            print (x1, y1), nnote.get_id()
 
         #add the connections to graph
         for connection in connections:
             self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id())
-
-        return self
+            self.DVpos[connection.get_id()] = (DistanceVector(self.DVpos[connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[connection.get_nnotes()[1].get_id()].get_coordinates()))
+        return self, self.DVpos.copy()
 
     def is_directed(self):
         return super().is_directed()
@@ -450,15 +495,15 @@ class NetworkGraph(nx.Graph):
         #create the neuron/note object
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
         #update and draw the neuron graph
-        self.create_graph()
-        return new_nnote
+        graph, distance_vector = self.create_graph()
+        return new_nnote, distance_vector[new_nnote.get_id()]
 
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
         #create the connection object
         new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
         #update the neuron graph
-        self.create_graph()
-        return new_connection    
+        graph, distance_vectors = self.create_graph()
+        return new_connection, distance_vectors[new_connection.get_id()]
 
 if __name__ == "__main__": 
     #create the neuronSeq
