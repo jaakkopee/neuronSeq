@@ -478,7 +478,7 @@ class NetworkGraph(nx.Graph):
         #add the nnotes to graph
         for nnote in nnotes:
             self.add_node(nnote.get_id())
-            x1, y1 = np.random.uniform(-1.0, 1.0), np.random.uniform(-1.0, 1.0)
+            x1, y1 = np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0)
             self.DVpos[nnote.get_id()] = DistanceVector((x1, y1))
             print (x1, y1), nnote.get_id()
 
