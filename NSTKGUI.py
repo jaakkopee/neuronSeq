@@ -277,6 +277,12 @@ class NetworkRunner:
                 pan_offset[1] -= 20
             elif event.keysym == 'Down':
                 pan_offset[1] += 20
+            elif event.keysym == 'r':
+                for node in G.nodes():
+                    DVpos[node] = rotate_x(DVpos[node], 0.1)
+            elif event.keysym == 't':
+                for node in G.nodes():
+                    DVpos[node] = rotate_x(DVpos[node], -0.1)
 
         # Clear screen
         self.canvas.delete('all')
