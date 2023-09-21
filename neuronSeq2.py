@@ -58,15 +58,15 @@ X_AXIS_LENGTH = 2**24
 MIDI_OUTPUT_PORT_NAME = "NeuronSeq"
 MIDI_OUTPUT_PORT_NAME_DEFAULT = "NeuronSeq"
 #get midi output ports from rtmidi
-midi_output = rtmidi.RtMidiOut()
-available_midi_output_ports = midi_output.getPortCount()
+midi_output = rtmidi.MidiOut()
+available_midi_output_ports = midi_output.get_port_count()
 midi_output_port_name = MIDI_OUTPUT_PORT_NAME_DEFAULT
 #try opening default port
 if available_midi_output_ports:
-    midi_output.openPort(0)
+    midi_output.open_port(0)
 else:
     #open virtual port
-    midi_output.openVirtualPort(midi_output_port_name)
+    midi_output.open_virtual_port(midi_output_port_name)
 
 #NNote is a neuron that outputs a midi events
 #TODO: add parameter for len(X).
