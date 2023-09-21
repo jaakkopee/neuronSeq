@@ -89,7 +89,7 @@ class NNote:
         self.note_thread = None
 
         self.channel = channel        
-        self.midi_msg = rtmidi.MidiMessage()
+        #self.midi_msg = rtmidi.midi_message()
 
         return
     
@@ -169,12 +169,12 @@ class NNote:
 
     def create_midi_event(self):
         #create midi event
-        midi_event = self.midi_msg.noteOn(self.channel, self.note, self.velocity)
+        midi_event = [0x90, self.note, self.velocity]
         return midi_event
 
     def create_midi_event_off(self):
         #create midi event
-        midi_event = self.midi_msg.noteOn(self.channel, self.note, 0)
+        midi_event = [0x80, self.note, 0]
         return midi_event
 
     def note_thread_start(self):
@@ -190,13 +190,13 @@ class NNote:
         #create midi event
         midi_event = self.create_midi_event()
         #send midi event
-        midi_output.sendMessage(midi_event)
+        midi_output.send_message(midi_event)
         #sleep for duration
         time.sleep(self.duration)
         #create midi event
         midi_event = self.create_midi_event_off()
         #send midi event
-        midi_output.sendMessage(midi_event)
+        midi_output.send_message(midi_event)
         return
 
     def advance_activation_index(self):
