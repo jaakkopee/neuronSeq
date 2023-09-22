@@ -11,7 +11,6 @@ running = True
 width, height = 800, 600
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
-DVpos={}
 
 def print_neuronSeq_nnotes():
     print("Neurons:")
@@ -64,7 +63,7 @@ class AddNeuronWindow(tk.Toplevel):
         self.add_button.grid(row=5, column=0, padx=10, pady=10)
         
     def add_neuron(self):
-        global G, DVpos
+        global G
         neuron_name = self.neuron_name_entry.get()
         midi_channel = int(self.midi_channel_entry.get())
         midi_note = int(self.midi_note_entry.get())
@@ -72,7 +71,7 @@ class AddNeuronWindow(tk.Toplevel):
         duration = float(self.duration_entry.get())
         note, distance_vector = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
         note.set_activation_function(1)
-        DVpos[note.get_id()] = distance_vector
+        G.DVpos[note.get_id()] = distance_vector
 
         nn_conn_str="Neurons:\n"
         for nnote in neuronSeq.nnotes:
@@ -128,14 +127,14 @@ class AddConnectionWindow(tk.Toplevel):
         self.add_connection_button.grid(row=5, column=0, padx=10, pady=10)
 
     def add_connection(self):
-        global G, DVpos
+        global G
         connection_name = self.connection_name_entry.get()
         source = int(self.source_entry.get())
         target = int(self.target_entry.get())
         weight0 = float(self.weight0_entry.get())
         weight1 = float(self.weight1_entry.get())
         connection, distance_vectors = G.add_connection(connection_name, source, target, weight0, weight1)
-        DVpos[connection.get_id()] = distance_vectors
+        G.DVpos[connection.get_id()] = distance_vectors
         print_neuronSeq_connections()
         
         nn_conn_str="Neurons:\n"
@@ -196,7 +195,7 @@ class NeuronSeqWindow(tk.Tk):
 class NetworkRunner:
     def __init__(self):
         global width, height
-        global G, DVpos
+        global G
         global zoom_factor, pan_offset
         self.canvas = None
 
@@ -209,7 +208,7 @@ class NetworkRunner:
         global zoom_factor
         global pan_offset
         global width, height
-        global G, DVpos
+        global G
 
         if event is not None:
             # Handle events
@@ -226,15 +225,19 @@ class NetworkRunner:
             elif event.keysym == 'Down':
                 pan_offset[1] += 20
             elif event.keysym == 'r':
-                for node in G.nodes():
-                    DVpos[node] = ns.rotate_graph(DVpos[node], 10)
+                for nnote in neuronSeq.nnotes:
+                    G.DVpos[nnote.get_id()] = ns.rotate_graph(G.DVpos[nnote.get_id()], 10)
+                for connection in neuronSeq.connections:
+                    dvs = G.DVpos[connection.get_id()]
+                    dvs[0] = ns.rotate_graph(dvs[0], 10)
+                    dvs[1] = ns.rotate_graph(dvs[1], 10)
 
         # Clear screen
         self.canvas.delete('all')
 
         # Draw edges and nodes
         for connection in neuronSeq.connections:
-            dvs = DVpos[connection.get_id()]
+            dvs = G.DVpos[connection.get_id()]
             x1, y1 = dvs[0].get_coordinates()
             x2, y2 = dvs[1].get_coordinates()
             x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
@@ -245,7 +248,7 @@ class NetworkRunner:
 
         # Draw nodes
         for nnote in neuronSeq.nnotes:
-            x, y = DVpos[nnote.get_id()].get_coordinates()
+            x, y = G.DVpos[nnote.get_id()].get_coordinates()
             x = x * zoom_factor + width / 2 + pan_offset[0]
             y = y * zoom_factor + height / 2 + pan_offset[1]
             self.canvas.create_oval(x-8, y-8, x+8, y+8, fill='blue')
