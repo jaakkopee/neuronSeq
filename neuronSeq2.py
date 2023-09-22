@@ -491,14 +491,12 @@ class NetworkGraph(nx.Graph):
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
         x1, y1 = np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0)
         self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
-        #update and draw the neuron graph
         return new_nnote, self.DVpos[new_nnote.get_id()]
 
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
         #create the connection object
         new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
         self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
-        #update the neuron graph
         return new_connection, self.DVpos[new_connection.get_id()]
 
 if __name__ == "__main__": 
