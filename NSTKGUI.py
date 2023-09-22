@@ -226,11 +226,11 @@ class NetworkRunner:
                 pan_offset[1] += 20
             elif event.keysym == 'r':
                 for nnote in neuronSeq.nnotes:
-                    G.DVpos[nnote.get_id()] = ns.rotate_graph(G.DVpos[nnote.get_id()], 10)
+                    ns.rotate_graph(G.DVpos[nnote.get_id()], 10)
                 for connection in neuronSeq.connections:
                     dvs = G.DVpos[connection.get_id()]
-                    dvs[0] = ns.rotate_graph(dvs[0], 10)
-                    dvs[1] = ns.rotate_graph(dvs[1], 10)
+                    ns.rotate_graph(dvs[0], 10)
+                    ns.rotate_graph(dvs[1], 10)
 
         # Clear screen
         self.canvas.delete('all')
