@@ -477,39 +477,3 @@ class NetworkGraph():
         self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
         return new_connection, self.DVpos[new_connection.get_id()]
 
-if __name__ == "__main__": 
-    #create the neuronSeq
-    neuronSeq = NeuronSeq()
-
-    #create the neurons/notes
-    for note in range(9):
-        random_midi_note = np.random.randint(32, 45)
-        random_lenX = 2**np.random.randint(10, 24)
-        new_nnote = neuronSeq.create_nnote(3, random_midi_note, 127, 0.1, random_lenX, "NNote"+str(note))
-        new_nnote.set_activation_function(NEURON_ACTIVATION_FUNCTION_SIGMOID)
-        print (new_nnote.get_id(), random_midi_note, random_lenX)
-
-    #create the connections
-    for connection in range(8):
-        random_weight_0_to_1 = np.random.uniform(-256.0, 256.0)
-        random_weight_1_to_0 = np.random.uniform(-256.0, 256.0)
-        new_connection = neuronSeq.create_connection("Connection"+str(connection), connection, connection+1, random_weight_0_to_1, random_weight_1_to_0)
-        print (new_connection.get_id(), random_weight_0_to_1, random_weight_1_to_0)
-    #create the final connection
-    random_weight_0_to_1 = np.random.uniform(-256.0, 256.0)
-    random_weight_1_to_0 = np.random.uniform(-256.0, 256.0)
-    new_connection = neuronSeq.create_connection("Connection8", 8, 0, random_weight_0_to_1, random_weight_1_to_0)
-    print (new_connection.get_id(), random_weight_0_to_1, random_weight_1_to_0)
-
-    #create the neuron graph
-    neuron_graph = NetworkGraph(neuronSeq)
-
-    #plot the neuron graph
-    import matplotlib.pyplot as plt
-    plt.figure(figsize=(10,10))
-    nx.draw_networkx(neuron_graph, pos=nx.spring_layout(neuron_graph), node_color="blue", edge_color="black", font_color="black", font_size=8, node_size=256)
-    #nx.draw_networkx_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), labels=nx.get_node_attributes(neuron_graph, 'label'))
-    #nx.draw_networkx_edge_labels(neuron_graph, pos=nx.spring_layout(neuron_graph), edge_labels=nx.get_edge_attributes(neuron_graph, 'label'))
-    
-    plt.show()
-
