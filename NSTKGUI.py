@@ -236,25 +236,35 @@ class NetworkRunner:
         # Clear screen
         self.canvas.delete('all')
 
-        # Draw edges and nodes
+        # Draw edges
         for connection in neuronSeq.connections:
             dvs = G.DVpos[connection.get_id()]
             x1, y1 = dvs[0].get_coordinates()
             x2, y2 = dvs[1].get_coordinates()
-            x1 = x1 * zoom_factor + width / 2 + pan_offset[0]
-            y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
-            x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
-            y2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+            outx1 = x1 * zoom_factor + width / 2 + pan_offset[0]
+            outy1 = y1 * zoom_factor + height / 2 + pan_offset[1]
+            outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
+            outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+            while outx1 < 0 or outx1 > width or outx2 < 0 or outx2 > width or outy1 < 0 or outy1 > height or outy2 < 0 or outy2 > height:
+                zoom_factor -= 0.5
+                outx1 = x1 * zoom_factor + width / 2 + pan_offset[0]
+                outy1 = y1 * zoom_factor + height / 2 + pan_offset[1]
+                outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
+                outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
             #draw
-            self.canvas.create_line(x1, y1, x2, y2, fill='black', width=5)
+            self.canvas.create_line(outx1, outy1, outx1, outx2, outy2, fill='black', width=5)
 
         # Draw nodes
         for nnote in neuronSeq.nnotes:
             x, y = G.DVpos[nnote.get_id()].get_coordinates()
-            x = x * zoom_factor + width / 2 + pan_offset[0]
-            y = y * zoom_factor + height / 2 + pan_offset[1]
+            outx = x * zoom_factor + width / 2 + pan_offset[0]
+            outy = y * zoom_factor + height / 2 + pan_offset[1]
+            while outx < 0 or outx > width or outy < 0 or outy > height:
+                zoom_factor -= 0.5
+                outx = x * zoom_factor + width / 2 + pan_offset[0]
+                outy = y * zoom_factor + height / 2 + pan_offset[1]
             #draw
-            self.canvas.create_oval(x-8, y-8, x+8, y+8, fill='blue')
+            self.canvas.create_oval(outx-8, outy-8, outx+8, outy+8, fill='blue')
 
 
 
