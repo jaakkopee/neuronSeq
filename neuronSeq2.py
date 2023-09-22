@@ -478,9 +478,8 @@ class NetworkGraph():
         return new_connection, self.DVpos[new_connection.get_id()]
 
     def rotate(self, angle_change):
-        for key in self.DVpos.keys():
-            if type(self.DVpos[key]) is tuple:
-                self.DVpos[key] = (rotate_graph(self.DVpos[key][0], angle_change), rotate_graph(self.DVpos[key][1], angle_change))
-            else:
-                self.DVpos[key] = rotate_graph(self.DVpos[key], angle_change)
+        for nnote in self.neuronSeq.get_nnotes():
+            self.DVpos[nnote.get_id()] = rotate_graph(self.DVpos[nnote.get_id()], angle_change)
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (rotate_graph(self.DVpos[connection.get_id()][0], angle_change), rotate_graph(self.DVpos[connection.get_id()][1], angle_change))
         return
