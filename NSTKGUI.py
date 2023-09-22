@@ -212,17 +212,17 @@ class NetworkRunner:
 
         if event is not None:
             # Handle events
-            if event.keysym == 'plus':
+            if event.keysym == '1':
                 zoom_factor += 10.0
-            elif event.keysym == 'minus':
+            elif event.keysym == '2':
                 zoom_factor -= 10.0
-            elif event.keysym == 'Left':
+            elif event.keysym == '3':
                 pan_offset[0] -= 20
-            elif event.keysym == 'Right':
+            elif event.keysym == '4':
                 pan_offset[0] += 20
-            elif event.keysym == 'Up':
+            elif event.keysym == '5':
                 pan_offset[1] -= 20
-            elif event.keysym == 'Down':
+            elif event.keysym == '6':
                 pan_offset[1] += 20
             elif event.keysym == 'r':
                 G.rotate(10)
