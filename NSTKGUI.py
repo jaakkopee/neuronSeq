@@ -213,9 +213,9 @@ class NetworkRunner:
         if event is not None:
             # Handle events
             if event.keysym == '1':
-                zoom_factor += 10.0
+                zoom_factor += 0.5
             elif event.keysym == '2':
-                zoom_factor -= 10.0
+                zoom_factor -= 0.5
             elif event.keysym == '3':
                 pan_offset[0] -= 20
             elif event.keysym == '4':

@@ -467,7 +467,7 @@ class NetworkGraph():
     def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
-        x1, y1 = np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0)
+        x1, y1 = np.random.uniform(-100.0, 100.0), np.random.uniform(-100.0, 100.0)
         self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
         return new_nnote, self.DVpos[new_nnote.get_id()]
 
