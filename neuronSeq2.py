@@ -478,14 +478,11 @@ class NetworkGraph(nx.Graph):
         #add the nnotes to graph
         for nnote in nnotes:
             self.add_node(nnote.get_id())
-            x1, y1 = np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0)
-            self.DVpos[nnote.get_id()] = DistanceVector((x1, y1))
-            print (x1, y1), nnote.get_id()
 
         #add the connections to graph
         for connection in connections:
             self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id())
-            self.DVpos[connection.get_id()] = (DistanceVector(self.DVpos[connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[connection.get_nnotes()[1].get_id()].get_coordinates()))
+            
         return self, self.DVpos
 
     def is_directed(self):
@@ -494,6 +491,8 @@ class NetworkGraph(nx.Graph):
     def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
+        x1, y1 = np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0)
+        self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
         #update and draw the neuron graph
         graph, distance_vectors = self.create_graph()
         return new_nnote, distance_vectors[new_nnote.get_id()]
@@ -501,6 +500,7 @@ class NetworkGraph(nx.Graph):
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
         #create the connection object
         new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
+        self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
         #update the neuron graph
         graph, distance_vectors = self.create_graph()
         return new_connection, distance_vectors[new_connection.get_id()]
