@@ -247,9 +247,9 @@ class NetworkRunner:
             y2 = y2 * zoom_factor + height / 2 + pan_offset[1]
             #update DVpos
             dvs[0].set_coordinates(x1, y1)
-            dvs[0].set_vector_length(0.1, width, height)
+            dvs[0].set_vector_length(1, width, height)
             dvs[1].set_coordinates(x2, y2)
-            dvs[1].set_vector_length(0.1, width, height)
+            dvs[1].set_vector_length(1, width, height)
             x1, y1 = dvs[0].get_coordinates()
             x2, y2 = dvs[1].get_coordinates()
             #draw
