@@ -477,3 +477,10 @@ class NetworkGraph():
         self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
         return new_connection, self.DVpos[new_connection.get_id()]
 
+    def rotate(self, angle_change):
+        for key in self.DVpos.keys():
+            if type(self.DVpos[key]) is tuple:
+                self.DVpos[key] = (rotate_graph(self.DVpos[key][0], angle_change), rotate_graph(self.DVpos[key][1], angle_change))
+            else:
+                self.DVpos[key] = rotate_graph(self.DVpos[key], angle_change)
+        return
