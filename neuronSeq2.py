@@ -459,32 +459,10 @@ def rotate_graph(distance_vector, add_to_angle):
     return distance_vector
     
 # network graph class
-class NetworkGraph(nx.Graph):
+class NetworkGraph():
     def __init__(self, neuronSeq):
-        nx.Graph.__init__(self)
         self.neuronSeq = neuronSeq
         self.DVpos = {}
-
-    def create_graph(self):
-        #clear the graph
-        self.clear()
-
-        #get nnnotes
-        nnotes = self.neuronSeq.get_nnotes()
-        #get connections
-        connections = self.neuronSeq.get_connections()
-        #add the nnotes to graph
-        for nnote in nnotes:
-            self.add_node(nnote.get_id())
-
-        #add the connections to graph
-        for connection in connections:
-            self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id())
-
-        return self, self.DVpos
-
-    def is_directed(self):
-        return super().is_directed()
 
     def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
