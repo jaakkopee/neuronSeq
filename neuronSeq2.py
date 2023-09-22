@@ -486,7 +486,7 @@ class NetworkGraph(nx.Graph):
         for connection in connections:
             self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id())
             self.DVpos[connection.get_id()] = (DistanceVector(self.DVpos[connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[connection.get_nnotes()[1].get_id()].get_coordinates()))
-        return self, self.DVpos.copy()
+        return self, self.DVpos
 
     def is_directed(self):
         return super().is_directed()
@@ -495,8 +495,8 @@ class NetworkGraph(nx.Graph):
         #create the neuron/note object
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
         #update and draw the neuron graph
-        graph, distance_vector = self.create_graph()
-        return new_nnote, distance_vector[new_nnote.get_id()]
+        graph, distance_vectors = self.create_graph()
+        return new_nnote, distance_vectors[new_nnote.get_id()]
 
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
         #create the connection object
