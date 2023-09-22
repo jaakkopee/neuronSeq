@@ -464,8 +464,6 @@ class NetworkGraph(nx.Graph):
         nx.Graph.__init__(self)
         self.neuronSeq = neuronSeq
         self.DVpos = {}
-        self.layout = nx.spring_layout(self)
-        self.create_graph()
 
     def create_graph(self):
         #clear the graph
@@ -482,7 +480,7 @@ class NetworkGraph(nx.Graph):
         #add the connections to graph
         for connection in connections:
             self.add_edge(connection.get_nnotes()[0].get_id(), connection.get_nnotes()[1].get_id())
-            
+
         return self, self.DVpos
 
     def is_directed(self):
@@ -494,16 +492,14 @@ class NetworkGraph(nx.Graph):
         x1, y1 = np.random.uniform(-10.0, 10.0), np.random.uniform(-10.0, 10.0)
         self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
         #update and draw the neuron graph
-        graph, distance_vectors = self.create_graph()
-        return new_nnote, distance_vectors[new_nnote.get_id()]
+        return new_nnote, self.DVpos[new_nnote.get_id()]
 
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
         #create the connection object
         new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
         self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
         #update the neuron graph
-        graph, distance_vectors = self.create_graph()
-        return new_connection, distance_vectors[new_connection.get_id()]
+        return new_connection, self.DVpos[new_connection.get_id()]
 
 if __name__ == "__main__": 
     #create the neuronSeq
