@@ -437,6 +437,9 @@ class DistanceVector():
         self.nx_point = (x, y)
         return self.update_nx_point()
     
+    def get_vector_length(self):
+        return self.vector_length
+    
     def set_vector_length(self, vector_length):
         self.vector_length = vector_length
         return self.update_vector_length()
