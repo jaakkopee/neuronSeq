@@ -8,7 +8,7 @@ import threading
 import time
 
 running = True   
-width, height = 800, 600
+width, height = 800, 800
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
 
