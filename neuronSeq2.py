@@ -432,6 +432,25 @@ class DistanceVector():
     def change_angle(self, add_to_angle):
         self.angle = get_angle(self.angle, add_to_angle)
         return self.update_nx_point()
+    
+    def set_coordinates(self, x, y):
+        self.nx_point = (x, y)
+        return self.update_nx_point()
+    
+    def set_vector_length(self, vector_length, width, height):
+        self.vector_length = vector_length
+        return self.update_vector_length(width=width, height=height)
+    
+    def update_vector_length(self, width, height):
+        vector_length = self.vector_length
+        if vector_length > width/2:
+            vector_length = width/2
+        if vector_length > height/2:
+            vector_length = height/2
+        new_x = self.nx_point[0]/vector_length
+        new_y = self.nx_point[1]/vector_length
+        self.nx_point = (new_x, new_y)
+        return self.vector_length
 
     def update_nx_point(self):
         x, y = self.nx_point
@@ -463,12 +482,16 @@ class NetworkGraph():
     def __init__(self, neuronSeq):
         self.neuronSeq = neuronSeq
         self.DVpos = {}
+        self.maxX = 0.001
+        self.maxY = 0.001
 
     def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
-        x1, y1 = np.random.uniform(-100.0, 100.0), np.random.uniform(-100.0, 100.0)
+        x1, y1 = np.random.uniform(-32.0, 32.0), np.random.uniform(-32.0, 32.0)
         self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
+        self.maxX = max(self.maxX, x1)
+        self.maxY = max(self.maxY, y1)
         return new_nnote, self.DVpos[new_nnote.get_id()]
 
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
@@ -481,5 +504,12 @@ class NetworkGraph():
         for nnote in self.neuronSeq.get_nnotes():
             self.DVpos[nnote.get_id()] = rotate_graph(self.DVpos[nnote.get_id()], angle_change)
         for connection in self.neuronSeq.get_connections():
-            self.DVpos[connection.get_id()] = (rotate_graph(self.DVpos[connection.get_id()][0], angle_change), rotate_graph(self.DVpos[connection.get_id()][1], angle_change))
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+        #update DVpos to maxX and maxY
+        self.maxX = 0.001
+        self.maxY = 0.001
+        for nnote in self.neuronSeq.get_nnotes():
+            self.maxX = max(self.maxX, self.DVpos[nnote.get_id()].get_coordinates()[0])
+            self.maxY = max(self.maxY, self.DVpos[nnote.get_id()].get_coordinates()[1])
+
         return

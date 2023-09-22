@@ -129,11 +129,17 @@ class AddConnectionWindow(tk.Toplevel):
     def add_connection(self):
         global G
         connection_name = self.connection_name_entry.get()
-        source = int(self.source_entry.get())
-        target = int(self.target_entry.get())
+        nnotedict = {}
+        for nnote in neuronSeq.nnotes:
+            nnotedict[nnote.id] = nnote
+
+        source = nnotedict[self.source_entry.get()]
+        target = nnotedict[self.target_entry.get()]
         weight0 = float(self.weight0_entry.get())
         weight1 = float(self.weight1_entry.get())
-        connection, distance_vectors = G.add_connection(connection_name, source, target, weight0, weight1)
+        source_idx = neuronSeq.nnotes.index(source)
+        target_idx = neuronSeq.nnotes.index(target)
+        connection, distance_vectors = G.add_connection(connection_name, source_idx, target_idx, weight0, weight1)
         G.DVpos[connection.get_id()] = distance_vectors
         print_neuronSeq_connections()
         
@@ -239,6 +245,14 @@ class NetworkRunner:
             y1 = y1 * zoom_factor + height / 2 + pan_offset[1]
             x2 = x2 * zoom_factor + width / 2 + pan_offset[0]
             y2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+            #update DVpos
+            dvs[0].set_coordinates(x1, y1)
+            dvs[0].set_vector_length(0.1, width, height)
+            dvs[1].set_coordinates(x2, y2)
+            dvs[1].set_vector_length(0.1, width, height)
+            x1, y1 = dvs[0].get_coordinates()
+            x2, y2 = dvs[1].get_coordinates()
+            #draw
             self.canvas.create_line(x1, y1, x2, y2, fill='black', width=5)
 
         # Draw nodes
@@ -246,6 +260,12 @@ class NetworkRunner:
             x, y = G.DVpos[nnote.get_id()].get_coordinates()
             x = x * zoom_factor + width / 2 + pan_offset[0]
             y = y * zoom_factor + height / 2 + pan_offset[1]
+            #update DVpos
+            G.DVpos[nnote.get_id()].set_coordinates(x, y)
+            #fit to screen
+            G.DVpos[nnote.get_id()].set_vector_length(0.1, width, height)
+            x, y = G.DVpos[nnote.get_id()].get_coordinates()
+            #draw
             self.canvas.create_oval(x-8, y-8, x+8, y+8, fill='blue')
 
 
