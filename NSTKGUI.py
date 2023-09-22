@@ -246,8 +246,8 @@ class NetworkRunner:
             outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
             outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
             while outx1 < 0 or outx1 > width or outx2 < 0 or outx2 > width or outy1 < 0 or outy1 > height or outy2 < 0 or outy2 > height:
-                dvs[0].set_vector_length(dvs[0].get_vector_length() - 0.5)
-                dvs[1].set_vector_length(dvs[1].get_vector_length() - 0.5)
+                dvs[0].set_vector_length(dvs[0].get_vector_length() - 0.01)
+                dvs[1].set_vector_length(dvs[1].get_vector_length() - 0.01)
                 x1, y1 = dvs[0].get_coordinates()
                 x2, y2 = dvs[1].get_coordinates()
                 outx1 = x1 * zoom_factor + width / 2 + pan_offset[0]
@@ -263,7 +263,7 @@ class NetworkRunner:
             outx = x * zoom_factor + width / 2 + pan_offset[0]
             outy = y * zoom_factor + height / 2 + pan_offset[1]
             while outx < 0 or outx > width or outy < 0 or outy > height:
-                G.DVpos[nnote.get_id()].set_vector_length(G.DVpos[nnote.get_id()].get_vector_length() - 0.5)
+                G.DVpos[nnote.get_id()].set_vector_length(G.DVpos[nnote.get_id()].get_vector_length() - 0.01)
                 x, y = G.DVpos[nnote.get_id()].get_coordinates()
                 outx = x * zoom_factor + width / 2 + pan_offset[0]
                 outy = y * zoom_factor + height / 2 + pan_offset[1]
