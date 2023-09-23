@@ -252,22 +252,24 @@ class NetworkRunner:
                 outy1 = y1 * zoom_factor + height / 2 + pan_offset[1]
                 outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
                 outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
-                if outx1 < 0:
-                    dvs[0].set_coordinates((0, y1))
-                if outx1 > width:
-                    dvs[0].set_coordinates((width, y1))
-                if outx2 < 0:
-                    dvs[1].set_coordinates((0, y2))
-                if outx2 > width:
-                    dvs[1].set_coordinates((width, y2))
-                if outy1 < 0:
-                    dvs[0].set_coordinates((x1, 0))
-                if outy1 > height:
-                    dvs[0].set_coordinates((x1, height))
-                if outy2 < 0:
-                    dvs[1].set_coordinates((x2, 0))
-                if outy2 > height:
-                    dvs[1].set_coordinates((x2, height))
+
+                if outx1 < 0 or outx1 > width or outx2 < 0 or outx2 > width or outy1 < 0 or outy1 > height or outy2 < 0 or outy2 > height:
+                    if outx1 < 0:
+                        outx1 = 0
+                    elif outx1 > width:
+                        outx1 = width
+                    if outx2 < 0:
+                        outx2 = 0
+                    elif outx2 > width:
+                        outx2 = width
+                    if outy1 < 0:
+                        outy1 = 0
+                    elif outy1 > height:
+                        outy1 = height
+                    if outy2 < 0:
+                        outy2 = 0
+                    elif outy2 > height:
+                        outy2 = height
                 print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
             #draw nnotes
             self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
