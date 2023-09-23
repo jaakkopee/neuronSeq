@@ -256,7 +256,7 @@ class NetworkRunner:
                 outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
                 print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
             #draw
-            self.canvas.create_line(outx1, outy1, outx1, outy2, fill='black', width=5)
+            self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
 
         # Draw nodes
         for nnote in neuronSeq.nnotes:
