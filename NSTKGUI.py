@@ -195,48 +195,61 @@ class NeuronSeqWindow(tk.Tk):
         self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
         self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
         self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
-        self.nwr.update(None)
+        self.nwr.update()
         return
+    
+class NetworkCanvas(tk.Canvas):
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.create_widgets()
 
-class NetworkRunner:
-    def __init__(self):
-        global width, height
+    def create_widgets(self):
+        self.canvas = tk.Canvas(self.master, width=width, height=height)
+        self.canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
+        return
+    
+    def zoom_in(self):
+        global zoom_factor
+        zoom_factor += 0.5
+        return
+    
+    def zoom_out(self):
+        global zoom_factor
+        zoom_factor -= 0.5
+        return
+    
+    def pan_left(self):
+        global pan_offset
+        pan_offset[0] -= 20
+        return
+    
+    def pan_right(self):
+        global pan_offset
+        pan_offset[0] += 20
+        return
+    
+    def pan_up(self):
+        global pan_offset
+        pan_offset[1] -= 20
+        return
+    
+    def pan_down(self):
+        global pan_offset
+        pan_offset[1] += 20
+        return
+    
+    def set_angle(self, angle):
         global G
-        global zoom_factor, pan_offset
-        self.canvas = None
-
-    def set_master(self, nsw):
-        canvas = tk.Canvas(nsw, width=width, height=height)
-        canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
-        self.canvas = canvas
-
-    def update(self, event):
+        G.rotate(angle)
+        return
+    
+    def update(self):
         global zoom_factor
         global pan_offset
         global width, height
         global G
-
-        if event is not None:
-            # Handle events
-            if event.keysym == '1':
-                zoom_factor += 0.5
-            elif event.keysym == '2':
-                zoom_factor -= 0.5
-            elif event.keysym == '3':
-                pan_offset[0] -= 20
-            elif event.keysym == '4':
-                pan_offset[0] += 20
-            elif event.keysym == '5':
-                pan_offset[1] -= 20
-            elif event.keysym == '6':
-                pan_offset[1] += 20
-            elif event.keysym == 'r':
-                G.rotate(10)
-
-        # Clear screen
         self.canvas.delete('all')
-
-        # Draw edges
         for connection in neuronSeq.connections:
             dvs = G.DVpos[connection.get_id()]
             x1, y1 = dvs[0].get_coordinates()
@@ -271,15 +284,36 @@ class NetworkRunner:
                     elif outy2 > height:
                         outy2 = height
                 print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
-            #draw nnotes
+
             self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
             self.canvas.create_oval(outx1 - 9, outy1 - 9, outx1 + 9, outy1 + 9, fill='blue')
             self.canvas.create_oval(outx2 - 9, outy2 - 9, outx2 + 9, outy2 + 9, fill='blue')
             self.canvas.create_text(outx1, outy1 - 15, text=connection.source.id)
             self.canvas.create_text(outx2, outy2 - 15, text=connection.destination.id)
             self.canvas.create_text((outx1 + outx2) / 2, (outy1 + outy2) / 2, text=connection.name)
-            self.canvas.update()
+        self.canvas.update()
 
+class NetworkRunner:
+    def __init__(self):
+        global width, height
+        global G
+        global zoom_factor, pan_offset
+        self.canvas = None
+
+    def set_master(self, nsw):
+        canvas = NetworkCanvas(nsw)
+        canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
+        self.canvas = canvas
+
+    def update(self):
+        global running
+        global width, height
+        global G
+        global zoom_factor, pan_offset
+        if running:
+            self.canvas.update()
+            self.canvas.after(100, self.update, None)
+        return
 
 
 
