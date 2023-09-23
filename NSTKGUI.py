@@ -269,35 +269,16 @@ class NetworkRunner:
                 if outy2 > height:
                     dvs[1].set_coordinates((x2, height))
                 print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
-            #draw
+            #draw nnotes
             self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
-            self.canvas.create_text((outx1 + outx2) / 2, (outy1 + outy2) / 2, text=connection.get_id())
-            self.canvas.create_text(outx1, outy1, text=connection.source.get_id())
-            self.canvas.create_text(outx2, outy2, text=connection.destination.get_id())
-            self.canvas.create_oval(outx1-8, outy1-8, outx1+8, outy1+8, fill='blue')
-            self.canvas.create_oval(outx2-8, outy2-8, outx2+8, outy2+8, fill='blue')
+            self.canvas.create_oval(outx1 - 9, outy1 - 9, outx1 + 9, outy1 + 9, fill='blue')
+            self.canvas.create_oval(outx2 - 9, outy2 - 9, outx2 + 9, outy2 + 9, fill='blue')
+            self.canvas.create_text(outx1, outy1 - 15, text=connection.source.id)
+            self.canvas.create_text(outx2, outy2 - 15, text=connection.destination.id)
+            self.canvas.create_text((outx1 + outx2) / 2, (outy1 + outy2) / 2, text=connection.name)
+            self.canvas.update()
 
-        # Draw nodes if there are no edges
-        for nnote in neuronSeq.nnotes:
-            x, y = G.DVpos[nnote.get_id()].get_coordinates()
-            outx = x * zoom_factor + width / 2 + pan_offset[0]
-            outy = y * zoom_factor + height / 2 + pan_offset[1]
-            if outx < 0 or outx > width or outy < 0 or outy > height:
-                x, y = G.DVpos[nnote.get_id()].get_coordinates()
-                outx = x * zoom_factor + width / 2 + pan_offset[0]
-                outy = y * zoom_factor + height / 2 + pan_offset[1]
-                if outx < 0:
-                    G.DVpos[nnote.get_id()].set_coordinates((0, y))
-                if outx > width:
-                    G.DVpos[nnote.get_id()].set_coordinates((width, y))
-                if outy < 0:
-                    G.DVpos[nnote.get_id()].set_coordinates((x, 0))
-                if outy > height:
-                    G.DVpos[nnote.get_id()].set_coordinates((x, height))
-                print("outx: " + str(outx) + " outy: " + str(outy))
-            #draw
-            self.canvas.create_text(outx, outy, text=nnote.get_id())
-            self.canvas.create_oval(outx-8, outy-8, outx+8, outy+8, fill='blue')
+
 
 
 
