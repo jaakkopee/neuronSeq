@@ -246,14 +246,28 @@ class NetworkRunner:
             outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
             outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
             while outx1 < 0 or outx1 > width or outx2 < 0 or outx2 > width or outy1 < 0 or outy1 > height or outy2 < 0 or outy2 > height:
-                dvs[0].set_vector_length(dvs[0].get_vector_length() - 0.5)
-                dvs[1].set_vector_length(dvs[1].get_vector_length() - 0.5)
                 x1, y1 = dvs[0].get_coordinates()
                 x2, y2 = dvs[1].get_coordinates()
                 outx1 = x1 * zoom_factor + width / 2 + pan_offset[0]
                 outy1 = y1 * zoom_factor + height / 2 + pan_offset[1]
                 outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
                 outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+                if outx1 < 0:
+                    dvs[0].set_coordinates((0, y1))
+                if outx1 > width:
+                    dvs[0].set_coordinates((width, y1))
+                if outx2 < 0:
+                    dvs[1].set_coordinates((0, y2))
+                if outx2 > width:
+                    dvs[1].set_coordinates((width, y2))
+                if outy1 < 0:
+                    dvs[0].set_coordinates((x1, 0))
+                if outy1 > height:
+                    dvs[0].set_coordinates((x1, height))
+                if outy2 < 0:
+                    dvs[1].set_coordinates((x2, 0))
+                if outy2 > height:
+                    dvs[1].set_coordinates((x2, height))
                 print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
             #draw
             self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
@@ -264,19 +278,26 @@ class NetworkRunner:
             self.canvas.create_oval(outx2-8, outy2-8, outx2+8, outy2+8, fill='blue')
 
         # Draw nodes if there are no edges
-        if len(neuronSeq.nnotes) > 0 and len(neuronSeq.connections) <= 0:
-            for nnote in neuronSeq.nnotes:
+        for nnote in neuronSeq.nnotes:
+            x, y = G.DVpos[nnote.get_id()].get_coordinates()
+            outx = x * zoom_factor + width / 2 + pan_offset[0]
+            outy = y * zoom_factor + height / 2 + pan_offset[1]
+            while outx < 0 or outx > width or outy < 0 or outy > height:
                 x, y = G.DVpos[nnote.get_id()].get_coordinates()
                 outx = x * zoom_factor + width / 2 + pan_offset[0]
                 outy = y * zoom_factor + height / 2 + pan_offset[1]
-                while outx < 0 or outx > width or outy < 0 or outy > height:
-                    G.DVpos[nnote.get_id()].set_vector_length(G.DVpos[nnote.get_id()].get_vector_length() - 0.5)
-                    x, y = G.DVpos[nnote.get_id()].get_coordinates()
-                    outx = x * zoom_factor + width / 2 + pan_offset[0]
-                    outy = y * zoom_factor + height / 2 + pan_offset[1]
-                #draw
-                self.canvas.create_text(outx, outy, text=nnote.get_id())
-                self.canvas.create_oval(outx-8, outy-8, outx+8, outy+8, fill='blue')
+                if outx < 0:
+                    G.DVpos[nnote.get_id()].set_coordinates((0, y))
+                if outx > width:
+                    G.DVpos[nnote.get_id()].set_coordinates((width, y))
+                if outy < 0:
+                    G.DVpos[nnote.get_id()].set_coordinates((x, 0))
+                if outy > height:
+                    G.DVpos[nnote.get_id()].set_coordinates((x, height))
+                print("outx: " + str(outx) + " outy: " + str(outy))
+            #draw
+            self.canvas.create_text(outx, outy, text=nnote.get_id())
+            self.canvas.create_oval(outx-8, outy-8, outx+8, outy+8, fill='blue')
 
 
 

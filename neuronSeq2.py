@@ -433,8 +433,8 @@ class DistanceVector():
         self.angle = get_angle(self.angle, add_to_angle)
         return self.update_nx_point()
     
-    def set_coordinates(self, x, y):
-        self.nx_point = (x, y)
+    def set_coordinates(self, nx_point):
+        self.nx_point = nx_point
         return self.update_nx_point()
     
     def get_vector_length(self):
