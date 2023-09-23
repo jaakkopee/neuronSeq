@@ -257,19 +257,26 @@ class NetworkRunner:
                 print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
             #draw
             self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
+            self.canvas.create_text((outx1 + outx2) / 2, (outy1 + outy2) / 2, text=connection.get_id())
+            self.canvas.create_text(outx1, outy1, text=connection.source.get_id())
+            self.canvas.create_text(outx2, outy2, text=connection.destination.get_id())
+            self.canvas.create_oval(outx1-8, outy1-8, outx1+8, outy1+8, fill='blue')
+            self.canvas.create_oval(outx2-8, outy2-8, outx2+8, outy2+8, fill='blue')
 
-        # Draw nodes
-        for nnote in neuronSeq.nnotes:
-            x, y = G.DVpos[nnote.get_id()].get_coordinates()
-            outx = x * zoom_factor + width / 2 + pan_offset[0]
-            outy = y * zoom_factor + height / 2 + pan_offset[1]
-            while outx < 0 or outx > width or outy < 0 or outy > height:
-                G.DVpos[nnote.get_id()].set_vector_length(G.DVpos[nnote.get_id()].get_vector_length() - 0.5)
+        # Draw nodes if there are no edges
+        if len(neuronSeq.nnotes) > 0 and len(neuronSeq.connections) <= 0:
+            for nnote in neuronSeq.nnotes:
                 x, y = G.DVpos[nnote.get_id()].get_coordinates()
                 outx = x * zoom_factor + width / 2 + pan_offset[0]
                 outy = y * zoom_factor + height / 2 + pan_offset[1]
-            #draw
-            self.canvas.create_oval(outx-8, outy-8, outx+8, outy+8, fill='blue')
+                while outx < 0 or outx > width or outy < 0 or outy > height:
+                    G.DVpos[nnote.get_id()].set_vector_length(G.DVpos[nnote.get_id()].get_vector_length() - 0.5)
+                    x, y = G.DVpos[nnote.get_id()].get_coordinates()
+                    outx = x * zoom_factor + width / 2 + pan_offset[0]
+                    outy = y * zoom_factor + height / 2 + pan_offset[1]
+                #draw
+                self.canvas.create_text(outx, outy, text=nnote.get_id())
+                self.canvas.create_oval(outx-8, outy-8, outx+8, outy+8, fill='blue')
 
 
 
