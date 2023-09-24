@@ -82,7 +82,7 @@ class AddNeuronWindow(tk.Toplevel):
         self.master.nn_conn_label.config(text=nn_conn_str)
 
         self.nwr.canvas.delete('all')
-        self.nwr.update(None)
+        self.nwr.update()
 
         print_neuronSeq_nnotes()
         self.close_window()
@@ -152,7 +152,7 @@ class AddConnectionWindow(tk.Toplevel):
         self.master.nn_conn_label.config(text=nn_conn_str)
 
         self.nwr.canvas.delete('all')
-        self.nwr.update(None)
+        self.nwr.update()
         self.close_window()
         return
 
@@ -167,11 +167,8 @@ def openAddConnectionWindow():
     return
 
 class NeuronSeqWindow(tk.Tk):
-    def __init__(self, nwr=None):
+    def __init__(self):
         tk.Tk.__init__(self)
-        self.nwr = nwr
-        self.nwr.set_master(self)
-        self.bind('<Key>', self.nwr.update)
         self.title("NeuronSeq")
         self.geometry("1024x800")
         self.resizable(True, True)
@@ -195,18 +192,41 @@ class NeuronSeqWindow(tk.Tk):
         self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
         self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
         self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
-        self.nwr.update()
+        self.canvas = NetworkCanvas(self)
         return
     
 class NetworkCanvas(tk.Canvas):
-    def __init__(self, master):
-        super().__init__(master)
-        self.master = master
+    def __init__(self):
+        super().__init__()
         self.create_widgets()
+        self.bind('<Key>', self.key_press)
 
     def create_widgets(self):
         self.canvas = tk.Canvas(self.master, width=width, height=height)
         self.canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
+        return
+    
+    def bind(self, event, function):
+        self.canvas.bind(event, function)
+        return
+    
+    def key_press(self, event):
+        if event.char == 'w':
+            self.zoom_in()
+        elif event.char == 's':
+            self.zoom_out()
+        elif event.char == 'a':
+            self.pan_left()
+        elif event.char == 'd':
+            self.pan_right()
+        elif event.char == 'q':
+            self.pan_up()
+        elif event.char == 'e':
+            self.pan_down()
+        elif event.char == 'r':
+            self.set_angle(0.1)
+        elif event.char == 'f':
+            self.set_angle(-0.1)
         return
     
     def zoom_in(self):
@@ -298,12 +318,7 @@ class NetworkRunner:
         global width, height
         global G
         global zoom_factor, pan_offset
-        self.canvas = None
-
-    def set_master(self, nsw):
-        canvas = NetworkCanvas(nsw)
-        canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
-        self.canvas = canvas
+        self.canvas = NetworkCanvas()
 
     def update(self):
         global running
@@ -323,6 +338,6 @@ zoom_factor = 1.0
 pan_offset = [0, 0]
 
 network_runner = NetworkRunner()
-neuronSeq_window = NeuronSeqWindow(network_runner)
+neuronSeq_window = NeuronSeqWindow()
 
 neuronSeq_window.mainloop()
