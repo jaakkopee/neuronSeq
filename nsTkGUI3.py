@@ -283,7 +283,7 @@ class NetworkCanvas(tk.Canvas):
             x = pos.get_coordinates()[0] * zoom_factor + pan_offset[0]
             y = pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
             self.create_oval(x-9, y-9, x+9, y+9, fill=self.node_color)
-            self.create_text(x, y-10, text=nnote.get_id())
+            self.create_text(x, y-13, text=nnote.get_id())
         self.update()
         return
 
