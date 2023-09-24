@@ -6,6 +6,8 @@ import threading
 import rtmidi
 import networkx as nx
 import math
+import mido
+
 
 #global variables
 #neuron parameters
@@ -169,12 +171,12 @@ class NNote:
 
     def create_midi_event(self):
         #create midi event
-        midi_event = [0x90, self.note, self.velocity]
+        midi_event = mido.Message('note_on', note=self.note, velocity=self.velocity, channel=self.channel)
         return midi_event
 
     def create_midi_event_off(self):
         #create midi event
-        midi_event = [0x80, self.note, 0]
+        midi_event = mido.Message('note_off', note=self.note, velocity=self.velocity, channel=self.channel)
         return midi_event
 
     def note_thread_start(self):
@@ -190,13 +192,13 @@ class NNote:
         #create midi event
         midi_event = self.create_midi_event()
         #send midi event
-        midi_output.send_message(midi_event)
+        midi_output.send_message(midi_event.bytes())
         #sleep for duration
         time.sleep(self.duration)
         #create midi event
         midi_event = self.create_midi_event_off()
         #send midi event
-        midi_output.send_message(midi_event)
+        midi_output.send_message(midi_event.bytes())
         return
 
     def advance_activation_index(self):
