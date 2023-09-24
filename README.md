@@ -63,7 +63,7 @@ What does it do?
    
 Run the gui with
 <code>
-$ python neuronSeq2GUI2.py
+$ python nsTkGUI3.py
 </code>
 
 <img src="neuronSeq_kinkybeat1.png"></img>
