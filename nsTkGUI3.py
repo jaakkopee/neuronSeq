@@ -1,4 +1,4 @@
-#import pygame
+# ... (previous code)
 import networkx as nx
 import math
 import numpy as np
@@ -9,6 +9,8 @@ import time
 
 running = True   
 width, height = 800, 800
+zoom_factor = 1.0
+pan_offset = [0, 0]
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
 
@@ -178,6 +180,7 @@ class NeuronSeqWindow(tk.Tk):
         self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
         self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
         self.canvas = NetworkCanvas()
+        self.canvas.set_edge_color((0, 0, 0))
         return
 
     def key_press(self, event):
@@ -207,116 +210,145 @@ class NeuronSeqWindow(tk.Tk):
         time.sleep(0.1)    
         self.destroy()
 
-    
 class NetworkCanvas(tk.Canvas):
-    def __init__(self):
-        super().__init__()
-        self.create_widgets()
+    def __init__(self, master, width, height):
+        super().__init__(master, width=width, height=height)
+        self.zoom_factor = 1.0
+        self.pan_offset = [0, 0]
 
-    def create_widgets(self):
-        self.canvas = tk.Canvas(self.master, width=width, height=height)
-        self.canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
-        return
-    
     def zoom_in(self):
-        global zoom_factor
-        zoom_factor += 0.5
-        return
-    
+        self.zoom_factor += 0.1
+        self.update_canvas()
+
     def zoom_out(self):
-        global zoom_factor
-        zoom_factor -= 0.5
-        return
-    
+        self.zoom_factor -= 0.1
+        self.update_canvas()
+
     def pan_left(self):
-        global pan_offset
-        pan_offset[0] -= 20
-        return
-    
+        self.pan_offset[0] -= 20
+        self.update_canvas()
+
     def pan_right(self):
-        global pan_offset
-        pan_offset[0] += 20
-        return
-    
+        self.pan_offset[0] += 20
+        self.update_canvas()
+
     def pan_up(self):
-        global pan_offset
-        pan_offset[1] -= 20
-        return
-    
+        self.pan_offset[1] -= 20
+        self.update_canvas()
+
     def pan_down(self):
-        global pan_offset
-        pan_offset[1] += 20
-        return
-    
+        self.pan_offset[1] += 20
+        self.update_canvas()
+
     def set_angle(self, angle):
         global G
         G.rotate(angle)
-        return
-    
-    def update(self):
-        global zoom_factor
-        global pan_offset
+        self.update_canvas()
+
+    def set_edge_color(self, edge_color):
+        tk_rgb = "#%02x%02x%02x" % edge_color
+        self.edge_color = tk_rgb
+
+    def update_canvas(self):
+        zoom_factor = self.zoom_factor
+        pan_offset = self.pan_offset
         global width, height
         global G
-        self.canvas.delete('all')
+        self.delete('all')
         for connection in neuronSeq.connections:
-            dvs = G.DVpos[connection.get_id()]
-            x1, y1 = dvs[0].get_coordinates()
-            x2, y2 = dvs[1].get_coordinates()
-            outx1 = x1 * zoom_factor + width / 2 + pan_offset[0]
-            outy1 = y1 * zoom_factor + height / 2 + pan_offset[1]
-            outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
-            outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
-            if outx1 < 0 or outx1 > width or outx2 < 0 or outx2 > width or outy1 < 0 or outy1 > height or outy2 < 0 or outy2 > height:
-                x1, y1 = dvs[0].get_coordinates()
-                x2, y2 = dvs[1].get_coordinates()
-                outx1 = x1 * zoom_factor + width / 2 + pan_offset[0]
-                outy1 = y1 * zoom_factor + height / 2 + pan_offset[1]
-                outx2 = x2 * zoom_factor + width / 2 + pan_offset[0]
-                outy2 = y2 * zoom_factor + height / 2 + pan_offset[1]
+            source = connection.source
+            target = connection.destination
+            source_pos = G.DVpos[source.get_id()]
+            target_pos = G.DVpos[target.get_id()]
+            source_x = source_pos.get_coordinates()[0] * zoom_factor + pan_offset[0]
+            source_y = source_pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
+            target_x = target_pos.get_coordinates()[0] * zoom_factor + pan_offset[0]
+            target_y = target_pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
 
-                if outx1 < 0 or outx1 > width or outx2 < 0 or outx2 > width or outy1 < 0 or outy1 > height or outy2 < 0 or outy2 > height:
-                    if outx1 < 0:
-                        outx1 = 0
-                    elif outx1 > width:
-                        outx1 = width
-                    if outx2 < 0:
-                        outx2 = 0
-                    elif outx2 > width:
-                        outx2 = width
-                    if outy1 < 0:
-                        outy1 = 0
-                    elif outy1 > height:
-                        outy1 = height
-                    if outy2 < 0:
-                        outy2 = 0
-                    elif outy2 > height:
-                        outy2 = height
-                print("outx1: " + str(outx1) + " outx2: " + str(outx2) + " outy1: " + str(outy1) + " outy2: " + str(outy2))
+            self.create_line(source_x, source_y, target_x, target_y, fill=self.edge_color)
+            self.create_text(source_x, source_y, text=source.get_id())
+            self.create_text(target_x, target_y, text=target.get_id())
 
-            self.canvas.create_line(outx1, outy1, outx2, outy2, fill='black', width=5)
-            self.canvas.create_oval(outx1 - 9, outy1 - 9, outx1 + 9, outy1 + 9, fill='blue')
-            self.canvas.create_oval(outx2 - 9, outy2 - 9, outx2 + 9, outy2 + 9, fill='blue')
-            self.canvas.create_text(outx1, outy1 - 15, text=connection.source.id)
-            self.canvas.create_text(outx2, outy2 - 15, text=connection.destination.id)
-            self.canvas.create_text((outx1 + outx2) / 2, (outy1 + outy2) / 2, text=connection.name)
-        self.canvas.update()
+        for nnote in neuronSeq.nnotes:
+            pos = G.DVpos[nnote.get_id()]
+            x = pos.get_coordinates()[0] * zoom_factor + pan_offset[0]
+            y = pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
+            self.create_oval(x-5, y-5, x+5, y+5, fill="red")
+        self.update()
+        return
+
+
+class NeuronSeqWindow(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+        self.title("NeuronSeq")
+        self.geometry("1024x800")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.create_widgets()
+        self.bind('<Key>', self.key_press)
+
+    def create_widgets(self):
+        global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
+        
+        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
+        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
+        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
+        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
+        self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
+        self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
+        self.network_canvas = NetworkCanvas(self, width=800, height=800)
+        self.network_canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
+
+    def key_press(self, event):
+        # Handle key presses for zoom and pan
+        # Update the canvas based on key presses
+        if event.char == 'w':
+            self.network_canvas.zoom_in()
+        elif event.char == 's':
+            self.network_canvas.zoom_out()
+        elif event.char == 'a':
+            self.network_canvas.pan_left()
+        elif event.char == 'd':
+            self.network_canvas.pan_right()
+        elif event.char == 'q':
+            self.network_canvas.pan_up()
+        elif event.char == 'e':
+            self.network_canvas.pan_down()
+        elif event.char == 'r':
+            self.network_canvas.set_angle(0.1)
+        elif event.char == 'f':
+            self.network_canvas.set_angle(-0.1)
+        return
+    
+
+    def close_window(self):
+        global running
+        running = False
+        global neuronSeq
+        neuronSeq.stop()
+        time.sleep(0.1)
+        self.destroy()
 
 class NetworkRunner:
     def __init__(self, neuronSeq_window):
         global width, height
         global G
         global zoom_factor, pan_offset
-        self.canvas = neuronSeq_window.canvas
+        self.neuronSeq_window = neuronSeq_window
+        self.canvas = neuronSeq_window.network_canvas
 
     def update(self):
         global running
         global width, height
         global G
         global zoom_factor, pan_offset
+
         if running:
-            self.canvas.update()
-            self.canvas.after(100, self.update, None)
+            random_rgb = np.random.randint(0, 255, 3)
+            self.canvas.set_edge_color(tuple(random_rgb))
+            self.canvas.update_canvas()
+            self.neuronSeq_window.after(10, self.update)
         return
 
 
@@ -328,5 +360,5 @@ pan_offset = [0, 0]
 
 neuronSeq_window = NeuronSeqWindow()
 network_runner = NetworkRunner(neuronSeq_window)
-
+network_runner.update()
 neuronSeq_window.mainloop()
