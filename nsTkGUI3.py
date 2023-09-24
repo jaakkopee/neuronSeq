@@ -181,6 +181,7 @@ class NeuronSeqWindow(tk.Tk):
         self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
         self.canvas = NetworkCanvas()
         self.canvas.set_edge_color((0, 0, 0))
+        self.canvas.set_node_color((0, 0, 0))
         return
 
     def key_press(self, event):
@@ -249,6 +250,10 @@ class NetworkCanvas(tk.Canvas):
         tk_rgb = "#%02x%02x%02x" % edge_color
         self.edge_color = tk_rgb
 
+    def set_node_color(self, node_color):
+        tk_rgb = "#%02x%02x%02x" % node_color
+        self.node_color = tk_rgb
+
     def update_canvas(self):
         zoom_factor = self.zoom_factor
         pan_offset = self.pan_offset
@@ -264,16 +269,21 @@ class NetworkCanvas(tk.Canvas):
             source_y = source_pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
             target_x = target_pos.get_coordinates()[0] * zoom_factor + pan_offset[0]
             target_y = target_pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
+            text_x = (source_x + target_x) / 2
+            text_y = (source_y + target_y) / 2
 
             self.create_line(source_x, source_y, target_x, target_y, fill=self.edge_color)
-            self.create_text(source_x, source_y, text=source.get_id())
-            self.create_text(target_x, target_y, text=target.get_id())
+            self.create_text(text_x, text_y, text=connection.get_id())
 
         for nnote in neuronSeq.nnotes:
+            node_color = int(nnote.activation * 255)
+            rgb = (node_color, node_color, node_color)
+            self.set_node_color(rgb)
             pos = G.DVpos[nnote.get_id()]
             x = pos.get_coordinates()[0] * zoom_factor + pan_offset[0]
             y = pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
-            self.create_oval(x-5, y-5, x+5, y+5, fill="red")
+            self.create_oval(x-9, y-9, x+9, y+9, fill=self.node_color)
+            self.create_text(x, y-10, text=nnote.get_id())
         self.update()
         return
 
