@@ -71,7 +71,7 @@ class AddNeuronWindow(tk.Toplevel):
         velocity = int(self.velocity_entry.get())
         duration = float(self.duration_entry.get())
         note, distance_vector = G.add_nnote(midi_channel=midi_channel, note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
-        note.set_activation_function(1)
+        note.set_activation_function(1) #sigmoid
         G.DVpos[note.get_id()] = distance_vector
 
         nn_conn_str="Neurons:\n"
