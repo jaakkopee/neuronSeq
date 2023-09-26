@@ -517,3 +517,18 @@ class NetworkGraph():
             self.maxY = max(self.maxY, self.DVpos[nnote.get_id()].get_coordinates()[1])
 
         return
+    
+    def position_nodes_circle(self):
+        #position nodes in a circle
+        angle = 0
+        angle_change = 360/len(self.neuronSeq.get_nnotes())
+        for nnote in self.neuronSeq.get_nnotes():
+            self.DVpos[nnote.get_id()] = DistanceVector((math.cos(math.radians(angle)), math.sin(math.radians(angle))))
+            angle += angle_change
+
+        #position connections
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+        return
+    
+    

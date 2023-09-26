@@ -183,25 +183,6 @@ class NeuronSeqWindow(tk.Tk):
         self.canvas.set_edge_color((0, 0, 0))
         self.canvas.set_node_color((0, 0, 0))
         return
-
-    def key_press(self, event):
-        if event.char == 'w':
-            self.canvas.zoom_in()
-        elif event.char == 's':
-            self.canvas.zoom_out()
-        elif event.char == 'a':
-            self.canvas.pan_left()
-        elif event.char == 'd':
-            self.canvas.pan_right()
-        elif event.char == 'q':
-            self.canvas.pan_up()
-        elif event.char == 'e':
-            self.canvas.pan_down()
-        elif event.char == 'r':
-            self.canvas.set_angle(0.1)
-        elif event.char == 'f':
-            self.canvas.set_angle(-0.1)
-        return
     
     def close_window(self):
         global running
@@ -219,32 +200,25 @@ class NetworkCanvas(tk.Canvas):
 
     def zoom_in(self):
         self.zoom_factor += 0.1
-        self.update_canvas()
 
     def zoom_out(self):
         self.zoom_factor -= 0.1
-        self.update_canvas()
 
     def pan_left(self):
         self.pan_offset[0] -= 20
-        self.update_canvas()
 
     def pan_right(self):
         self.pan_offset[0] += 20
-        self.update_canvas()
 
     def pan_up(self):
         self.pan_offset[1] -= 20
-        self.update_canvas()
 
     def pan_down(self):
         self.pan_offset[1] += 20
-        self.update_canvas()
 
     def set_angle(self, angle):
         global G
         G.rotate(angle)
-        self.update_canvas()
 
     def set_edge_color(self, edge_color):
         tk_rgb = "#%02x%02x%02x" % edge_color
@@ -253,6 +227,10 @@ class NetworkCanvas(tk.Canvas):
     def set_node_color(self, node_color):
         tk_rgb = "#%02x%02x%02x" % node_color
         self.node_color = tk_rgb
+
+    def position_nodes_circle(self):
+        global G
+        G.position_nodes_circle()
 
     def update_canvas(self):
         zoom_factor = self.zoom_factor
@@ -329,6 +307,8 @@ class NeuronSeqWindow(tk.Tk):
             self.network_canvas.set_angle(0.1)
         elif event.char == 'f':
             self.network_canvas.set_angle(-0.1)
+        elif event.char == 'c':
+            self.network_canvas.position_nodes_circle()
         return
     
 
