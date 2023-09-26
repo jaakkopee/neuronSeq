@@ -521,14 +521,14 @@ class NetworkGraph():
     def position_nodes_circle(self):
         #position nodes in a circle
         angle = 0
-        angle_change = 360/len(self.neuronSeq.get_nnotes())
+        radius = 32
         for nnote in self.neuronSeq.get_nnotes():
-            self.DVpos[nnote.get_id()] = DistanceVector((math.cos(math.radians(angle)), math.sin(math.radians(angle))))
-            angle += angle_change
+            x1, y1 = radius*math.cos(math.radians(angle)), radius*math.sin(math.radians(angle))
+            self.DVpos[nnote.get_id()] = DistanceVector((x1, y1))
+            angle += 360/len(self.neuronSeq.get_nnotes())
         #position connections
         for connection in self.neuronSeq.get_connections():
-            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])      
-
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
         return
     
     def position_nodes_random(self):
