@@ -7,10 +7,7 @@ import neuronSeq2 as ns
 import threading
 import time
 
-running = True   
-width, height = 800, 800
-zoom_factor = 1.0
-pan_offset = [0, 0]
+running = True
 neuronSeq = ns.NeuronSeq()
 G = ns.NetworkGraph(neuronSeq)
 
@@ -160,43 +157,12 @@ def openAddConnectionWindow():
     addConnectionWindow=AddConnectionWindow(neuronSeq_window)
     return
 
-class NeuronSeqWindow(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
-        self.title("NeuronSeq")
-        self.geometry("1024x800")
-        self.resizable(True, True)
-        self.protocol("WM_DELETE_WINDOW", self.close_window)
-        self.create_widgets()
-        self.bind('<Key>', self.key_press)
-
-    def create_widgets(self):
-        global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
-        
-        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
-        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
-        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
-        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
-        self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
-        self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
-        self.canvas = NetworkCanvas()
-        self.canvas.set_edge_color((0, 0, 0))
-        self.canvas.set_node_color((0, 0, 0))
-        return
-    
-    def close_window(self):
-        global running
-        running = False
-        global neuronSeq
-        neuronSeq.stop()
-        time.sleep(0.1)    
-        self.destroy()
 
 class NetworkCanvas(tk.Canvas):
     def __init__(self, master, width, height):
         super().__init__(master, width=width, height=height)
-        self.zoom_factor = 1.0
-        self.pan_offset = [0, 0]
+        self.zoom_factor = 10.0
+        self.pan_offset = [400, 400]
 
     def zoom_in(self):
         self.zoom_factor += 0.1
@@ -231,6 +197,10 @@ class NetworkCanvas(tk.Canvas):
     def position_nodes_circle(self):
         global G
         G.position_nodes_circle()
+
+    def position_nodes_random(self):
+        global G
+        G.position_nodes_random()
 
     def update_canvas(self):
         zoom_factor = self.zoom_factor
@@ -309,6 +279,8 @@ class NeuronSeqWindow(tk.Tk):
             self.network_canvas.set_angle(-0.1)
         elif event.char == 'c':
             self.network_canvas.position_nodes_circle()
+        elif event.char == 'v':
+            self.network_canvas.position_nodes_random()
         return
     
 
@@ -340,13 +312,7 @@ class NetworkRunner:
             self.canvas.update_canvas()
             self.neuronSeq_window.after(10, self.update)
         return
-
-
-
-
-# Initial values for zoom and pan
-zoom_factor = 1.0
-pan_offset = [0, 0]
+    
 
 neuronSeq_window = NeuronSeqWindow()
 network_runner = NetworkRunner(neuronSeq_window)

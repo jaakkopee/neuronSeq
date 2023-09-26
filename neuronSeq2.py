@@ -531,4 +531,15 @@ class NetworkGraph():
 
         return
     
+    def position_nodes_random(self):
+        #position nodes randomly
+        for nnote in self.neuronSeq.get_nnotes():
+            x1, y1 = np.random.uniform(-32.0, 32.0), np.random.uniform(-32.0, 32.0)
+            self.DVpos[nnote.get_id()] = DistanceVector((x1, y1))
+        #position connections
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])      
+
+        return
+    
     
