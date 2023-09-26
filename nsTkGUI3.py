@@ -194,6 +194,18 @@ class NetworkCanvas(tk.Canvas):
         tk_rgb = "#%02x%02x%02x" % node_color
         self.node_color = tk_rgb
 
+    def get_rgb(self, w01, w10):
+        if w01 > 0 and w10 > 0:
+            return (0, int(np.random.random()*255), 0)
+        elif w01 < 0 and w10 < 0:
+            return (int(np.random.random()*255), 0, 0)
+        elif w01 > 0 and w10 < 0:
+            return (int(np.random.random()*255), int(np.random.random()*255), 0)
+        elif w01 < 0 and w10 > 0:
+            return (0, 0, int(np.random.random()*255))
+        else:
+            return (int(np.random.random()*255), int(np.random.random()*255), int(np.random.random()*255))
+
     def position_nodes_circle(self):
         global G
         G.position_nodes_circle()
@@ -219,8 +231,8 @@ class NetworkCanvas(tk.Canvas):
             target_y = target_pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
             text_x = (source_x + target_x) / 2
             text_y = (source_y + target_y) / 2
-
-            self.create_line(source_x, source_y, target_x, target_y, fill=self.edge_color)
+            self.set_edge_color(self.get_rgb(connection.weight_0_to_1, connection.weight_1_to_0))
+            self.create_line(source_x, source_y, target_x, target_y, fill=self.edge_color, width=5)
             self.create_text(text_x, text_y, text=connection.get_id())
 
         for nnote in neuronSeq.nnotes:
@@ -305,14 +317,10 @@ class NetworkRunner:
         global width, height
         global G
         global zoom_factor, pan_offset
-
         if running:
-            random_rgb = np.random.randint(0, 255, 3)
-            self.canvas.set_edge_color(tuple(random_rgb))
             self.canvas.update_canvas()
             self.neuronSeq_window.after(10, self.update)
         return
-    
 
 neuronSeq_window = NeuronSeqWindow()
 network_runner = NetworkRunner(neuronSeq_window)
