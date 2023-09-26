@@ -503,7 +503,25 @@ class NetworkGraph():
         new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
         self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
         return new_connection, self.DVpos[new_connection.get_id()]
-
+    
+    def update_nnote(self, nnote_idx, midi_channel=0, midi_note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
+        #delete old nnote
+        old_nnote = self.neuronSeq.get_nnotes()[nnote_idx]
+        self.delete_nnote(nnote_idx)
+        #create new nnote
+        new_nnote = self.neuronSeq.create_nnote(midi_channel, midi_note, velocity, duration, lenX, id)
+        #update DVpos
+        self.DVpos[new_nnote.get_id()] = self.DVpos[old_nnote.get_id()]
+        del self.DVpos[old_nnote.get_id()]
+        return new_nnote, self.DVpos[new_nnote.get_id()]
+    
+    def delete_nnote(self, nnote_idx):
+        #delete nnote from neuronSeq
+        old_nnote = self.neuronSeq.get_nnotes()[nnote_idx]
+        self.neuronSeq.get_nnotes().remove(old_nnote)
+        return
+    
+    
     def rotate(self, angle_change):
         for nnote in self.neuronSeq.get_nnotes():
             self.DVpos[nnote.get_id()] = rotate_graph(self.DVpos[nnote.get_id()], angle_change)

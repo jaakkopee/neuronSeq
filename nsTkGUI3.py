@@ -247,6 +247,73 @@ class NetworkCanvas(tk.Canvas):
         self.update()
         return
 
+def openEditNeuronWindow(nnote):
+    global editNeuronWindow, neuronSeq_window
+    editNeuronWindow=EditNeuronWindow(neuronSeq_window, nnote)
+    return
+
+class EditNeuronWindow(tk.Toplevel):
+    def __init__(self, master, nnote):
+        super().__init__(master)
+        self.title("Edit Neuron")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master = master
+        self.nnote = nnote
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        self.neuron_name_label = tk.Label(self, text="Neuron Name")
+        self.neuron_name_label.grid(row=0, column=0, padx=10, pady=10)
+        self.neuron_name_entry = tk.Entry(self)
+        self.neuron_name_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.midi_channel_label = tk.Label(self, text="MIDI Channel")
+        self.midi_channel_label.grid(row=1, column=0, padx=10, pady=10)
+        self.midi_channel_entry = tk.Entry(self)
+        self.midi_channel_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.midi_note_label = tk.Label(self, text="MIDI Note")
+        self.midi_note_label.grid(row=2, column=0, padx=10, pady=10)
+        self.midi_note_entry = tk.Entry(self)
+        self.midi_note_entry.grid(row=2, column=1, padx=10, pady=10)
+        self.velocity_label = tk.Label(self, text="Velocity")
+        self.velocity_label.grid(row=3, column=0, padx=10, pady=10)
+        self.velocity_entry = tk.Entry(self)
+        self.velocity_entry.grid(row=3, column=1, padx=10, pady=10)
+        self.duration_label = tk.Label(self, text="Duration")
+        self.duration_label.grid(row=4, column=0, padx=10, pady=10)
+        self.duration_entry = tk.Entry(self)
+        self.duration_entry.grid(row=4, column=1, padx=10, pady=10)
+        self.add_button = tk.Button(self, text="Update", command=self.update_neuron)
+        self.add_button.grid(row=5, column=0, padx=10, pady=10)
+
+    def update_neuron(self):
+        global G
+        neuron_name = self.neuron_name_entry.get()
+        midi_channel = int(self.midi_channel_entry.get())
+        midi_note = int(self.midi_note_entry.get())
+        velocity = int(self.velocity_entry.get())
+        duration = float(self.duration_entry.get())
+        nnote_idx = neuronSeq.nnotes.index(self.nnote)
+        note, distance_vector = G.update_nnote(nnote_idx, midi_channel=midi_channel, midi_note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
+        note.set_activation_function(1) #sigmoid
+        G.DVpos[note.get_id()] = distance_vector
+
+        #update the nn_conn_label
+        nn_conn_str="Neurons:\n"
+        for nnote in neuronSeq.nnotes:
+            nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
+        nn_conn_str += "\nConnections:\n"
+        for connection in neuronSeq.connections:
+            nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+" "+str(connection.weight_1_to_0)+"\n"
+        self.master.nn_conn_label.config(text=nn_conn_str)
+
+        print_neuronSeq_nnotes()
+        self.close_window()
+        return
 
 class NeuronSeqWindow(tk.Tk):
     def __init__(self):
@@ -257,6 +324,25 @@ class NeuronSeqWindow(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.create_widgets()
         self.bind('<Key>', self.key_press)
+        self.bind('<Button-1>', self.mouse_hit)
+        self.pan_offset = self.network_canvas.pan_offset
+        self.zoom_factor = self.network_canvas.zoom_factor
+
+    def mouse_hit(self, event):
+        #find the closest node
+        global G
+        x = (event.x - self.pan_offset[0]) / self.zoom_factor
+        y = (event.y - self.pan_offset[1]) / self.zoom_factor
+
+        closest_node = None
+        closest_node_distance = 5
+        for nnote in neuronSeq.nnotes:
+            pos = G.DVpos[nnote.get_id()]
+            distance = math.sqrt((pos.get_coordinates()[0] - x)**2 + (pos.get_coordinates()[1] - y)**2)
+            if distance < closest_node_distance:
+                closest_node = nnote
+                openEditNeuronWindow(closest_node)
+        return
 
     def create_widgets(self):
         global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
