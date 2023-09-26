@@ -525,10 +525,10 @@ class NetworkGraph():
         for nnote in self.neuronSeq.get_nnotes():
             self.DVpos[nnote.get_id()] = DistanceVector((math.cos(math.radians(angle)), math.sin(math.radians(angle))))
             angle += angle_change
-
         #position connections
         for connection in self.neuronSeq.get_connections():
-            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])      
+
         return
     
     
