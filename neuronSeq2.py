@@ -491,6 +491,22 @@ class NetworkGraph():
         self.maxY = 0.001
 
 
+    def zoom(self, zoom_factor):
+        #zoom graph
+        for nnote in self.neuronSeq.get_nnotes():
+            self.DVpos[nnote.get_id()] = self.DVpos[nnote.get_id()].set_vector_length(self.DVpos[nnote.get_id()].get_vector_length()*zoom_factor)
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (self.DVpos[connection.get_id()][0].set_vector_length(self.DVpos[connection.get_id()][0].get_vector_length()*zoom_factor), self.DVpos[connection.get_id()][1].set_vector_length(self.DVpos[connection.get_id()][1].get_vector_length()*zoom_factor))
+        return
+    
+    def move(self, x, y):
+        #move graph
+        for nnote in self.neuronSeq.get_nnotes():
+            self.DVpos[nnote.get_id()] = DistanceVector((self.DVpos[nnote.get_id()].get_coordinates()[0]+x, self.DVpos[nnote.get_id()].get_coordinates()[1]+y))
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (DistanceVector((self.DVpos[connection.get_id()][0].get_coordinates()[0]+x, self.DVpos[connection.get_id()][0].get_coordinates()[1]+y)), DistanceVector((self.DVpos[connection.get_id()][1].get_coordinates()[0]+x, self.DVpos[connection.get_id()][1].get_coordinates()[1]+y)))
+        return
+    
     def updateDVpos(self):
         #update DVpos
         for nnote in self.neuronSeq.get_nnotes():

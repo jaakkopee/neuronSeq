@@ -165,22 +165,28 @@ class NetworkCanvas(tk.Canvas):
         self.pan_offset = [400, 400]
 
     def zoom_in(self):
-        self.zoom_factor += 0.1
+        global G
+        G.zoom_in()
 
     def zoom_out(self):
-        self.zoom_factor -= 0.1
+        global G
+        G.zoom_out()
 
     def pan_left(self):
-        self.pan_offset[0] -= 20
+        global G
+        G.pan_left()
 
     def pan_right(self):
-        self.pan_offset[0] += 20
+        global G
+        G.pan_right()
 
     def pan_up(self):
-        self.pan_offset[1] -= 20
+        global G
+        G.pan_up()
 
     def pan_down(self):
-        self.pan_offset[1] += 20
+        global G
+        G.pan_down()
 
     def set_angle(self, angle):
         global G
@@ -430,12 +436,10 @@ class NeuronSeqWindow(tk.Tk):
                 closest_node = nnote
                 openEditNeuronWindow(closest_node)
 
-        x = (event.x - self.pan_offset[0]) / self.zoom_factor
-        y = (event.y - self.pan_offset[1]) / self.zoom_factor
 
         #find the closest connection
         closest_connection = None
-        closest_connection_distance = 2
+        closest_connection_distance = 0.8
         for connection in neuronSeq.connections:
             dvs = G.DVpos[connection.get_id()]
             pos_1 = dvs[0]
@@ -473,27 +477,37 @@ class NeuronSeqWindow(tk.Tk):
     def key_press(self, event):
         # Handle key presses for zoom and pan
         # Update the canvas based on key presses
-        if event.char == 'w':
-            self.network_canvas.zoom_in()
-        elif event.char == 's':
-            self.network_canvas.zoom_out()
+        global G
+
+        if event.char == 'z':
+            self.zoom_factor += 0.1
+            G.zoom(zoom_factor=self.zoom_factor)
+
+        elif event.char == 'Z':
+            self.zoom_factor += 0.1
+            G.zoom(zoom_factor=self.zoom_factor)
+
         elif event.char == 'a':
-            self.network_canvas.pan_left()
+            G.move(x=-10, y=0)
         elif event.char == 'd':
-            self.network_canvas.pan_right()
-        elif event.char == 'q':
-            self.network_canvas.pan_up()
-        elif event.char == 'e':
-            self.network_canvas.pan_down()
+            G.move(x=10, y=0)
+        elif event.char == 'w':
+            G.move(x=0, y=-10)
+        elif event.char == 's':
+            G.move(x=0, y=10)
         elif event.char == 'r':
-            self.network_canvas.set_angle(0.1)
-        elif event.char == 'f':
-            self.network_canvas.set_angle(-0.1)
+            G.rotate(0.1)
+        elif event.char == 'R':
+            G.rotate(0.1)
         elif event.char == 'c':
-            self.network_canvas.position_nodes_circle()
-        elif event.char == 'v':
-            self.network_canvas.position_nodes_random()
+            G.position_nodes_circle()
+        elif event.char == 'C':
+            G.position_nodes_random()
+        elif event.char == 'p':
+            print_neuronSeq_nnotes()
+            print_neuronSeq_connections()
         return
+    
     
 
     def close_window(self):
