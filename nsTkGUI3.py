@@ -194,17 +194,34 @@ class NetworkCanvas(tk.Canvas):
         tk_rgb = "#%02x%02x%02x" % node_color
         self.node_color = tk_rgb
 
-    def get_rgb(self, w01, w10):
+    def get_rgb(self, w01, w10, total_activation):
+        random_factor = np.random.uniform(0.0, 1.0)
+        color = int (random_factor * total_activation * 255)
+        if color > 255:
+            color = 255
+        if color < 0:
+            color = 0
         if w01 > 0 and w10 > 0:
-            return (0, int(np.random.random()*255), 0)
+            rgb = (color, 0, 0)
         elif w01 < 0 and w10 < 0:
-            return (int(np.random.random()*255), 0, 0)
+            rgb = (0, 0, color)
         elif w01 > 0 and w10 < 0:
-            return (int(np.random.random()*255), int(np.random.random()*255), 0)
+            rgb = (0, color, 0)
         elif w01 < 0 and w10 > 0:
-            return (0, 0, int(np.random.random()*255))
+            rgb = (color, color, 0)
+        elif w01 == 0 and w10 > 0:
+            rgb = (0, color, color)
+        elif w01 == 0 and w10 < 0:
+            rgb = (color, 0, color)
+        elif w01 > 0 and w10 == 0:
+            rgb = (color, color, color)
+        elif w01 < 0 and w10 == 0:
+            rgb = (0, 0, 0)
         else:
-            return (int(np.random.random()*255), int(np.random.random()*255), int(np.random.random()*255))
+            rgb = (0, 0, 0)
+
+        return rgb
+    
 
     def position_nodes_circle(self):
         global G
@@ -231,8 +248,9 @@ class NetworkCanvas(tk.Canvas):
             target_y = target_pos.get_coordinates()[1] * zoom_factor + pan_offset[1]
             text_x = (source_x + target_x) / 2
             text_y = (source_y + target_y) / 2
-            self.set_edge_color(self.get_rgb(connection.weight_0_to_1, connection.weight_1_to_0))
-            self.create_line(source_x, source_y, target_x, target_y, fill=self.edge_color, width=5)
+            total_activation = source.activation + target.activation
+            self.set_edge_color(self.get_rgb(connection.weight_0_to_1, connection.weight_1_to_0, total_activation))
+            self.create_line(source_x, source_y, target_x, target_y, fill=self.edge_color, width=3)
             self.create_text(text_x, text_y, text=connection.get_id())
 
         for nnote in neuronSeq.nnotes:
