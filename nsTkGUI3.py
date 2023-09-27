@@ -435,7 +435,7 @@ class NeuronSeqWindow(tk.Tk):
 
         #find the closest connection
         closest_connection = None
-        closest_connection_distance = 5
+        closest_connection_distance = 2
         for connection in neuronSeq.connections:
             dvs = G.DVpos[connection.get_id()]
             pos_1 = dvs[0]
