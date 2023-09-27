@@ -294,22 +294,37 @@ class EditNeuronWindow(tk.Toplevel):
         self.neuron_name_label = tk.Label(self, text="Neuron Name")
         self.neuron_name_label.grid(row=0, column=0, padx=10, pady=10)
         self.neuron_name_entry = tk.Entry(self)
+        #set initial value
+        self.neuron_name_entry.insert(0, self.nnote.id)
+
         self.neuron_name_entry.grid(row=0, column=1, padx=10, pady=10)
         self.midi_channel_label = tk.Label(self, text="MIDI Channel")
         self.midi_channel_label.grid(row=1, column=0, padx=10, pady=10)
         self.midi_channel_entry = tk.Entry(self)
+        #set initial value
+        self.midi_channel_entry.insert(0, self.nnote.channel)
+
         self.midi_channel_entry.grid(row=1, column=1, padx=10, pady=10)
         self.midi_note_label = tk.Label(self, text="MIDI Note")
         self.midi_note_label.grid(row=2, column=0, padx=10, pady=10)
         self.midi_note_entry = tk.Entry(self)
+        #set initial value
+        self.midi_note_entry.insert(0, self.nnote.note)
+
         self.midi_note_entry.grid(row=2, column=1, padx=10, pady=10)
         self.velocity_label = tk.Label(self, text="Velocity")
         self.velocity_label.grid(row=3, column=0, padx=10, pady=10)
         self.velocity_entry = tk.Entry(self)
+        #set initial value
+        self.velocity_entry.insert(0, self.nnote.velocity)
+
         self.velocity_entry.grid(row=3, column=1, padx=10, pady=10)
         self.duration_label = tk.Label(self, text="Duration")
         self.duration_label.grid(row=4, column=0, padx=10, pady=10)
         self.duration_entry = tk.Entry(self)
+        #set initial value
+        self.duration_entry.insert(0, self.nnote.duration)
+        
         self.duration_entry.grid(row=4, column=1, padx=10, pady=10)
         self.add_button = tk.Button(self, text="Update", command=self.update_neuron)
         self.add_button.grid(row=5, column=0, padx=10, pady=10)
@@ -361,22 +376,37 @@ class EditConnectionWindow(tk.Toplevel):
         connection_name_label = tk.Label(self, text="Connection Name")
         connection_name_label.grid(row=0, column=0, padx=10, pady=10)
         self.connection_name_entry = tk.Entry(self)
+        #set initial value
+        self.connection_name_entry.insert(0, self.connection.name)
+
         self.connection_name_entry.grid(row=0, column=1, padx=10, pady=10)
         source_label = tk.Label(self, text="Source")
         source_label.grid(row=1, column=0, padx=10, pady=10)
         self.source_entry = tk.Entry(self)
+        #set initial value
+        self.source_entry.insert(0, self.connection.source.id)
+
         self.source_entry.grid(row=1, column=1, padx=10, pady=10)
         target_label = tk.Label(self, text="Target")
         target_label.grid(row=2, column=0, padx=10, pady=10)
         self.target_entry = tk.Entry(self)
+        #set initial value
+        self.target_entry.insert(0, self.connection.destination.id)
+
         self.target_entry.grid(row=2, column=1, padx=10, pady=10)
         self.weight0_label = tk.Label(self, text="Weight 0")
         self.weight0_label.grid(row=3, column=0, padx=10, pady=10)
         self.weight0_entry = tk.Entry(self)
+        #set initial value
+        self.weight0_entry.insert(0, self.connection.weight_0_to_1)
+
         self.weight0_entry.grid(row=3, column=1, padx=10, pady=10)
         self.weight1_label = tk.Label(self, text="Weight 1")
         self.weight1_label.grid(row=4, column=0, padx=10, pady=10)
         self.weight1_entry = tk.Entry(self)
+        #set initial value
+        self.weight1_entry.insert(0, self.connection.weight_1_to_0)
+
         self.weight1_entry.grid(row=4, column=1, padx=10, pady=10)
         self.add_connection_button = tk.Button(self, text="Update", command=self.update_connection)
         self.add_connection_button.grid(row=5, column=0, padx=10, pady=10)
@@ -444,7 +474,14 @@ class NeuronSeqWindow(tk.Tk):
             dvs = G.DVpos[connection.get_id()]
             pos_1 = dvs[0]
             pos_2 = dvs[1]
-            distance = self.distance_to_line(x, y, pos_1, pos_2)
+            #calculate the middle point of the line
+            x_1 = pos_1.get_coordinates()[0]
+            y_1 = pos_1.get_coordinates()[1]
+            x_2 = pos_2.get_coordinates()[0]
+            y_2 = pos_2.get_coordinates()[1]
+            x_mid = (x_1 + x_2) / 2
+            y_mid = (y_1 + y_2) / 2
+            distance = math.sqrt((x_mid - x)**2 + (y_mid - y)**2)
             if distance < closest_connection_distance:
                 closest_connection = connection
                 openEditConnectionWindow(closest_connection)
