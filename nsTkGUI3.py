@@ -332,6 +332,76 @@ class EditNeuronWindow(tk.Toplevel):
         self.close_window()
         return
 
+def openEditConnectionWindow(connection):
+    global editConnectionWindow, neuronSeq_window
+    editConnectionWindow=EditConnectionWindow(neuronSeq_window, connection)
+    return
+
+class EditConnectionWindow(tk.Toplevel):
+    def __init__(self, master, connection):
+        super().__init__(master)
+        self.title("Edit Connection")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master = master
+        self.connection = connection
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        connection_name_label = tk.Label(self, text="Connection Name")
+        connection_name_label.grid(row=0, column=0, padx=10, pady=10)
+        self.connection_name_entry = tk.Entry(self)
+        self.connection_name_entry.grid(row=0, column=1, padx=10, pady=10)
+        source_label = tk.Label(self, text="Source")
+        source_label.grid(row=1, column=0, padx=10, pady=10)
+        self.source_entry = tk.Entry(self)
+        self.source_entry.grid(row=1, column=1, padx=10, pady=10)
+        target_label = tk.Label(self, text="Target")
+        target_label.grid(row=2, column=0, padx=10, pady=10)
+        self.target_entry = tk.Entry(self)
+        self.target_entry.grid(row=2, column=1, padx=10, pady=10)
+        self.weight0_label = tk.Label(self, text="Weight 0")
+        self.weight0_label.grid(row=3, column=0, padx=10, pady=10)
+        self.weight0_entry = tk.Entry(self)
+        self.weight0_entry.grid(row=3, column=1, padx=10, pady=10)
+        self.weight1_label = tk.Label(self, text="Weight 1")
+        self.weight1_label.grid(row=4, column=0, padx=10, pady=10)
+        self.weight1_entry = tk.Entry(self)
+        self.weight1_entry.grid(row=4, column=1, padx=10, pady=10)
+        self.add_connection_button = tk.Button(self, text="Update", command=self.update_connection)
+        self.add_connection_button.grid(row=5, column=0, padx=10, pady=10)
+
+    def update_connection(self):
+        global G
+        connection_name = self.connection_name_entry.get()
+        nnotedict = {}
+        for nnote in neuronSeq.nnotes:
+            nnotedict[nnote.id] = nnote
+
+        source = nnotedict[self.source_entry.get()]
+        target = nnotedict[self.target_entry.get()]
+        weight0 = float(self.weight0_entry.get())
+        weight1 = float(self.weight1_entry.get())
+        source_idx = neuronSeq.nnotes.index(source)
+        target_idx = neuronSeq.nnotes.index(target)
+        connection_idx = neuronSeq.connections.index(self.connection)
+        connection, distance_vectors = G.update_connection(connection_idx, connection_name, source_idx, target_idx, weight0, weight1)
+        print_neuronSeq_connections()
+        
+        nn_conn_str="Neurons:\n"
+        for nnote in neuronSeq.nnotes:
+            nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
+        nn_conn_str += "\nConnections:\n"
+        for connection in neuronSeq.connections:
+            nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+" "+str(connection.weight_1_to_0)+"\n"
+        self.master.nn_conn_label.config(text=nn_conn_str)
+        self.close_window()
+        return
+    
 class NeuronSeqWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -359,7 +429,34 @@ class NeuronSeqWindow(tk.Tk):
             if distance < closest_node_distance:
                 closest_node = nnote
                 openEditNeuronWindow(closest_node)
+
+        x = (event.x - self.pan_offset[0]) / self.zoom_factor
+        y = (event.y - self.pan_offset[1]) / self.zoom_factor
+
+        #find the closest connection
+        closest_connection = None
+        closest_connection_distance = 5
+        for connection in neuronSeq.connections:
+            dvs = G.DVpos[connection.get_id()]
+            pos_1 = dvs[0]
+            pos_2 = dvs[1]
+            distance = self.distance_to_line(x, y, pos_1, pos_2)
+            if distance < closest_connection_distance:
+                closest_connection = connection
+                openEditConnectionWindow(closest_connection)
+
         return
+    
+    def distance_to_line(self, x, y, pos_1, pos_2):
+        #https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+        x_1 = pos_1.get_coordinates()[0]
+        y_1 = pos_1.get_coordinates()[1]
+        x_2 = pos_2.get_coordinates()[0]
+        y_2 = pos_2.get_coordinates()[1]
+        numerator = abs((y_2 - y_1)*x - (x_2 - x_1)*y + x_2*y_1 - y_2*x_1)
+        denominator = math.sqrt((y_2 - y_1)**2 + (x_2 - x_1)**2)
+        distance = numerator / denominator
+        return distance
 
     def create_widgets(self):
         global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections

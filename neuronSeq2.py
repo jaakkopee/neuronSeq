@@ -524,6 +524,17 @@ class NetworkGraph():
         self.updateDVpos()
         return new_nnote, self.DVpos[new_nnote.get_id()]
     
+    def update_connection(self, connection_idx, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
+        #delete connection from neuronSeq
+        self.delete_connection(connection_idx)
+        #create the connection object
+        new_connection, dvs = self.add_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
+        x1, y1 = np.random.uniform(-32.0, 32.0), np.random.uniform(-32.0, 32.0)
+        self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
+        self.updateDVpos()
+        return new_connection, self.DVpos[new_connection.get_id()]
+    
+    
     def delete_nnote(self, nnote_idx):
         #delete nnote from neuronSeq
         old_nnote = self.neuronSeq.get_nnotes()[nnote_idx]
