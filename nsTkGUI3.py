@@ -298,9 +298,8 @@ class EditNeuronWindow(tk.Toplevel):
         velocity = int(self.velocity_entry.get())
         duration = float(self.duration_entry.get())
         nnote_idx = neuronSeq.nnotes.index(self.nnote)
-        note, distance_vector = G.update_nnote(nnote_idx, midi_channel=midi_channel, midi_note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
+        note, dvs = G.update_nnote(nnote_idx, midi_channel=midi_channel, midi_note=midi_note, duration=duration, id=neuron_name, velocity=velocity, lenX=2**16)
         note.set_activation_function(1) #sigmoid
-        G.DVpos[note.get_id()] = distance_vector
 
         #update the nn_conn_label
         nn_conn_str="Neurons:\n"

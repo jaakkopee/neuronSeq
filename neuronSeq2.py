@@ -486,39 +486,67 @@ class NetworkGraph():
     def __init__(self, neuronSeq):
         self.neuronSeq = neuronSeq
         self.DVpos = {}
+        self.updateDVpos()
         self.maxX = 0.001
         self.maxY = 0.001
+
+
+    def updateDVpos(self):
+        #update DVpos
+        for nnote in self.neuronSeq.get_nnotes():
+            self.DVpos[nnote.get_id()] = DistanceVector((self.DVpos[nnote.get_id()].get_coordinates()))
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+        return self.DVpos
 
     def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
         new_nnote = self.neuronSeq.create_nnote(midi_channel, note, velocity, duration, lenX, id)
         x1, y1 = np.random.uniform(-32.0, 32.0), np.random.uniform(-32.0, 32.0)
         self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
-        self.maxX = max(self.maxX, x1)
-        self.maxY = max(self.maxY, y1)
+        self.updateDVpos()
         return new_nnote, self.DVpos[new_nnote.get_id()]
 
     def add_connection(self, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):
         #create the connection object
         new_connection = self.neuronSeq.create_connection(name, nnote1_idx, nnote2_idx, weight_0_to_1, weight_1_to_0)
         self.DVpos[new_connection.get_id()] = (DistanceVector(self.DVpos[new_connection.get_nnotes()[0].get_id()].get_coordinates()), DistanceVector(self.DVpos[new_connection.get_nnotes()[1].get_id()].get_coordinates()))
+        self.updateDVpos()
         return new_connection, self.DVpos[new_connection.get_id()]
     
     def update_nnote(self, nnote_idx, midi_channel=0, midi_note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
-        #delete old nnote
-        old_nnote = self.neuronSeq.get_nnotes()[nnote_idx]
+        #delete nnote from neuronSeq
         self.delete_nnote(nnote_idx)
-        #create new nnote
-        new_nnote = self.neuronSeq.create_nnote(midi_channel, midi_note, velocity, duration, lenX, id)
-        #update DVpos
-        self.DVpos[new_nnote.get_id()] = self.DVpos[old_nnote.get_id()]
-        del self.DVpos[old_nnote.get_id()]
+        #create the neuron/note object
+        new_nnote, dvs = self.add_nnote(midi_channel, midi_note, velocity, duration, lenX, id)
+        x1, y1 = np.random.uniform(-32.0, 32.0), np.random.uniform(-32.0, 32.0)
+        self.DVpos[new_nnote.get_id()] = DistanceVector((x1, y1))
+        self.updateDVpos()
         return new_nnote, self.DVpos[new_nnote.get_id()]
     
     def delete_nnote(self, nnote_idx):
         #delete nnote from neuronSeq
         old_nnote = self.neuronSeq.get_nnotes()[nnote_idx]
         self.neuronSeq.get_nnotes().remove(old_nnote)
+        #delete nnote from DVpos
+        del self.DVpos[old_nnote.get_id()]
+        #delete connections
+        for connection in self.neuronSeq.get_connections():
+            if connection.get_nnote(0)==old_nnote or connection.get_nnote(1)==old_nnote:
+                connection_idx = self.neuronSeq.get_connections().index(connection)
+                self.delete_connection(connection_idx)
+
+        self.updateDVpos()
+
+        return
+    
+    def delete_connection(self, connection_idx):
+        #delete connection from neuronSeq
+        old_connection = self.neuronSeq.get_connections()[connection_idx]
+        self.neuronSeq.get_connections().remove(old_connection)
+        #delete connection from DVpos
+        del self.DVpos[old_connection.get_id()]
+        self.updateDVpos()
         return
     
     
@@ -527,13 +555,6 @@ class NetworkGraph():
             self.DVpos[nnote.get_id()] = rotate_graph(self.DVpos[nnote.get_id()], angle_change)
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
-        #update DVpos to maxX and maxY
-        self.maxX = 0.001
-        self.maxY = 0.001
-        for nnote in self.neuronSeq.get_nnotes():
-            self.maxX = max(self.maxX, self.DVpos[nnote.get_id()].get_coordinates()[0])
-            self.maxY = max(self.maxY, self.DVpos[nnote.get_id()].get_coordinates()[1])
-
         return
     
     def position_nodes_circle(self):
@@ -547,6 +568,7 @@ class NetworkGraph():
         #position connections
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+
         return
     
     def position_nodes_random(self):
@@ -556,7 +578,7 @@ class NetworkGraph():
             self.DVpos[nnote.get_id()] = DistanceVector((x1, y1))
         #position connections
         for connection in self.neuronSeq.get_connections():
-            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])      
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
 
         return
     
