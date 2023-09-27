@@ -551,10 +551,11 @@ class NetworkGraph():
     
     
     def rotate(self, angle_change):
+        #rotate graph
         for nnote in self.neuronSeq.get_nnotes():
             self.DVpos[nnote.get_id()] = rotate_graph(self.DVpos[nnote.get_id()], angle_change)
         for connection in self.neuronSeq.get_connections():
-            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+            self.DVpos[connection.get_id()] = (rotate_graph(self.DVpos[connection.get_id()][0], angle_change), rotate_graph(self.DVpos[connection.get_id()][1], angle_change))
         return
     
     def position_nodes_circle(self):
