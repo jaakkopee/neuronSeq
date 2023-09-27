@@ -324,7 +324,7 @@ class EditNeuronWindow(tk.Toplevel):
         self.duration_entry = tk.Entry(self)
         #set initial value
         self.duration_entry.insert(0, self.nnote.duration)
-        
+
         self.duration_entry.grid(row=4, column=1, padx=10, pady=10)
         self.add_button = tk.Button(self, text="Update", command=self.update_neuron)
         self.add_button.grid(row=5, column=0, padx=10, pady=10)
@@ -469,7 +469,7 @@ class NeuronSeqWindow(tk.Tk):
 
         #find the closest connection
         closest_connection = None
-        closest_connection_distance = 0.8
+        closest_connection_distance = 1.0
         for connection in neuronSeq.connections:
             dvs = G.DVpos[connection.get_id()]
             pos_1 = dvs[0]
