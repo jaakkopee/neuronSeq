@@ -209,16 +209,16 @@ class NetworkCanvas(tk.Canvas):
             rgb = (0, color, 0)
         elif w01 < 0 and w10 > 0:
             rgb = (color, color, 0)
+        elif w01 == 0 and w10 == 0:
+            rgb = (0, 0, 0)
         elif w01 == 0 and w10 > 0:
-            rgb = (0, color, color)
-        elif w01 == 0 and w10 < 0:
             rgb = (color, 0, color)
+        elif w01 == 0 and w10 < 0:
+            rgb = (0, color, color)
         elif w01 > 0 and w10 == 0:
             rgb = (color, color, color)
         elif w01 < 0 and w10 == 0:
-            rgb = (0, 0, 0)
-        else:
-            rgb = (0, 0, 0)
+            rgb = (color, color, color)
 
         return rgb
     
