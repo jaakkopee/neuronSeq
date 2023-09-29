@@ -454,15 +454,21 @@ class NeuronSeqWindow(tk.Tk):
 
     def create_widgets(self):
         global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
-        
-        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
-        self.add_neuron_button.grid(row=0, column=0, padx=10, pady=10)
-        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
-        self.add_connection_button.grid(row=1, column=0, padx=10, pady=10)
-        self.nn_conn_label = tk.Label(self, text="Add neurons and connections to start.")
-        self.nn_conn_label.grid(row=0, column=4, rowspan=3, padx=10, pady=10)
+
         self.network_canvas = NetworkCanvas(self, width=800, height=800)
-        self.network_canvas.grid(row=4, column=0, columnspan=8, padx=10, pady=10)
+        self.network_canvas.grid(row=0, column=0, padx=10, pady=10)
+
+        self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
+        self.add_neuron_button.grid(row=0, column=1, padx=10, pady=10)
+
+        self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
+        self.add_connection_button.grid(row=0, column=2, padx=10, pady=10)
+
+        self.nn_conn_label = tk.Label(self, text="Neurons:\n\nConnections:\n")
+        self.nn_conn_label.grid(row=0, column=3, padx=10, pady=10)
+
+        return
+    
 
     def key_press(self, event):
         # Handle key presses for zoom and pan
