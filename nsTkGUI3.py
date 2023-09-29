@@ -432,35 +432,24 @@ class NeuronSeqWindow(tk.Tk):
 
         #find the closest connection
         closest_connection = None
-        closest_connection_distance = 2
+        closest_connection_distance = 8
         for connection in neuronSeq.connections:
-            dvs = G.DVpos[connection.get_id()]
-            pos_1 = dvs[0]
-            pos_2 = dvs[1]
-            #calculate the middle point of the line
-            x_1 = pos_1.get_coordinates()[0]
-            y_1 = pos_1.get_coordinates()[1]
-            x_2 = pos_2.get_coordinates()[0]
-            y_2 = pos_2.get_coordinates()[1]
-            x_mid = (x_1 + x_2) / 2
-            y_mid = (y_1 + y_2) / 2
-            distance = math.sqrt((x_mid - x)**2 + (y_mid - y)**2)
+            source = connection.source
+            target = connection.destination
+            source_pos = G.DVpos[source.get_id()]
+            target_pos = G.DVpos[target.get_id()]
+            source_x = source_pos.get_coordinates()[0] * self.zoom_factor + self.pan_offset[0]
+            source_y = source_pos.get_coordinates()[1] * self.zoom_factor + self.pan_offset[1]
+            target_x = target_pos.get_coordinates()[0] * self.zoom_factor + self.pan_offset[0]
+            target_y = target_pos.get_coordinates()[1] * self.zoom_factor + self.pan_offset[1]
+            text_x = (source_x + target_x) / 2
+            text_y = (source_y + target_y) / 2
+            distance = math.sqrt((text_x - event.x)**2 + (text_y - event.y)**2)
             if distance < closest_connection_distance:
                 closest_connection = connection
                 openEditConnectionWindow(closest_connection)
-
         return
     
-    def distance_to_line(self, x, y, pos_1, pos_2):
-        #https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-        x_1 = pos_1.get_coordinates()[0]
-        y_1 = pos_1.get_coordinates()[1]
-        x_2 = pos_2.get_coordinates()[0]
-        y_2 = pos_2.get_coordinates()[1]
-        numerator = abs((y_2 - y_1)*x - (x_2 - x_1)*y + x_2*y_1 - y_2*x_1)
-        denominator = math.sqrt((y_2 - y_1)**2 + (x_2 - x_1)**2)
-        distance = numerator / denominator
-        return distance
 
     def create_widgets(self):
         global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
