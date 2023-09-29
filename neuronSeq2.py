@@ -456,9 +456,13 @@ class DistanceVector():
         return self.update_vector_length()
     
     def update_vector_length(self):
-        vector_length = self.vector_length
-        new_x = self.nx_point[0]/vector_length
-        new_y = self.nx_point[1]/vector_length
+        x, y = self.nx_point
+        #𝑥′=𝑥cos𝜃−𝑦sin𝜃
+        #𝑦′=𝑥sin𝜃+𝑦cos𝜃
+        #set vector length
+        new_x = x*self.vector_length
+        new_y = y*self.vector_length
+
         self.nx_point = (new_x, new_y)
         return self
 
@@ -498,18 +502,9 @@ class NetworkGraph():
         self.maxY = 0.001
 
 
-    def zoom(self, zoom_factor):
-        #zoom graph
+    def set_vector_length(self, vector_length):
         for nnote in self.neuronSeq.get_nnotes():
-            self.DVpos[nnote.get_id()].set_vector_length(self.DVpos[nnote.get_id()].get_vector_length()*zoom_factor)
-        for connection in self.neuronSeq.get_connections():
-            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
-        return
-    
-    def move(self, x, y):
-        #move graph
-        for nnote in self.neuronSeq.get_nnotes():
-            self.DVpos[nnote.get_id()].set_coordinates((self.DVpos[nnote.get_id()].get_coordinates()[0]+x, self.DVpos[nnote.get_id()].get_coordinates()[1]+y))
+            self.DVpos[nnote.get_id()].set_vector_length(vector_length)
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
         return

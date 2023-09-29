@@ -413,6 +413,7 @@ class NeuronSeqWindow(tk.Tk):
         self.bind('<Button-1>', self.mouse_hit)
         self.pan_offset = self.network_canvas.pan_offset
         self.zoom_factor = self.network_canvas.zoom_factor
+        self.vector_length = 0.1
 
     def mouse_hit(self, event):
         #find the closest node
@@ -503,6 +504,8 @@ class NeuronSeqWindow(tk.Tk):
 
         elif event.char == 'T':
             G.position_nodes_random()
+        else:
+            return
 
         return
 
