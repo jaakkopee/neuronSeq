@@ -363,6 +363,59 @@ class EditNeuronWindow(tk.Toplevel):
         print_neuronSeq_nnotes()
         self.close_window()
         return
+    
+def openSerialConnectWindow():
+    global serialConnectWindow, neuronSeq_window
+    serialConnectWindow=SerialConnectWindow(neuronSeq_window)
+    return
+
+class SerialConnectWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Serial Connect")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master = master
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        self.note_range_start_label = tk.Label(self, text="Note Range Start")
+        self.note_range_start_label.grid(row=0, column=0, padx=10, pady=10)
+        self.note_range_start_entry = tk.Entry(self)
+        self.note_range_start_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.note_range_end_label = tk.Label(self, text="Note Range End")
+        self.note_range_end_label.grid(row=1, column=0, padx=10, pady=10)
+        self.note_range_end_entry = tk.Entry(self)
+        self.note_range_end_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.weight_label = tk.Label(self, text="Weight")
+        self.weight_label.grid(row=2, column=0, padx=10, pady=10)
+        self.weight_entry = tk.Entry(self)
+        self.weight_entry.grid(row=2, column=1, padx=10, pady=10)
+        self.add_button = tk.Button(self, text="Connect", command=self.add_serial_connection)
+        self.add_button.grid(row=3, column=0, padx=10, pady=10)
+
+    def add_serial_connection(self):
+        global G, neuronSeq
+        note_range_start = int(self.note_range_start_entry.get())
+        note_range_end = int(self.note_range_end_entry.get())
+        weight = float(self.weight_entry.get())
+        note_range = range(note_range_start, note_range_end+1)
+        if len(note_range) > len(neuronSeq.nnotes):
+            note_range = note_range[:len(neuronSeq.nnotes)]
+        G.serial_connect(note_range, weight)
+        nn_conn_str="Neurons:\n"
+        for nnote in neuronSeq.nnotes:
+            nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
+        nn_conn_str += "\nConnections:\n"
+        for connection in neuronSeq.connections:
+            nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+" "+str(connection.weight_1_to_0)+"\n"
+        self.master.nn_conn_label.config(text=nn_conn_str)
+        self.close_window()
+        return
 
 def openEditConnectionWindow(connection):
     global editConnectionWindow, neuronSeq_window
@@ -563,19 +616,22 @@ class NeuronSeqWindow(tk.Tk):
         global openAddNeuronWindow, openAddConnectionWindow, print_neuronSeq_nnotes, print_neuronSeq_connections
 
         self.network_canvas = NetworkCanvas(self, width=800, height=800)
-        self.network_canvas.grid(row=0, column=0, padx=10, pady=10)
+        self.network_canvas.grid(row=0, column=0, rowspan=5, padx=10, pady=10)
 
         self.add_neuron_button = tk.Button(self, text="Add Neuron", command=openAddNeuronWindow)
-        self.add_neuron_button.grid(row=0, column=1, padx=10, pady=10)
+        self.add_neuron_button.grid(row=0, column=4, padx=10, pady=10)
 
         self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
-        self.add_connection_button.grid(row=0, column=2, padx=10, pady=10)
+        self.add_connection_button.grid(row=1, column=4, padx=10, pady=10)
 
         self.add_modulator_button = tk.Button(self, text="Add Modulator", command=lambda: openAddModulatorWindow(self))
-        self.add_modulator_button.grid(row=0, column=3, padx=10, pady=10)
+        self.add_modulator_button.grid(row=2, column=4, padx=10, pady=10)
+
+        self.serial_connect_button = tk.Button(self, text="Serial Connect", command=openSerialConnectWindow)
+        self.serial_connect_button.grid(row=3, column=4, padx=10, pady=10)
 
         self.nn_conn_label = tk.Label(self, text="Neurons:\n\nConnections:\n")
-        self.nn_conn_label.grid(row=0, column=4, padx=10, pady=10)
+        self.nn_conn_label.grid(row=0, column=5, rowspan=5, padx=10, pady=10)
 
         return
     

@@ -829,6 +829,17 @@ class NetworkGraph():
         old_connection.set_weight(1, weight_1_to_0)
         return old_connection, self.DVpos[old_connection.get_id()]
     
+    def serial_connect(self, note_range, weight):
+        #connect all nnotes in note_range in serial order
+        for i in range(len(note_range)-1):
+            self.add_connection("Connection"+str(i), note_range[i], note_range[i+1], weight, weight)
+
+        for nnote in self.neuronSeq.get_nnotes():
+            self.DVpos[nnote.get_id()] = DistanceVector((self.DVpos[nnote.get_id()].get_coordinates()))
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+        return
+    
     
     def delete_nnote(self, nnote_idx):
         #delete nnote from neuronSeq
