@@ -401,6 +401,62 @@ class EditConnectionWindow(tk.Toplevel):
         self.close_window()
         return
     
+def openAddModulatorWindow():
+    global addModulatorWindow, neuronSeq_window
+    addModulatorWindow=AddModulatorWindow(neuronSeq_window)
+    return
+
+class AddModulatorWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Add Modulator")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master = master
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        #create dropdown menu with modulator names
+        self.modulator_name_label = tk.Label(self, text="Modulator Name")
+        self.modulator_name_label.grid(row=0, column=0, padx=10, pady=10)
+        variable = tk.StringVar(self)
+        variable.set("NNoteVelocitySineModulator") # default value
+        self.modulator_name_entry = tk.OptionMenu(self, variable, "NNoteVelocitySineModulator", "NNoteDurationSineModulator", "NNoteNoteSineModulator", "ConnectionWeight0to1SineModulator", "ConnectionWeight1to0SineModulator")
+        self.modulator_name_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.nnote_label = tk.Label(self, text="Neuron or Connection Name")
+        self.nnote_label.grid(row=1, column=0, padx=10, pady=10)
+        self.nnote_entry = tk.Entry(self)
+        self.nnote_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.add_button = tk.Button(self, text="Add", command=lambda: self.add_modulator(variable))
+        self.add_button.grid(row=2, column=0, padx=10, pady=10)
+
+    def add_modulator(self, variable):
+        global G
+        modulator_name = variable.get()
+        if modulator_name == "NNoteVelocitySineModulator":
+            nnote = G.get_nnote_by_id(self.nnote_entry.get())
+            modulator = ns.NNoteVelocitySineModulator(nnote, self.master, neuronSeq)
+        elif modulator_name == "NNoteDurationSineModulator":
+            nnote = G.get_nnote_by_id(self.nnote_entry.get())
+            modulator = ns.NNoteDurationSineModulator(nnote, self.master, neuronSeq)
+        elif modulator_name == "NNoteNoteSineModulator":
+            nnote = G.get_nnote_by_id(self.nnote_entry.get())
+            modulator = ns.NNoteNoteSineModulator(nnote, self.master, neuronSeq)
+        elif modulator_name == "ConnectionWeight0to1SineModulator":
+            connection = G.get_connection_by_id(self.nnote_entry.get())
+            modulator = ns.ConnectionWeight0To1SineModulator(connection, self.master, neuronSeq)
+        elif modulator_name == "ConnectionWeight1to0SineModulator":
+            modulator = ns.ConnectionWeight1To0SineModulator(connection, self.master, neuronSeq)
+        neuronSeq.modulators.append(modulator)
+        modulator.start()
+        self.close_window()
+        return
+
+    
 class NeuronSeqWindow(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
@@ -464,8 +520,11 @@ class NeuronSeqWindow(tk.Tk):
         self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
         self.add_connection_button.grid(row=0, column=2, padx=10, pady=10)
 
+        self.add_modulator_button = tk.Button(self, text="Add Modulator", command=openAddModulatorWindow)
+        self.add_modulator_button.grid(row=0, column=3, padx=10, pady=10)
+
         self.nn_conn_label = tk.Label(self, text="Neurons:\n\nConnections:\n")
-        self.nn_conn_label.grid(row=0, column=3, padx=10, pady=10)
+        self.nn_conn_label.grid(row=0, column=4, padx=10, pady=10)
 
         return
     
@@ -510,6 +569,10 @@ class NeuronSeqWindow(tk.Tk):
 
         elif event.char == 'T':
             G.position_nodes_random()
+
+        elif event.char == 'y':
+            G.position_nodes_grid()
+
         else:
             return
 
