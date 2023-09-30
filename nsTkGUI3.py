@@ -21,6 +21,54 @@ def print_neuronSeq_connections():
         print(connection.name, connection.source.id + "->" + connection.destination.id, connection.weight_0_to_1, connection.weight_1_to_0)
     return
 
+class ModulationSliderWindow(tk.Toplevel):
+    def __init__(self, master, modulatorlist):
+        super().__init__(master)
+        self.title("Modulation Sliders")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master = master
+        self.modulators = modulatorlist
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        column = 0
+        for modulator in self.modulators:
+
+            modulator_label = tk.Label(self, text=modulator.name)
+            modulator_label.grid(row=0, column=column, padx=10, pady=10)
+            modulator_slider = tk.Scale(self, from_=0, to=1, resolution=0.01, orient=tk.HORIZONTAL, command=lambda value, modulator=modulator: self.update_modulation(modulator, value))
+            modulator_slider.grid(row=0, column=column+1, padx=10, pady=10)
+            column += 2
+        return
+
+    def update_modulation(self, modulator, value):
+        modulator.set_weight(float(value))
+        return
+    
+    def update_window(self):
+        #delete all widgets
+        for widget in self.winfo_children():
+            widget.destroy()
+        #create new widgets
+        column = 0
+        for modulator in self.modulators:
+            modulator_label = tk.Label(self, text=modulator.name)
+            modulator_label.grid(row=0, column=column, padx=10, pady=10)
+            modulator_slider = tk.Scale(self, from_=0, to=1, resolution=0.01, orient=tk.HORIZONTAL, command=lambda value, modulator=modulator: self.update_modulation(modulator, value))
+            modulator_slider.grid(row=0, column=column+1, padx=10, pady=10)
+            column += 2
+        return
+    
+    def add_modulator(self, modulator):
+        self.modulators.append(modulator)
+        self.update_window()
+        return
+
 class AddNeuronWindow(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -399,14 +447,15 @@ class EditConnectionWindow(tk.Toplevel):
         self.close_window()
         return
     
-def openAddModulatorWindow():
+def openAddModulatorWindow(mod_window):
     global addModulatorWindow, neuronSeq_window
-    addModulatorWindow=AddModulatorWindow(neuronSeq_window)
+    addModulatorWindow=AddModulatorWindow(neuronSeq_window, mod_window)
     return
 
 class AddModulatorWindow(tk.Toplevel):
-    def __init__(self, master):
+    def __init__(self, master, mod_window):
         super().__init__(master)
+        self.mod_window = mod_window
         self.title("Add Modulator")
         self.geometry("300x300")
         self.resizable(True, True)
@@ -448,8 +497,10 @@ class AddModulatorWindow(tk.Toplevel):
             connection = G.get_connection_by_id(self.nnote_entry.get())
             modulator = ns.ConnectionWeight0To1SineModulator(connection, self.master, neuronSeq)
         elif modulator_name == "ConnectionWeight1to0SineModulator":
+            connection = G.get_connection_by_id(self.nnote_entry.get())
             modulator = ns.ConnectionWeight1To0SineModulator(connection, self.master, neuronSeq)
         neuronSeq.modulators.append(modulator)
+        modulation_slider_window.add_modulator(modulator)
         modulator.start()
         self.close_window()
         return
@@ -518,7 +569,7 @@ class NeuronSeqWindow(tk.Tk):
         self.add_connection_button = tk.Button(self, text="Add Connection", command=openAddConnectionWindow)
         self.add_connection_button.grid(row=0, column=2, padx=10, pady=10)
 
-        self.add_modulator_button = tk.Button(self, text="Add Modulator", command=openAddModulatorWindow)
+        self.add_modulator_button = tk.Button(self, text="Add Modulator", command=lambda: openAddModulatorWindow(self))
         self.add_modulator_button.grid(row=0, column=3, padx=10, pady=10)
 
         self.nn_conn_label = tk.Label(self, text="Neurons:\n\nConnections:\n")
@@ -606,4 +657,5 @@ class NetworkRunner:
 neuronSeq_window = NeuronSeqWindow()
 network_runner = NetworkRunner(neuronSeq_window)
 network_runner.update()
+modulation_slider_window = ModulationSliderWindow(neuronSeq_window, neuronSeq.modulators)
 neuronSeq_window.mainloop()

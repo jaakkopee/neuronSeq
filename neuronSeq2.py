@@ -1,10 +1,7 @@
-#complete rewrite of neuronSeq.py
-
 import numpy as np
 import time
 import threading
 import rtmidi
-import networkx as nx
 import math
 import mido
 
@@ -533,6 +530,7 @@ def rotate_graph(distance_vector, add_to_angle):
 class NNoteVelocitySineModulator(threading.Thread):
     def __init__(self, nnote, master_window, neuronSeq):
         threading.Thread.__init__(self)
+        self.name = "NNoteVelocitySineModulator"
         self.neuronSeq = neuronSeq
         self.output = master_window.nn_conn_label
         self.nnote = nnote
@@ -542,8 +540,14 @@ class NNoteVelocitySineModulator(threading.Thread):
         self.create_modulation_Y_axis()
         self.activation_index = 0
         self.running = True
+        self.weight = 0.0
+
+    def set_weight(self, weight):
+        self.weight = weight
+        return
     
     def modulate(self, modulator_value):
+        modulator_value = modulator_value*self.weight
         #modulate parameter
         self.nnote.set_velocity(int(modulator_value*127))
         return
@@ -574,6 +578,7 @@ class NNoteVelocitySineModulator(threading.Thread):
 class NNoteNoteSineModulator(threading.Thread):
     def __init__(self, nnote, master_window, neuronSeq):
         threading.Thread.__init__(self)
+        self.name = "NNoteNoteSineModulator"
         self.neuronSeq = neuronSeq
         self.output = master_window.nn_conn_label
         self.nnote = nnote
@@ -583,8 +588,14 @@ class NNoteNoteSineModulator(threading.Thread):
         self.create_modulation_Y_axis()
         self.activation_index = 0
         self.running = True
+        self.weight = 0.0
+
+    def set_weight(self, weight):
+        self.weight = weight
+        return
     
     def modulate(self, modulator_value):
+        modulator_value = modulator_value*self.weight
         #modulate parameter
         self.nnote.set_note(int(modulator_value*127))
         return
@@ -615,6 +626,7 @@ class NNoteNoteSineModulator(threading.Thread):
 class NNoteDurationSineModulator(threading.Thread):
     def __init__(self, nnote, master_window, neuronSeq):
         threading.Thread.__init__(self)
+        self.name = "NNoteDurationSineModulator"
         self.neuronSeq = neuronSeq
         self.output = master_window.nn_conn_label
         self.nnote = nnote
@@ -624,8 +636,14 @@ class NNoteDurationSineModulator(threading.Thread):
         self.create_modulation_Y_axis()
         self.activation_index = 0
         self.running = True
+        self.weight = 0.0
+
+    def set_weight(self, weight):
+        self.weight = weight
+        return
     
     def modulate(self, modulator_value):
+        modulator_value = modulator_value*self.weight
         #modulate parameter
         self.nnote.set_duration(modulator_value)
         return
@@ -656,6 +674,7 @@ class NNoteDurationSineModulator(threading.Thread):
 class ConnectionWeight0To1SineModulator(threading.Thread):
     def __init__(self, connection, master_window, neuronSeq):
         threading.Thread.__init__(self)
+        self.name = "ConnectionWeight0To1SineModulator"
         self.neuronSeq = neuronSeq
         self.output = master_window.nn_conn_label
         self.connection = connection
@@ -665,8 +684,14 @@ class ConnectionWeight0To1SineModulator(threading.Thread):
         self.create_modulation_Y_axis()
         self.activation_index = 0
         self.running = True
+        self.weight = 0.0
+
+    def set_weight(self, weight):
+        self.weight = weight
+        return
     
     def modulate(self, modulator_value):
+        modulator_value = modulator_value*self.weight
         #modulate parameter
         self.connection.set_weight(0, modulator_value)
         return
@@ -697,6 +722,7 @@ class ConnectionWeight0To1SineModulator(threading.Thread):
 class ConnectionWeight1To0SineModulator(threading.Thread):
     def __init__(self, connection, master_window, neuronSeq):
         threading.Thread.__init__(self)
+        self.name = "ConnectionWeight1To0SineModulator"
         self.neuronSeq = neuronSeq
         self.connection = connection
         self.output = master_window.nn_conn_label
@@ -706,8 +732,14 @@ class ConnectionWeight1To0SineModulator(threading.Thread):
         self.create_modulation_Y_axis()
         self.activation_index = 0
         self.running = True
+        self.weight = 0.0
+
+    def set_weight(self, weight):
+        self.weight = weight
+        return
     
     def modulate(self, modulator_value):
+        modulator_value = modulator_value*self.weight
         #modulate parameter
         self.connection.set_weight(1, modulator_value)
         return
