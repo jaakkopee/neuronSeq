@@ -209,6 +209,7 @@ class NetworkCanvas(tk.Canvas):
         super().__init__(master, width=width, height=height)
         self.zoom_factor = 10.0
         self.pan_offset = [400, 400]
+        self.background_image = tk.PhotoImage(file="background.png")
 
     def set_edge_color(self, edge_color):
         tk_rgb = "#%02x%02x%02x" % edge_color
@@ -252,6 +253,7 @@ class NetworkCanvas(tk.Canvas):
         global width, height
         global G
         self.delete('all')
+        self.create_image(0, 0, image=self.background_image, anchor=tk.NW)
         for connection in neuronSeq.connections:
             source = connection.source
             target = connection.destination
