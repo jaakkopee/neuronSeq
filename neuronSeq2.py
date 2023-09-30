@@ -784,6 +784,7 @@ class NetworkGraph():
         old_nnote.set_duration(duration)
         old_nnote.set_activation_buffer_size(lenX)
         old_nnote.id = id
+        print("update nnote")
         return old_nnote, self.DVpos[old_nnote.get_id()]
     
     def update_connection(self, connection_idx, name, nnote1_idx, nnote2_idx, weight_0_to_1=0.0, weight_1_to_0=0.0):

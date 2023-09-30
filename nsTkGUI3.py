@@ -1,5 +1,3 @@
-# ... (previous code)
-import networkx as nx
 import math
 import numpy as np
 import tkinter as tk
