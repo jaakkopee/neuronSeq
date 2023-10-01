@@ -916,11 +916,12 @@ class NetworkGraph():
         x = -32
         y = -32
         for nnote in self.neuronSeq.get_nnotes():
+            random_factor = np.random.uniform(-1.0, 1.0)
             x += 32
             if x > 32:
                 x = -32
                 y += 32
-            self.DVpos[nnote.get_id()] = DistanceVector((x, y))
+            self.DVpos[nnote.get_id()] = DistanceVector((x*random_factor, y*random_factor))
         #position connections
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
