@@ -403,7 +403,7 @@ class SerialConnectWindow(tk.Toplevel):
         note_range_start = int(self.note_range_start_entry.get())
         note_range_end = int(self.note_range_end_entry.get())
         weight = float(self.weight_entry.get())
-        note_range = range(note_range_start, note_range_end)
+        note_range = range(note_range_start, note_range_end+1)
         if len(note_range) > len(neuronSeq.nnotes):
             note_range = note_range[:len(neuronSeq.nnotes)]
         G.serial_connect(note_range, weight)
