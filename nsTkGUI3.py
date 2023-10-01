@@ -407,6 +407,8 @@ class SerialConnectWindow(tk.Toplevel):
         if len(note_range) > len(neuronSeq.nnotes):
             note_range = note_range[:len(neuronSeq.nnotes)]
         G.serial_connect(note_range, weight)
+        print_neuronSeq_connections()
+
         nn_conn_str="Neurons:\n"
         for nnote in neuronSeq.nnotes:
             nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
