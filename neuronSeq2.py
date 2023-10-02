@@ -590,14 +590,15 @@ class NNoteVelocitySineModulator(threading.Thread):
         return
     
     def modulate(self, modulator_value):
-        modulator_value = modulator_value*self.weight
+        modulator_value = int(modulator_value*self.weight*127)
         #modulate parameter
-        self.nnote.set_velocity(int(modulator_value*127))
+        self.nnote.set_velocity(modulator_value)
         return
     
     def create_modulation_Y_axis(self):
+        frequency = 2
         self.X = np.arange(0, 1, 1/self.lenY)
-        self.Y = np.sin(self.X*2*np.pi)
+        self.Y = np.sin(self.X*2*np.pi*frequency)
         return
     
     def run(self):
@@ -618,7 +619,8 @@ class NNoteVelocitySineModulator(threading.Thread):
     def stop(self):
         self.running=False
         return
-    
+
+#doomed to fail for no way to send right note_off's   
 class NNoteNoteSineModulator(threading.Thread):
     def __init__(self, nnote, master_window, neuronSeq):
         threading.Thread.__init__(self)
@@ -699,8 +701,9 @@ class NNoteDurationSineModulator(threading.Thread):
         return
     
     def create_modulation_Y_axis(self):
+        frequency = 2
         self.X = np.arange(0, 1, 1/self.lenY)
-        self.Y = np.sin(self.X*2*np.pi)
+        self.Y = np.sin(self.X*2*np.pi*frequency)
         return
      
     def run(self):
@@ -748,8 +751,9 @@ class ConnectionWeight0To1SineModulator(threading.Thread):
         return
     
     def create_modulation_Y_axis(self):
+        frequency = 2
         self.X = np.arange(0, 1, 1/self.lenY)
-        self.Y = np.sin(self.X*2*np.pi)
+        self.Y = np.sin(self.X*2*np.pi*frequency)
         return
     
     def run(self):
@@ -797,8 +801,9 @@ class ConnectionWeight1To0SineModulator(threading.Thread):
         return
     
     def create_modulation_Y_axis(self):
+        frequency = 2
         self.X = np.arange(0, 1, 1/self.lenY)
-        self.Y = np.sin(self.X*2*np.pi)
+        self.Y = np.sin(self.X*2*np.pi*frequency)
         return
     
     def run(self):
