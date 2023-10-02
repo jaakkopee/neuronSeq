@@ -22,14 +22,14 @@ def print_neuronSeq_connections():
     return
 
 class ModulationSliderWindow(tk.Toplevel):
-    def __init__(self, master, modulatorlist):
+    def __init__(self, master):
         super().__init__(master)
         self.title("Modulation Sliders")
         self.geometry("300x300")
         self.resizable(True, True)
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         self.master = master
-        self.modulators = modulatorlist
+        self.modulators = []
         self.create_widgets()
 
     def close_window(self):
@@ -37,11 +37,10 @@ class ModulationSliderWindow(tk.Toplevel):
 
     def create_widgets(self):
         column = 0
-        for modulator in self.modulators:
-
+        for modulator in neuronSeq.modulators:
             modulator_label = tk.Label(self, text=modulator.name)
             modulator_label.grid(row=0, column=column, padx=10, pady=10)
-            modulator_slider = tk.Scale(self, from_=0, to=1, resolution=0.01, orient=tk.HORIZONTAL, command=lambda value, modulator=modulator: self.update_modulation(modulator, value))
+            modulator_slider = tk.Scale(self, length=200, from_=0, to=1, resolution=0.01, orient=tk.VERTICAL, command=lambda value, modulator=modulator: self.update_modulation(modulator, value))
             modulator_slider.grid(row=0, column=column+1, padx=10, pady=10)
             column += 2
         return
@@ -56,17 +55,14 @@ class ModulationSliderWindow(tk.Toplevel):
             widget.destroy()
         #create new widgets
         column = 0
-        for modulator in self.modulators:
+        for modulator in neuronSeq.modulators:
             modulator_label = tk.Label(self, text=modulator.name)
             modulator_label.grid(row=0, column=column, padx=10, pady=10)
-            modulator_slider = tk.Scale(self, from_=0, to=1, resolution=0.01, orient=tk.HORIZONTAL, command=lambda value, modulator=modulator: self.update_modulation(modulator, value))
+            modulator_slider = tk.Scale(self, length=200, from_=0, to=1, resolution=0.01, orient=tk.VERTICAL, command=lambda value, modulator=modulator: self.update_modulation(modulator, value))
             modulator_slider.grid(row=0, column=column+1, padx=10, pady=10)
             column += 2
-        return
-    
-    def add_modulator(self, modulator):
-        self.modulators.append(modulator)
-        self.update_window()
+
+        self.update()
         return
 
 class AddNeuronWindow(tk.Toplevel):
@@ -529,18 +525,26 @@ class AddModulatorWindow(tk.Toplevel):
         self.modulator_name_label.grid(row=0, column=0, padx=10, pady=10)
         variable = tk.StringVar(self)
         variable.set("NNoteVelocitySineModulator") # default value
-        self.modulator_name_entry = tk.OptionMenu(self, variable, "NNoteVelocitySineModulator", "NNoteDurationSineModulator", "NNoteNoteSineModulator", "ConnectionWeight0to1SineModulator", "ConnectionWeight1to0SineModulator")
+        self.modulator_name_entry = tk.OptionMenu(self, variable, "CCModulator", "NNoteVelocitySineModulator", "NNoteDurationSineModulator", "NNoteNoteSineModulator", "ConnectionWeight0to1SineModulator", "ConnectionWeight1to0SineModulator")
         self.modulator_name_entry.grid(row=0, column=1, padx=10, pady=10)
         self.nnote_label = tk.Label(self, text="Neuron or Connection Name")
         self.nnote_label.grid(row=1, column=0, padx=10, pady=10)
         self.nnote_entry = tk.Entry(self)
         self.nnote_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.cc_number_label = tk.Label(self, text="CC Number (for CCModulator)")
+        self.cc_number_label.grid(row=2, column=0, padx=10, pady=10)
+        self.cc_number_entry = tk.Entry(self)
+        self.cc_number_entry.grid(row=2, column=1, padx=10, pady=10)
         self.add_button = tk.Button(self, text="Add", command=lambda: self.add_modulator(variable))
-        self.add_button.grid(row=2, column=0, padx=10, pady=10)
+        self.add_button.grid(row=3, column=0, padx=10, pady=10)
+
 
     def add_modulator(self, variable):
         global G
         modulator_name = variable.get()
+        if modulator_name == "CCModulator":
+            cc_number = int(self.cc_number_entry.get())
+            modulator = ns.CCModulator(self.master, neuronSeq, cc_number)
         if modulator_name == "NNoteVelocitySineModulator":
             nnote = G.get_nnote_by_id(self.nnote_entry.get())
             modulator = ns.NNoteVelocitySineModulator(nnote, self.master, neuronSeq)
@@ -557,7 +561,7 @@ class AddModulatorWindow(tk.Toplevel):
             connection = G.get_connection_by_id(self.nnote_entry.get())
             modulator = ns.ConnectionWeight1To0SineModulator(connection, self.master, neuronSeq)
         neuronSeq.modulators.append(modulator)
-        modulation_slider_window.add_modulator(modulator)
+        modulation_slider_window.update_window()
         modulator.start()
         self.close_window()
         return
@@ -682,6 +686,9 @@ class NeuronSeqWindow(tk.Tk):
         elif event.char == 'y':
             G.position_nodes_grid()
 
+        elif event.char == 'Y':
+            G.position_nodes_line()
+
         else:
             return
 
@@ -717,5 +724,5 @@ class NetworkRunner:
 neuronSeq_window = NeuronSeqWindow()
 network_runner = NetworkRunner(neuronSeq_window)
 network_runner.update()
-modulation_slider_window = ModulationSliderWindow(neuronSeq_window, neuronSeq.modulators)
+modulation_slider_window = ModulationSliderWindow(neuronSeq_window)
 neuronSeq_window.mainloop()

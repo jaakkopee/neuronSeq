@@ -284,21 +284,6 @@ class NeuronSeq:
         self.nnotes = []
         self.modulators = []
         return
-    
-    def create_modulator(self, modulator_type, connection_idx, nnote_idx):
-        if modulator_type==MIDI_VELOCITY_PARAMETER:
-            modulator = NNoteVelocitySineModulator(self.connections[connection_idx].get_nnote(nnote_idx))
-        elif modulator_type==MIDI_NOTE_PARAMETER:
-            modulator = NNoteNoteSineModulator(self.connections[connection_idx].get_nnote(nnote_idx))
-        elif modulator_type==MIDI_DURATION_PARAMETER:
-            modulator = NNoteDurationSineModulator(self.connections[connection_idx].get_nnote(nnote_idx))
-        elif modulator_type==WEIGHT_0_1_PARAMETER:
-            modulator = ConnectionWeight0To1SineModulator(self.connections[connection_idx])
-        elif modulator_type==WEIGHT_1_0_PARAMETER:
-            modulator = ConnectionWeight1To0SineModulator(self.connections[connection_idx])
-        self.modulators.append(modulator)
-        modulator.start()
-        return
        
     def neuron_list_string(self):
         neuron_list_string = ""
@@ -457,6 +442,11 @@ class NeuronSeq:
         for connection in self.connections:
             connection.stop()
             connection.join()
+
+        for modulator in self.modulators:
+            modulator.stop()
+            modulator.join()
+
         return
     
 def get_angle(angle, add_to_angle):
@@ -527,6 +517,59 @@ def rotate_graph(distance_vector, add_to_angle):
     distance_vector = distance_vector.change_angle(add_to_angle)
     return distance_vector
 
+class CCModulator(threading.Thread):
+    def __init__(self, neuronSeq, cc_number):
+        threading.Thread.__init__(self)
+        self.name = "CCModulator"
+        self.neuronSeq = neuronSeq
+        self.cc_number = cc_number
+        self.lenY = 1000
+        self.X = []
+        self.Y = []
+        self.create_modulation_Y_axis()
+        self.activation_index = 0
+        self.running = True
+        self.weight = 0.0
+
+    def set_weight(self, weight):
+        self.weight = weight
+        return
+    
+    def modulate(self, modulator_value):
+        modulator_value = int(modulator_value*self.weight*127)
+        if modulator_value < 0:
+            modulator_value = 0
+        if modulator_value > 127:
+            modulator_value = 127
+
+        #modulate parameter
+        midi_output.send_message([0xB0, self.cc_number, modulator_value])
+        return
+    
+    def create_modulation_Y_axis(self):
+        self.X = np.arange(0, 1, 1/self.lenY)
+        self.Y = np.sin(self.X*2*np.pi)
+        return
+    
+    def run(self):
+        while self.running:
+            #modulate parameter
+            self.activation_index = (self.activation_index+1)%self.lenY
+            y = self.Y[self.activation_index]
+            self.modulate(y)
+            outstr = ""
+            for nnote in self.neuronSeq.get_nnotes():
+                outstr += nnote.id + ": " + str(nnote.note) + ", " + str(nnote.velocity) + ", " + str(nnote.duration) + ", " + str(nnote.activation) + ", " + str(nnote.activation_index) + "\n"
+            for connection in self.neuronSeq.get_connections():
+                outstr += connection.name + ": " + str(connection.get_weight(0)) + ", " + str(connection.get_weight(1)) + "\n"
+            #self.output.config(text=outstr)
+            time.sleep(0.001)
+        return
+    
+    def stop(self):
+        self.running=False
+        return
+
 class NNoteVelocitySineModulator(threading.Thread):
     def __init__(self, nnote, master_window, neuronSeq):
         threading.Thread.__init__(self)
@@ -560,6 +603,7 @@ class NNoteVelocitySineModulator(threading.Thread):
     def run(self):
         while self.running:
             #modulate parameter
+            self.activation_index = (self.activation_index+1)%self.lenY
             y = self.Y[self.activation_index]
             self.modulate(y)
             outstr = ""
@@ -595,9 +639,14 @@ class NNoteNoteSineModulator(threading.Thread):
         return
     
     def modulate(self, modulator_value):
-        modulator_value = modulator_value*self.weight
+        modulator_value = int(modulator_value*self.weight*127)
+        if modulator_value < 0:
+            modulator_value = 0
+        if modulator_value > 127:
+            modulator_value = 127
+
         #modulate parameter
-        self.nnote.set_note(int(modulator_value*127))
+        self.nnote.set_note(modulator_value)
         return
     
     def create_modulation_Y_axis(self):
@@ -607,6 +656,7 @@ class NNoteNoteSineModulator(threading.Thread):
     
     def run(self):
         while self.running:
+            self.activation_index = (self.activation_index+1)%self.lenY
             #modulate parameter
             y = self.Y[self.activation_index]
             self.modulate(y)
@@ -655,6 +705,7 @@ class NNoteDurationSineModulator(threading.Thread):
      
     def run(self):
         while self.running:
+            self.activation_index = (self.activation_index+1)%self.lenY
             #modulate parameter
             y = self.Y[self.activation_index]
             self.modulate(y)
@@ -703,6 +754,7 @@ class ConnectionWeight0To1SineModulator(threading.Thread):
     
     def run(self):
         while self.running:
+            self.activation_index = (self.activation_index+1)%self.lenY
             #modulate parameter
             y = self.Y[self.activation_index]
             self.modulate(y)
@@ -752,6 +804,7 @@ class ConnectionWeight1To0SineModulator(threading.Thread):
     def run(self):
         while self.running:
             #modulate parameter
+            self.activation_index = (self.activation_index+1)%self.lenY
             y = self.Y[self.activation_index]
             self.modulate(y)
             outstr = ""
@@ -916,12 +969,27 @@ class NetworkGraph():
         x = -32
         y = -32
         for nnote in self.neuronSeq.get_nnotes():
-            random_factor = np.random.uniform(-1.0, 1.0)
+            random_factor_x = np.random.uniform(-1.0, 1.0)
+            random_factor_y = np.random.uniform(-1.0, 1.0)
             x += 32
             if x > 32:
                 x = -32
                 y += 32
-            self.DVpos[nnote.get_id()] = DistanceVector((x*random_factor, y*random_factor))
+            self.DVpos[nnote.get_id()] = DistanceVector((x+random_factor_x, y+random_factor_y))
+        #position connections
+        for connection in self.neuronSeq.get_connections():
+            self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
+        return
+    
+    def position_nodes_line(self):
+        #position nodes in a line
+        x = -10
+        y = 0
+        for nnote in self.neuronSeq.get_nnotes():
+            random_factor_x = np.random.uniform(-1.0, 1.0)
+            random_factor_y = np.random.uniform(-1.0, 1.0)
+            x += 10
+            self.DVpos[nnote.get_id()] = DistanceVector((x+random_factor_x, y+random_factor_y))
         #position connections
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
