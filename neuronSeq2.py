@@ -279,6 +279,10 @@ class Connection(threading.Thread):
 
 
 class NeuronSeq:
+    """NeuronSeq holds a list of NNotes and Connections between them.
+    It also provides methods for changing parameters of NNotes and Connections.
+    
+    """
     def __init__(self):
         self.connections = []
         self.nnotes = []
