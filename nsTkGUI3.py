@@ -739,7 +739,6 @@ class NeuronSeqWindow(tk.Tk):
 
         return
 
-
     def close_window(self):
         global running
         running = False
