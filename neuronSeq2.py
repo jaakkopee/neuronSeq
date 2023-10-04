@@ -114,7 +114,6 @@ class Auron(threading.Thread):
 
 
     def get_next_audio_buffer(self):
-        print("get_next_audio_buffer")
         #read audio buffer into Y
         try:
             self.Y = self.audio_input_stream.inports[0].get_array()
