@@ -74,7 +74,7 @@ class Auron(threading.Thread):
         threading.Thread.__init__(self)
         self.lenX = X_AXIS_LENGTH
         self.activation = 0.0
-        self.Y = np.zeros(self.lenX)
+        self.Y = np.zeros(1024)
         self.activation_index = 0
         self.id = id
         self.channel = 0
