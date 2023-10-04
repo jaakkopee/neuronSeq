@@ -21,6 +21,32 @@ def print_neuronSeq_connections():
         print(connection.name, connection.source.id + "->" + connection.destination.id, connection.weight_0_to_1, connection.weight_1_to_0)
     return
 
+class AudioSignalDisplay(tk.Canvas):
+    def __init__(self, master, width=20, height=200, auron=None):
+        super().__init__(master)
+        self.auron = auron
+        self.width = width
+        self.height = height
+        self.configure(width=width, height=height)
+        self.configure(background='black')
+        self.configure(highlightthickness=0)
+        self.configure(borderwidth=0)
+        self.configure(relief='flat')
+
+    def update_canvas(self):
+        audio_signal = self.auron.activation
+        meter_height = audio_signal * self.height
+        meter_width = self.width-10
+        self.delete('all')
+        self.create_rectangle(0, 0, meter_width, meter_height, fill='red')
+
+        self.update()
+
+        self.after(0.5, self.update_canvas)
+        return
+
+        
+
 class ModulationSliderWindow(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
@@ -98,6 +124,8 @@ class AddAuronWindow(tk.Toplevel):
             nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+str(connection.weight_1_to_0)+"\n"
             
         self.master.nn_conn_label.config(text=nn_conn_str)
+        self.master.audio_signal_display.destroy()
+        self.master.audio_signal_display = AudioSignalDisplay(self.master, auron=auron)
         print_neuronSeq_nnotes()
         self.close_window()
 
@@ -683,6 +711,11 @@ class NeuronSeqWindow(tk.Tk):
 
         self.nn_conn_label = tk.Label(self, text="Neurons:\n\nConnections:\n")
         self.nn_conn_label.grid(row=0, column=5, rowspan=5, padx=10, pady=10)
+
+        self.audio_signal_display = tk.Canvas(self, width=800, height=200)
+        self.audio_signal_display.grid(row=0, column=6, columnspan=2, rowspan=6, padx=10, pady=10)
+
+        self.audio_signal_display.create_line(0, 100, 800, 100, fill="black", width=1)
 
         return
     
