@@ -69,8 +69,9 @@ else:
     #open virtual port
     midi_output.open_virtual_port(midi_output_port_name)
 
-class Auron:
+class Auron(threading.Thread):
     def __init__(self, id="Auron", device_index=0):
+        threading.Thread.__init__(self)
         self.lenX = X_AXIS_LENGTH
         self.activation = 0.0
         self.Y = np.zeros(self.lenX)
@@ -82,7 +83,7 @@ class Auron:
         self.duration = 0.0
         self.threshold = 1.0
         self.open_audio_input_stream()
-        self.get_next_audio_buffer()
+        self.running = True
 
     def open_audio_input_stream(self):
         try:
@@ -95,26 +96,32 @@ class Auron:
             return None
         return self.audio_input_stream
     
-    def note_thread_start(self):
-        return
-    
     def get_id(self):
         return self.id
+    
+    def run(self):
+        while self.running:
+            self.activation = self.Y[self.activation_index]
+            self.activation_index += 1
+            if self.activation_index >= len(self.Y):
+                self.activation_index = 0
+                self.get_next_audio_buffer()
+        return
+    
+    def stop(self):
+        self.running=False
+        return
+
 
     def get_next_audio_buffer(self):
+        print("get_next_audio_buffer")
         #read audio buffer into Y
-        for i in range(self.lenX//self.audio_input_stream.blocksize):
-            try:
-                self.Y[i*self.audio_input_stream.blocksize:(i+1)*self.audio_input_stream.blocksize] = self.audio_input_stream.inports[0].get_array()
-            except jack.JackError:
-                print("Error reading audio buffer")
-                return None
-            print("Read audio buffer", self.Y[i*self.audio_input_stream.blocksize:(i+1)*self.audio_input_stream.blocksize])
+        try:
+            self.Y = self.audio_input_stream.inports[0].get_array()
+        except jack.JackError:
+            print("Error reading audio buffer")
+            return None
         return self.Y
-    
-    def advance_activation_index(self):
-        self.activation_index += 1
-        return self.Y[self.activation_index]
 
 
 #NNote is a neuron that outputs a midi events
@@ -315,11 +322,7 @@ class Connection(threading.Thread):
 
             if type(self.source) is NNote and type(self.destination) is Auron:
                 print("NNote to Auron")
-                self.source.activation += self.destination.advance_activation_index()*self.weight_0_to_1
-                if self.destination.activation_index >= self.destination.lenX:
-                    self.destination.activation_index = 0
-                    self.destination.get_next_audio_buffer()
-
+                self.source.activation += self.destination.activation*self.weight_0_to_1
                 if self.source.activation >= self.source.Y[-1]:
                     self.source.activation = 0.0
                     self.source.activation_index = 0
@@ -327,10 +330,7 @@ class Connection(threading.Thread):
 
             if type(self.source) is Auron and type(self.destination) is NNote:
                 print("Auron to NNote")
-                self.destination.activation += self.source.advance_activation_index()*self.weight_1_to_0
-                if self.source.activation_index >= self.source.lenX:
-                    self.source.activation_index = 0
-                    self.source.get_next_audio_buffer()
+                self.destination.activation += self.source.activation*self.weight_1_to_0
                 if self.destination.activation >= self.destination.Y[-1]:
                     self.destination.activation = 0.0
                     self.destination.activation_index = 0
@@ -481,6 +481,8 @@ class NeuronSeq:
     def create_auron(self, id="Auron", device_index=0):
         auron = Auron(id, device_index)
         self.nnotes.append(auron)
+        #start auron thread
+        auron.start()
         return auron
     
     def create_nnote(self, channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
@@ -523,6 +525,10 @@ class NeuronSeq:
             modulator.stop()
             modulator.join()
 
+        for nnote in self.nnotes:
+            if type(nnote) is Auron:
+                nnote.stop()
+                nnote.join()
         return
     
 def get_angle(angle, add_to_angle):
