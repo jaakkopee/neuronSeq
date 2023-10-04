@@ -64,6 +64,48 @@ class ModulationSliderWindow(tk.Toplevel):
 
         self.update()
         return
+    
+class AddAuronWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Add Auron")
+        self.geometry("300x300")
+        self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.close_window)
+        self.master = master
+        self.create_widgets()
+
+    def close_window(self):
+        self.destroy()
+
+    def create_widgets(self):
+        self.auron_name_label = tk.Label(self, text="Auron Name")
+        self.auron_name_label.grid(row=0, column=0, padx=10, pady=10)
+        self.auron_name_entry = tk.Entry(self)
+        self.auron_name_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.add_button = tk.Button(self, text="Add", command=self.add_auron)
+        self.add_button.grid(row=1, column=0, padx=10, pady=10)
+        
+    def add_auron(self):
+        global G
+        auron_name = self.auron_name_entry.get()
+        auron = G.add_auron(id=auron_name)
+        nn_conn_str="Neurons:\n"
+        for nnote in neuronSeq.nnotes:
+            nn_conn_str += str(nnote.id) + ": " + str(nnote.channel) + " " + str(nnote.note) + " " + str(nnote.velocity) + " " + str(nnote.duration) + "\n"
+        nn_conn_str += "\nConnections:\n"
+        for connection in neuronSeq.connections:
+            nn_conn_str += str(connection.name) + ": " + str(connection.source.id) + "->" + str(connection.destination.id) + str(connection.weight_0_to_1)+str(connection.weight_1_to_0)+"\n"
+            
+        self.master.nn_conn_label.config(text=nn_conn_str)
+        print_neuronSeq_nnotes()
+        self.close_window()
+
+def openAddAuronWindow():
+    global addAuronWindow, neuronSeq_window
+    addAuronWindow=AddAuronWindow(neuronSeq_window)
+    return
+
 
 class AddNeuronWindow(tk.Toplevel):
     def __init__(self, master):
@@ -635,6 +677,9 @@ class NeuronSeqWindow(tk.Tk):
 
         self.serial_connect_button = tk.Button(self, text="Serial Connect", command=openSerialConnectWindow)
         self.serial_connect_button.grid(row=3, column=4, padx=10, pady=10)
+
+        self.add_auron_button = tk.Button(self, text="Add Auron", command=openAddAuronWindow)
+        self.add_auron_button.grid(row=4, column=4, padx=10, pady=10)
 
         self.nn_conn_label = tk.Label(self, text="Neurons:\n\nConnections:\n")
         self.nn_conn_label.grid(row=0, column=5, rowspan=5, padx=10, pady=10)

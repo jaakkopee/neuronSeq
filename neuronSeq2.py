@@ -4,6 +4,8 @@ import threading
 import rtmidi
 import math
 import mido
+import jack
+
 
 
 #global variables
@@ -66,6 +68,54 @@ if available_midi_output_ports:
 else:
     #open virtual port
     midi_output.open_virtual_port(midi_output_port_name)
+
+class Auron:
+    def __init__(self, id="Auron", device_index=0):
+        self.lenX = X_AXIS_LENGTH
+        self.activation = 0.0
+        self.Y = np.zeros(self.lenX)
+        self.activation_index = 0
+        self.id = id
+        self.channel = 0
+        self.note = 0
+        self.velocity = 0
+        self.duration = 0.0
+        self.threshold = 1.0
+        self.open_audio_input_stream()
+        self.get_next_audio_buffer()
+
+    def open_audio_input_stream(self):
+        try:
+            self.audio_input_stream = jack.Client(self.id)
+            self.audio_input_stream.inports.register('input')
+            self.audio_input_stream.blocksize = 1024
+            self.audio_input_stream.activate()
+        except jack.JackError:
+            print("Error opening audio input stream")
+            return None
+        return self.audio_input_stream
+    
+    def note_thread_start(self):
+        return
+    
+    def get_id(self):
+        return self.id
+
+    def get_next_audio_buffer(self):
+        #read audio buffer into Y
+        for i in range(self.lenX//self.audio_input_stream.blocksize):
+            try:
+                self.Y[i*self.audio_input_stream.blocksize:(i+1)*self.audio_input_stream.blocksize] = self.audio_input_stream.inports[0].get_array()
+            except jack.JackError:
+                print("Error reading audio buffer")
+                return None
+            print("Read audio buffer", self.Y[i*self.audio_input_stream.blocksize:(i+1)*self.audio_input_stream.blocksize])
+        return self.Y
+    
+    def advance_activation_index(self):
+        self.activation_index += 1
+        return self.Y[self.activation_index]
+
 
 #NNote is a neuron that outputs a midi events
 #TODO: add parameter for len(X).
@@ -248,26 +298,43 @@ class Connection(threading.Thread):
 
     def run(self):
         while self.running:
-            #calculate new activation
-            self.nnotes[0].activation += self.nnotes[1].advance_activation_index() * self.weights[1]
-            self.nnotes[1].activation += self.nnotes[0].advance_activation_index() * self.weights[0]
+            if type(self.source) is Auron and type(self.destination) is Auron:
+                return
+            
+            if type(self.source) is NNote and type(self.destination) is NNote:
+                self.destination.activation += self.source.advance_activation_index()*self.weight_0_to_1
+                self.source.activation += self.destination.advance_activation_index()*self.weight_1_to_0
+                if self.source.activation >= self.source.Y[-1]:
+                    self.source.activation = 0.0
+                    self.source.activation_index = 0
+                    self.source.note_thread_start()
+                if self.destination.activation >= self.destination.Y[-1]:
+                    self.destination.activation = 0.0
+                    self.destination.activation_index = 0
+                    self.destination.note_thread_start()
 
-            if self.nnotes[0].activation < self.nnotes[0].Y[0]:
-                self.nnotes[0].activation = self.nnotes[0].Y[0]
-                self.nnotes[0].activation_index = 0
-            if self.nnotes[1].activation < self.nnotes[1].Y[0]:
-                self.nnotes[1].activation = self.nnotes[1].Y[0]
-                self.nnotes[1].activation_index = 0
+            if type(self.source) is NNote and type(self.destination) is Auron:
+                print("NNote to Auron")
+                self.source.activation += self.destination.advance_activation_index()*self.weight_0_to_1
+                if self.destination.activation_index >= self.destination.lenX:
+                    self.destination.activation_index = 0
+                    self.destination.get_next_audio_buffer()
 
-            #if activation reaches threshold, start note thread
-            if self.nnotes[0].activation >= self.nnotes[0].Y[-1]:
-                self.nnotes[0].note_thread_start()
-                self.nnotes[0].activation_index = 0
-                self.nnotes[0].activation = self.nnotes[0].Y[0]
-            if self.nnotes[1].activation >= self.nnotes[1].Y[-1]:
-                self.nnotes[1].note_thread_start()
-                self.nnotes[1].activation_index = 0
-                self.nnotes[1].activation = self.nnotes[1].Y[0]
+                if self.source.activation >= self.source.Y[-1]:
+                    self.source.activation = 0.0
+                    self.source.activation_index = 0
+                    self.source.note_thread_start()
+
+            if type(self.source) is Auron and type(self.destination) is NNote:
+                print("Auron to NNote")
+                self.destination.activation += self.source.advance_activation_index()*self.weight_1_to_0
+                if self.source.activation_index >= self.source.lenX:
+                    self.source.activation_index = 0
+                    self.source.get_next_audio_buffer()
+                if self.destination.activation >= self.destination.Y[-1]:
+                    self.destination.activation = 0.0
+                    self.destination.activation_index = 0
+                    self.destination.note_thread_start()
 
             time.sleep(0.001)
 
@@ -410,6 +477,11 @@ class NeuronSeq:
         elif parameter_idx==WEIGHT_1_0_PARAMETER:
             return self.connections[connection_idx].get_weight(1)
         return
+    
+    def create_auron(self, id="Auron", device_index=0):
+        auron = Auron(id, device_index)
+        self.nnotes.append(auron)
+        return auron
     
     def create_nnote(self, channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH, id="NNote"):
         nnote = NNote()
@@ -855,6 +927,13 @@ class NetworkGraph():
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
         return self.DVpos
+    
+    def add_auron(self, id="Auron", device_index=0):
+        #create the neuron/nnote object
+        new_auron = self.neuronSeq.create_auron(id, device_index)
+        x1, y1 = np.random.uniform(-32.0, 32.0), np.random.uniform(-32.0, 32.0)
+        self.DVpos[new_auron.get_id()] = DistanceVector((x1, y1))
+        return new_auron, self.DVpos[new_auron.get_id()]
 
     def add_nnote(self, midi_channel=0, note=0, velocity=0, duration=0.0, lenX=X_AXIS_LENGTH ,id="NNote"):
         #create the neuron/note object
@@ -1003,5 +1082,32 @@ class NetworkGraph():
         for connection in self.neuronSeq.get_connections():
             self.DVpos[connection.get_id()] = (self.DVpos[self.neuronSeq.get_nnotes()[0].get_id()], self.DVpos[self.neuronSeq.get_nnotes()[1].get_id()])
         return
-    
-    
+
+if __name__ == "__main__":
+    #create neuronSeq
+    neuronSeq = NeuronSeq()
+    #create network graph
+    networkGraph = NetworkGraph(neuronSeq)
+    #add nnotes
+    networkGraph.add_nnote(id="Kick", midi_channel=0, note=36, velocity=0, duration=0.0)
+    networkGraph.add_nnote(id="Snare", midi_channel=0, note=38, velocity=0, duration=0.0)
+    networkGraph.add_nnote(id="HiHat", midi_channel=0, note=42, velocity=0, duration=0.0)
+    #add Aurons
+    #networkGraph.add_auron(id="Auron1", device_index=0)
+
+    #add connections
+    #networkGraph.add_connection("Kick to Auron1", 0, 3, 100.0, 100.0)
+    #networkGraph.add_connection("Snare to Auron1", 1, 3, 100.0, 100.0)
+    #networkGraph.add_connection("HiHat to Auron1", 2, 3, 100.0, 100.0)
+    networkGraph.add_connection("Snare to Kick", 1, 0, 100.0, 100.0)
+    networkGraph.add_connection("HiHat to Snare", 2, 1, 100.0, 100.0)
+    networkGraph.add_connection("Kick to HiHat", 0, 2, 100.0, 100.0)
+
+    time.sleep(100)
+
+    neuronSeq.stop()
+
+
+
+
+
